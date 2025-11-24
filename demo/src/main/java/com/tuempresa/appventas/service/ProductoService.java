@@ -13,6 +13,7 @@ import com.tuempresa.appventas.repository.DetallePedidoRepository;
 import com.tuempresa.appventas.repository.FavoritoRepository;
 import com.tuempresa.appventas.repository.HistorialRepository;
 import com.tuempresa.appventas.repository.ItemCarritoRepository;
+import com.tuempresa.appventas.repository.MensajeRepository;
 import com.tuempresa.appventas.repository.ProductoRepository;
 import com.tuempresa.appventas.repository.ReporteRepository;
 
@@ -36,6 +37,9 @@ public class ProductoService {
 
     @Autowired
     private DetallePedidoRepository detallePedidoRepository;
+
+    @Autowired
+    private MensajeRepository mensajeRepository;
 
     @Autowired
     private IncidenciaService incidenciaService;
@@ -128,7 +132,15 @@ public class ProductoService {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
         
-        // 1. Borrar detalles de pedidos relacionados
+        // 1. Borrar mensajes relacionados
+        try {
+            mensajeRepository.deleteByProductoId(id);
+            System.out.println("✅ Mensajes eliminados para producto: " + id);
+        } catch (Exception e) {
+            System.err.println("⚠️ Error borrando mensajes: " + e.getMessage());
+        }
+        
+        // 2. Borrar detalles de pedidos relacionados
         try {
             detallePedidoRepository.deleteByProductoId(id);
             System.out.println("✅ Detalles de pedidos eliminados para producto: " + id);
@@ -136,7 +148,7 @@ public class ProductoService {
             System.err.println("⚠️ Error borrando detalles de pedidos: " + e.getMessage());
         }
         
-        // 2. Borrar items del carrito relacionados
+        // 3. Borrar items del carrito relacionados
         try {
             itemCarritoRepository.deleteByProductoId(id);
             System.out.println("✅ Items del carrito eliminados para producto: " + id);
@@ -144,7 +156,7 @@ public class ProductoService {
             System.err.println("⚠️ Error borrando items del carrito: " + e.getMessage());
         }
         
-        // 3. Borrar favoritos relacionados
+        // 4. Borrar favoritos relacionados
         try {
             favoritoRepository.deleteByProductoId(id);
             System.out.println("✅ Favoritos eliminados para producto: " + id);
@@ -152,7 +164,7 @@ public class ProductoService {
             System.err.println("⚠️ Error borrando favoritos: " + e.getMessage());
         }
         
-        // 4. Borrar reportes relacionados
+        // 5. Borrar reportes relacionados
         try {
             reporteRepository.deleteByProductoId(id);
             System.out.println("✅ Reportes eliminados para producto: " + id);
@@ -160,7 +172,7 @@ public class ProductoService {
             System.err.println("⚠️ Error borrando reportes: " + e.getMessage());
         }
         
-        // 5. Borrar historial relacionado
+        // 6. Borrar historial relacionado
         try {
             historialRepository.deleteByProductoId(id);
             System.out.println("✅ Historial eliminado para producto: " + id);
@@ -168,7 +180,7 @@ public class ProductoService {
             System.err.println("⚠️ Error borrando historial: " + e.getMessage());
         }
         
-        // 6. Finalmente borrar el producto
+        // 7. Finalmente borrar el producto
         productoRepository.delete(producto);
         System.out.println("✅ Producto eliminado exitosamente: " + id);
     }

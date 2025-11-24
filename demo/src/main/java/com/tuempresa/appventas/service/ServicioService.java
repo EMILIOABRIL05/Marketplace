@@ -1,14 +1,5 @@
 package com.tuempresa.appventas.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tuempresa.appventas.model.Servicio;
-import com.tuempresa.appventas.model.Usuario;
-import com.tuempresa.appventas.repository.ServicioRepository;
-import com.tuempresa.appventas.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +9,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tuempresa.appventas.model.Servicio;
+import com.tuempresa.appventas.repository.FavoritoRepository;
+import com.tuempresa.appventas.repository.MensajeRepository;
+import com.tuempresa.appventas.repository.ServicioRepository;
+import com.tuempresa.appventas.repository.UsuarioRepository;
+
 @Service
 public class ServicioService {
 
@@ -26,6 +29,12 @@ public class ServicioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    
+    @Autowired
+    private MensajeRepository mensajeRepository;
+    
+    @Autowired
+    private FavoritoRepository favoritoRepository;
 
     @Autowired
     private IncidenciaService incidenciaService;
@@ -157,6 +166,33 @@ public class ServicioService {
         }
 
         return false;
+    }
+    
+    // Eliminar servicio definitivamente (físicamente de la BD)
+    @Transactional
+    public void eliminarServicioDefinitivo(Long id) {
+        Servicio servicio = servicioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+        
+        // 1. Borrar mensajes relacionados
+        try {
+            mensajeRepository.deleteByServicioId(id);
+            System.out.println("✅ Mensajes eliminados para servicio: " + id);
+        } catch (Exception e) {
+            System.err.println("⚠️ Error borrando mensajes: " + e.getMessage());
+        }
+        
+        // 2. Borrar favoritos relacionados
+        try {
+            favoritoRepository.deleteByServicioId(id);
+            System.out.println("✅ Favoritos eliminados para servicio: " + id);
+        } catch (Exception e) {
+            System.err.println("⚠️ Error borrando favoritos: " + e.getMessage());
+        }
+        
+        // 3. Finalmente borrar el servicio
+        servicioRepository.delete(servicio);
+        System.out.println("✅ Servicio eliminado exitosamente: " + id);
     }
 
     private List<String> guardarImagenes(List<MultipartFile> imagenes) throws IOException {

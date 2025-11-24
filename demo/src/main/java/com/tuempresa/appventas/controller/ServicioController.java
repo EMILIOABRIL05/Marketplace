@@ -282,17 +282,10 @@ public class ServicioController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarServicio(@PathVariable Long id) {
         try {
-            boolean eliminado = servicioService.eliminarServicio(id);
-
-            if (eliminado) {
-                Map<String, String> respuesta = new HashMap<>();
-                respuesta.put("message", "Servicio eliminado exitosamente");
-                return ResponseEntity.ok(respuesta);
-            } else {
-                Map<String, String> error = new HashMap<>();
-                error.put("message", "Servicio no encontrado");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-            }
+            servicioService.eliminarServicioDefinitivo(id);
+            Map<String, String> respuesta = new HashMap<>();
+            respuesta.put("message", "Servicio eliminado exitosamente");
+            return ResponseEntity.ok(respuesta);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("message", "Error al eliminar servicio");

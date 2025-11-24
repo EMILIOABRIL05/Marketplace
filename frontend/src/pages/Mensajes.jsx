@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import { useWebSocket } from '../hooks/useWebSocket';
@@ -22,21 +22,46 @@ const Mensajes = () => {
   
   const usuario = JSON.parse(localStorage.getItem('user'));
 
-  // Callback para mensajes WebSocket
-  const handleWebSocketMessage = (mensaje) => {
-    if (conversacionActual && 
-        (mensaje.conversacion?.id === conversacionActual.conversacionId ||
-         mensaje.remitente?.id === conversacionActual.destinatarioId ||
-         mensaje.destinatario?.id === conversacionActual.destinatarioId)) {
-      // Agregar mensaje a la conversación actual
-      setMensajes(prev => [...prev, mensaje]);
-      // Marcar como leído
-      api.put(`/mensajes/conversacion/${conversacionActual.conversacionId}/leer?usuarioId=${usuario.id}`)
-        .catch(err => console.error('Error al marcar como leído:', err));
+  const cargarConversaciones = useCallback(async () => {
+    try {
+      const response = await api.get(`/mensajes/conversaciones/${usuario.id}`);
+      const conversacionesData = response.data;
+
+      // Procesar conversaciones para obtener el otro usuario
+      const conversacionesProcesadas = conversacionesData.map(msg => {
+        const otroUsuario = msg.remitente.id === usuario.id ? msg.destinatario : msg.remitente;
+        return {
+          conversacionId: msg.conversacionId,
+          otroUsuario: otroUsuario,
+          ultimoMensaje: msg.contenido,
+          fechaUltimoMensaje: msg.fechaEnvio,
+          noLeido: !msg.leido && msg.destinatario.id === usuario.id,
+          producto: msg.producto,
+          servicio: msg.servicio
+        };
+      });
+
+      setConversaciones(conversacionesProcesadas);
+    } catch (error) {
+      console.error('Error al cargar conversaciones:', error);
     }
-    // Recargar conversaciones para actualizar el último mensaje
-    cargarConversaciones();
-  };
+  }, [usuario.id]);
+
+  // Callback para mensajes WebSocket
+  const handleWebSocketMessage = useCallback((mensaje) => {
+    // Siempre agregar el mensaje si es para este usuario
+    if (mensaje.destinatario?.id === usuario?.id || mensaje.remitente?.id === usuario?.id) {
+      setMensajes(prev => {
+        // Evitar duplicados
+        const exists = prev.some(m => m.id === mensaje.id);
+        if (exists) return prev;
+        return [...prev, mensaje];
+      });
+      
+      // Recargar conversaciones para actualizar el último mensaje
+      cargarConversaciones();
+    }
+  }, [usuario?.id, cargarConversaciones]);
 
   // Conectar WebSocket
   const { isConnected } = useWebSocket(usuario?.id, handleWebSocketMessage);
@@ -117,31 +142,6 @@ const Mensajes = () => {
     const menor = Math.min(userId1, userId2);
     const mayor = Math.max(userId1, userId2);
     return `${menor}_${mayor}`;
-  };
-
-  const cargarConversaciones = async () => {
-    try {
-      const response = await api.get(`/mensajes/conversaciones/${usuario.id}`);
-      const conversacionesData = response.data;
-
-      // Procesar conversaciones para obtener el otro usuario
-      const conversacionesProcesadas = conversacionesData.map(msg => {
-        const otroUsuario = msg.remitente.id === usuario.id ? msg.destinatario : msg.remitente;
-        return {
-          conversacionId: msg.conversacionId,
-          otroUsuario: otroUsuario,
-          ultimoMensaje: msg.contenido,
-          fechaUltimoMensaje: msg.fechaEnvio,
-          noLeido: !msg.leido && msg.destinatario.id === usuario.id,
-          producto: msg.producto,
-          servicio: msg.servicio
-        };
-      });
-
-      setConversaciones(conversacionesProcesadas);
-    } catch (error) {
-      console.error('Error al cargar conversaciones:', error);
-    }
   };
 
   const cargarMensajesNoLeidos = async () => {

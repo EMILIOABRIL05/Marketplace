@@ -1,12 +1,13 @@
 package com.tuempresa.appventas.repository;
 
-import com.tuempresa.appventas.model.Mensaje;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.tuempresa.appventas.model.Mensaje;
 
 @Repository
 public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
@@ -31,7 +32,13 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
 
     // Buscar mensajes relacionados con un producto
     List<Mensaje> findByProductoIdOrderByFechaEnvioDesc(Long productoId);
+    
+    // Eliminar mensajes relacionados con un producto
+    void deleteByProductoId(Long productoId);
 
     // Buscar mensajes relacionados con un servicio
     List<Mensaje> findByServicioIdOrderByFechaEnvioDesc(Long servicioId);
+    
+    // Eliminar mensajes relacionados con un servicio
+    void deleteByServicioId(Long servicioId);
 }
