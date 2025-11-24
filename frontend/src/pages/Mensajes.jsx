@@ -30,7 +30,9 @@ const Mensajes = () => {
          mensaje.destinatario?.id === conversacionActual.destinatarioId)) {
       // Agregar mensaje a la conversación actual
       setMensajes(prev => [...prev, mensaje]);
-      marcarComoLeido(conversacionActual.conversacionId);
+      // Marcar como leído
+      api.put(`/mensajes/conversacion/${conversacionActual.conversacionId}/leer?usuarioId=${usuario.id}`)
+        .catch(err => console.error('Error al marcar como leído:', err));
     }
     // Recargar conversaciones para actualizar el último mensaje
     cargarConversaciones();
