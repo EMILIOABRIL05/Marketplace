@@ -358,13 +358,6 @@ export default function Perfil() {
           </button>
 
           <button 
-            onClick={() => nav("/mensajes")}
-            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
-          >
-            💬 Mensajes
-          </button>
-
-          <button 
             onClick={() => nav("/perfil")}
             className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm"
           >
@@ -403,15 +396,6 @@ export default function Perfil() {
                 {usuario?.email}
               </p>
             </div>
-          </div>
-          
-          <div className="flex gap-3">
-            <button 
-              onClick={() => {/* Funcionalidad pendiente */}}
-              className="bg-blue-600 text-white border-none px-6 py-3 rounded-xl cursor-pointer text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
-            >
-              💬 Mensajes
-            </button>
           </div>
         </div>
 

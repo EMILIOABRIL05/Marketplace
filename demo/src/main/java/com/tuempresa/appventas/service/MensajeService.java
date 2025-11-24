@@ -136,4 +136,11 @@ public class MensajeService {
         return mensajeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Mensaje no encontrado"));
     }
+
+    // Eliminar conversación completa
+    @Transactional
+    public void eliminarConversacion(String conversacionId) {
+        List<Mensaje> mensajes = mensajeRepository.findByConversacionIdOrderByFechaEnvioAsc(conversacionId);
+        mensajeRepository.deleteAll(mensajes);
+    }
 }

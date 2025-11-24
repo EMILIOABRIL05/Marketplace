@@ -1,5 +1,22 @@
 package com.tuempresa.appventas.controller;
 
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.tuempresa.appventas.model.Mensaje;
 import com.tuempresa.appventas.model.Producto;
 import com.tuempresa.appventas.model.Servicio;
@@ -8,13 +25,6 @@ import com.tuempresa.appventas.service.MensajeService;
 import com.tuempresa.appventas.service.ProductoService;
 import com.tuempresa.appventas.service.ServicioService;
 import com.tuempresa.appventas.service.UsuarioService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/mensajes")
@@ -154,6 +164,17 @@ public class MensajeController {
         try {
             List<Mensaje> mensajes = mensajeService.obtenerMensajesPorConversacion(conversacionId);
             return ResponseEntity.ok(mensajes);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // Eliminar conversación completa
+    @DeleteMapping("/conversacion/{conversacionId}")
+    public ResponseEntity<?> eliminarConversacion(@PathVariable String conversacionId) {
+        try {
+            mensajeService.eliminarConversacion(conversacionId);
+            return ResponseEntity.ok(Map.of("mensaje", "Conversación eliminada correctamente"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

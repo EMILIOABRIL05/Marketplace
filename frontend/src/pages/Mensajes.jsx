@@ -132,7 +132,9 @@ const Mensajes = () => {
           otroUsuario: otroUsuario,
           ultimoMensaje: msg.contenido,
           fechaUltimoMensaje: msg.fechaEnvio,
-          noLeido: !msg.leido && msg.destinatario.id === usuario.id
+          noLeido: !msg.leido && msg.destinatario.id === usuario.id,
+          producto: msg.producto,
+          servicio: msg.servicio
         };
       });
 
@@ -229,6 +231,30 @@ const Mensajes = () => {
       alert("Error al enviar la valoración");
     } finally {
       setEnviandoValoracion(false);
+    }
+  };
+
+  const eliminarConversacion = async () => {
+    if (!conversacionActual) return;
+
+    const confirmar = window.confirm('¿Estás seguro de que deseas eliminar esta conversación? Esta acción no se puede deshacer.');
+    if (!confirmar) return;
+
+    try {
+      await api.delete(`/mensajes/conversacion/${conversacionActual.conversacionId}`);
+      alert('✅ Conversación eliminada correctamente');
+      
+      // Limpiar estado
+      setConversacionActual(null);
+      setMensajes([]);
+      setContextoItem(null);
+      
+      // Recargar lista de conversaciones
+      cargarConversaciones();
+      cargarMensajesNoLeidos();
+    } catch (error) {
+      console.error('Error al eliminar conversación:', error);
+      alert('❌ Error al eliminar la conversación');
     }
   };
 
@@ -358,9 +384,16 @@ const Mensajes = () => {
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <p className="font-semibold text-slate-800 text-sm">
-                        {conv.otroUsuario.nombre} {conv.otroUsuario.apellido}
-                      </p>
+                      <div className="flex-1">
+                        <p className="font-semibold text-slate-800 text-sm">
+                          {conv.otroUsuario.nombre} {conv.otroUsuario.apellido}
+                        </p>
+                        {(conv.producto || conv.servicio) && (
+                          <p className="text-[10px] text-blue-600 font-medium flex items-center gap-1 mt-0.5">
+                            {conv.producto ? '📦' : '🛠️'} {conv.producto ? conv.producto.nombre : conv.servicio?.titulo}
+                          </p>
+                        )}
+                      </div>
                       {conv.noLeido && (
                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                       )}
@@ -394,12 +427,21 @@ const Mensajes = () => {
                   </div>
                 </div>
                 
-                <button
-                  onClick={() => setMostrarModalValoracion(true)}
-                  className="px-4 py-2 bg-yellow-400/10 text-yellow-600 hover:bg-yellow-400/20 rounded-lg text-xs font-bold transition-all flex items-center gap-2 border border-yellow-400/20"
-                >
-                  ⭐ Valorar Vendedor
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setMostrarModalValoracion(true)}
+                    className="px-4 py-2 bg-yellow-400/10 text-yellow-600 hover:bg-yellow-400/20 rounded-lg text-xs font-bold transition-all flex items-center gap-2 border border-yellow-400/20"
+                  >
+                    ⭐ Valorar
+                  </button>
+                  
+                  <button
+                    onClick={eliminarConversacion}
+                    className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs font-bold transition-all flex items-center gap-2 border border-red-200"
+                  >
+                    🗑️ Eliminar
+                  </button>
+                </div>
               </div>
 
               {/* Contexto del Producto/Servicio */}
