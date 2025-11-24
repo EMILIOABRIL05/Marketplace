@@ -50,37 +50,31 @@ export default function VerificarEmail() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f0f4f8", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
-      <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "40px", maxWidth: "500px", width: "100%", textAlign: "center" }}>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-5 font-sans">
+      <div className="bg-white rounded-2xl shadow-xl p-10 max-w-lg w-full text-center border border-slate-100">
         
         {estado === "verificando" && (
           <>
-            <div style={{ fontSize: "64px", marginBottom: "20px" }}>⏳</div>
-            <h2 style={{ color: "#1e40af", fontSize: "24px", fontWeight: "bold", marginBottom: "10px" }}>Verificando tu email...</h2>
-            <p style={{ color: "#666", fontSize: "14px" }}>Por favor espera un momento</p>
+            <div className="text-6xl mb-5 animate-pulse">⏳</div>
+            <h2 className="text-blue-800 text-2xl font-bold mb-2">Verificando tu email...</h2>
+            <p className="text-slate-500 text-sm">Por favor espera un momento</p>
             {/* ✅ Indicador de carga animado */}
-            <div style={{ marginTop: "20px" }}>
-              <div style={{ display: "inline-block", width: "40px", height: "40px", border: "4px solid #f3f3f3", borderTop: "4px solid #2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
+            <div className="mt-5 flex justify-center">
+              <div className="w-10 h-10 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
             </div>
-            <style>{`
-              @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-              }
-            `}</style>
           </>
         )}
 
         {estado === "exito" && (
           <>
-            <div style={{ fontSize: "64px", marginBottom: "20px" }}>✅</div>
-            <h2 style={{ color: "#10b981", fontSize: "24px", fontWeight: "bold", marginBottom: "10px" }}>¡Verificación exitosa!</h2>
-            <p style={{ color: "#666", fontSize: "14px", marginBottom: "20px" }}>{mensaje}</p>
-            <p style={{ color: "#999", fontSize: "13px" }}>Redirigiendo al inicio de sesión en 3 segundos...</p>
-            <div style={{ marginTop: "20px" }}>
+            <div className="text-6xl mb-5">✅</div>
+            <h2 className="text-green-500 text-2xl font-bold mb-2">¡Verificación exitosa!</h2>
+            <p className="text-slate-500 text-sm mb-5">{mensaje}</p>
+            <p className="text-slate-400 text-xs">Redirigiendo al inicio de sesión en 3 segundos...</p>
+            <div className="mt-5">
               <button
                 onClick={() => nav("/login")}
-                style={{ background: "#2563eb", color: "white", fontWeight: "600", padding: "12px 24px", borderRadius: "6px", border: "none", cursor: "pointer", fontSize: "16px" }}
+                className="bg-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
               >
                 Ir al inicio ahora
               </button>
@@ -90,17 +84,17 @@ export default function VerificarEmail() {
 
         {estado === "error" && (
           <>
-            <div style={{ fontSize: "64px", marginBottom: "20px" }}>❌</div>
-            <h2 style={{ color: "#ef4444", fontSize: "24px", fontWeight: "bold", marginBottom: "10px" }}>Error en la verificación</h2>
-            <div style={{ background: "#fee", border: "1px solid #fcc", color: "#c33", padding: "12px", borderRadius: "6px", fontSize: "14px", marginBottom: "20px" }}>
+            <div className="text-6xl mb-5">❌</div>
+            <h2 className="text-red-500 text-2xl font-bold mb-2">Error en la verificación</h2>
+            <div className="bg-red-50 border border-red-100 text-red-600 p-3 rounded-xl text-sm mb-5">
               {mensaje}
             </div>
-            <p style={{ color: "#666", fontSize: "13px", marginBottom: "20px" }}>
+            <p className="text-slate-500 text-xs mb-5">
               Si el link expiró, puedes solicitar un nuevo email de verificación desde la página de inicio de sesión.
             </p>
             <button
               onClick={() => nav("/login")}
-              style={{ background: "#2563eb", color: "white", fontWeight: "600", padding: "12px 24px", borderRadius: "6px", border: "none", cursor: "pointer", fontSize: "16px" }}
+              className="bg-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
             >
               Volver al inicio
             </button>

@@ -153,250 +153,130 @@ export default function Catalogo() {
     return 0;
   });
 
+  function handleLogout() {
+    localStorage.removeItem("user");
+    nav("/");
+  }
+
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>⏳</div>
-          <p style={{ fontSize: "18px", color: "#666" }}>Cargando catálogo...</p>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="text-4xl mb-4 animate-bounce">⏳</div>
+          <p className="text-lg text-slate-600 font-medium">Cargando catálogo...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ 
-      minHeight: "100vh", 
-      background: "white", 
-      display: "flex",
-      fontFamily: "Arial, sans-serif"
-    }}>
+    <div className="min-h-screen bg-slate-50 flex font-sans">
       
-      {/* Sidebar Azul */}
-      <div style={{
-        width: "280px",
-        background: "#00ccff",
-        color: "white",
-        padding: "30px 20px",
-        display: "flex",
-        flexDirection: "column"
-      }}>
+      {/* Sidebar Celeste */}
+      <div className="w-[280px] bg-sky-50 text-slate-800 flex flex-col relative z-10 shadow-2xl">
         
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          marginBottom: "50px",
-          paddingBottom: "20px",
-          borderBottom: "2px solid rgba(255,255,255,0.3)"
-        }}>
-          <div style={{
-            width: "40px",
-            height: "40px",
-            background: "rgba(255,255,255,0.2)",
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-            backdropFilter: "blur(10px)"
-          }}>
-            🛒
+        {/* Logo Header */}
+        <div className="p-6 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-xl text-white shadow-lg shadow-blue-500/30">
+              🛒
+            </div>
+            <div>
+              <h1 className="m-0 text-lg font-bold text-slate-800 tracking-wide">
+                VEYCOFLASH
+              </h1>
+            </div>
           </div>
-          <h1 style={{
-            margin: 0,
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: "#1a237e"
-          }}>
-            VEYCOFLASH
-          </h1>
         </div>
 
-        <nav style={{ flex: 1 }}>
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "15px"
-          }}>
-            <button 
-              onClick={() => nav("/catalogo")}
-              style={{
-                background: "rgba(255,255,255,0.4)",
-                color: "#1a237e",
-                border: "2px solid rgba(255,255,255,0.5)",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)"
-              }}
-            >
-              🏠 Catálogo
-            </button>
+        {/* Navigation Menu */}
+        <nav className="flex-1 p-6 flex flex-col gap-2">
+          <button 
+            onClick={() => nav("/catalogo")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm hover:shadow-md"
+          >
+            🏠 Catálogo
+          </button>
 
-            <button 
-              onClick={() => nav("/publicar")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              ➕ Publicar
-            </button>
+          <button 
+            onClick={() => nav("/publicar")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ➕ Publicar
+          </button>
 
-            <button 
-              onClick={() => nav("/favoritos")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              ❤️ Favoritos
-            </button>
+          <button 
+            onClick={() => nav("/favoritos")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ❤️ Favoritos
+          </button>
 
-            <button 
-              onClick={() => nav("/historial")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              📊 Historial
-            </button>
+          <button 
+            onClick={() => nav("/historial")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            📊 Historial
+          </button>
 
-            <button 
-              onClick={() => nav("/perfil")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              👤 Mi Perfil
-            </button>
-          </div>
+          <button 
+            onClick={() => nav("/mensajes")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💬 Mensajes
+          </button>
+
+          <button 
+            onClick={() => nav("/perfil")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            👤 Mi Perfil
+          </button>
         </nav>
+
+        {/* Footer con versión y botones */}
+        <div className="p-6 border-t border-slate-200 bg-slate-100/50">
+          <button 
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 font-medium text-sm"
+          >
+            🚪 Cerrar Sesión
+          </button>
+        </div>
       </div>
 
       {/* Contenido Principal */}
-      <div style={{
-        flex: 1,
-        padding: "30px 40px",
-        background: "#f8f9fa",
-        overflowY: "auto"
-      }}>
+      <div className="flex-1 p-10 bg-slate-50 overflow-y-auto h-screen">
         
         {/* Header con búsqueda */}
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "30px",
-          gap: "20px"
-        }}>
-          <div style={{ flex: 1 }}>
-            <h1 style={{
-              color: "#333",
-              fontSize: "28px",
-              fontWeight: "bold",
-              margin: "0 0 8px 0"
-            }}>
+        <div className="flex justify-between items-center mb-8 gap-6">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">
               🛍️ Catálogo
             </h1>
-            <p style={{ color: "#666", margin: 0, fontSize: "14px" }}>
+            <p className="text-slate-500 text-sm">
               Explora productos y servicios disponibles ({items.length} items)
             </p>
           </div>
 
-          <input
-            type="text"
-            placeholder="🔍 Buscar..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            style={{
-              padding: "12px 20px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "16px",
-              width: "300px",
-              outline: "none",
-              transition: "border 0.3s ease"
-            }}
-            onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-            onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
-          />
+          <div className="relative w-80">
+            <input
+              type="text"
+              placeholder="🔍 Buscar..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="w-full px-5 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
+            />
+          </div>
         </div>
 
         {/* Filtros */}
-        <div style={{
-          display: "flex",
-          gap: "12px",
-          marginBottom: "30px",
-          alignItems: "center",
-          flexWrap: "wrap"
-        }}>
+        <div className="flex gap-3 mb-8 flex-wrap items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
           {/* Filtro Tipo */}
           <select
             value={tipoFiltro}
             onChange={(e) => setTipoFiltro(e.target.value)}
-            style={{
-              padding: "10px 16px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              background: "white",
-              cursor: "pointer",
-              outline: "none",
-              minWidth: "150px"
-            }}
+            className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/20 hover:bg-slate-100 transition-all"
           >
             <option value="">📦 Todos</option>
             <option value="producto">📦 Productos</option>
@@ -407,18 +287,7 @@ export default function Catalogo() {
           <select
             value={categoriaFiltro}
             onChange={(e) => setCategoriaFiltro(e.target.value)}
-            style={{
-              padding: "10px 16px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              background: "white",
-              cursor: "pointer",
-              outline: "none",
-              minWidth: "180px"
-            }}
+            className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/20 hover:bg-slate-100 transition-all"
           >
             <option value="">Todas las categorías</option>
             {categorias.filter(c => c !== "Todas").map(cat => (
@@ -430,18 +299,7 @@ export default function Catalogo() {
           <select
             value={ubicacionFiltro}
             onChange={(e) => setUbicacionFiltro(e.target.value)}
-            style={{
-              padding: "10px 16px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              background: "white",
-              cursor: "pointer",
-              outline: "none",
-              minWidth: "180px"
-            }}
+            className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/20 hover:bg-slate-100 transition-all"
           >
             <option value="">Todas las provincias</option>
             {provincias.map(prov => (
@@ -453,18 +311,7 @@ export default function Catalogo() {
           <select
             value={estadoFiltro}
             onChange={(e) => setEstadoFiltro(e.target.value)}
-            style={{
-              padding: "10px 16px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              background: "white",
-              cursor: "pointer",
-              outline: "none",
-              minWidth: "220px"
-            }}
+            className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/20 hover:bg-slate-100 transition-all"
           >
             <option value="">Todos los estados</option>
             {estadosProducto.filter(estado => estado !== "Todos los estados").map(estado => (
@@ -476,18 +323,7 @@ export default function Catalogo() {
           <select
             value={ordenPrecio}
             onChange={(e) => setOrdenPrecio(e.target.value)}
-            style={{
-              padding: "10px 16px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              background: "white",
-              cursor: "pointer",
-              outline: "none",
-              minWidth: "180px"
-            }}
+            className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/20 hover:bg-slate-100 transition-all"
           >
             <option value="">Ordenar por precio</option>
             <option value="asc">Precio: Menor a Mayor</option>
@@ -495,8 +331,8 @@ export default function Catalogo() {
           </select>
 
           {/* Contador */}
-          <div style={{ fontSize: "14px", color: "#666", marginLeft: "auto" }}>
-            <strong style={{ color: "#333" }}>{itemsFiltrados.length}</strong> resultados
+          <div className="ml-auto text-sm text-slate-500">
+            <strong className="text-slate-800">{itemsFiltrados.length}</strong> resultados
           </div>
 
           {/* Limpiar filtros */}
@@ -509,55 +345,28 @@ export default function Catalogo() {
                 setEstadoFiltro("");
                 setOrdenPrecio("");
               }}
-              style={{
-                padding: "10px 16px",
-                background: "#f8f9fa",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                color: "#666",
-                fontSize: "14px",
-                fontWeight: "600",
-                cursor: "pointer"
-              }}
+              className="px-4 py-2.5 bg-red-50 text-red-600 border border-red-100 rounded-lg text-sm font-medium cursor-pointer hover:bg-red-100 transition-all"
             >
-              ✕ Limpiar filtros
+              ✕ Limpiar
             </button>
           )}
         </div>
 
         {/* Grid */}
         {itemsFiltrados.length === 0 ? (
-          <div style={{
-            textAlign: "center",
-            padding: "60px 20px",
-            background: "white",
-            borderRadius: "12px"
-          }}>
-            <div style={{ fontSize: "60px", marginBottom: "16px" }}>🔍</div>
-            <h3 style={{ color: "#333", marginBottom: "8px" }}>No se encontraron resultados</h3>
-            <p style={{ color: "#666" }}>Intenta con otra búsqueda o categoría</p>
+          <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-slate-100">
+            <div className="text-6xl mb-4 opacity-20">🔍</div>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">No se encontraron resultados</h3>
+            <p className="text-slate-500 mb-6">Intenta con otra búsqueda o categoría</p>
             <button
               onClick={cargarTodo}
-              style={{
-                marginTop: "16px",
-                padding: "10px 20px",
-                background: "#00ccff",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "600"
-              }}
+              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-medium shadow-lg shadow-blue-600/20"
             >
               🔄 Recargar catálogo
             </button>
           </div>
         ) : (
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: "24px"
-          }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {itemsOrdenados.map(item => {
               const primeraImagen = obtenerPrimeraImagen(item);
               const esServicio = item.tipo === "servicio";
@@ -566,114 +375,53 @@ export default function Catalogo() {
                 <div
                   key={`${item.tipo}-${item.id}`}
                   onClick={() => nav(esServicio ? `/servicio/${item.id}` : `/producto/${item.id}`)}
-                  style={{
-                    background: "white",
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                    border: "1px solid #e9ecef"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                    e.currentTarget.style.boxShadow = "0 8px 16px rgba(0,0,0,0.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.05)";
-                  }}
+                  className="group bg-white rounded-2xl overflow-hidden cursor-pointer border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                 >
                   {/* Imagen */}
-                  <div style={{
-                    width: "100%",
-                    height: "200px",
-                    background: "#f8f9fa",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                    position: "relative"
-                  }}>
+                  <div className="h-48 bg-slate-100 relative overflow-hidden">
                     {primeraImagen ? (
                       <img 
                         src={`http://localhost:8080${primeraImagen}`}
                         alt={item.nombre || item.titulo}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
                           e.target.style.display = "none";
-                          e.target.parentElement.innerHTML = `<div style="font-size: 48px; color: #ccc;">${esServicio ? '🛠️' : '📦'}</div>`;
+                          e.target.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center text-4xl text-slate-300">${esServicio ? '🛠️' : '📦'}</div>`;
                         }}
                       />
                     ) : (
-                      <div style={{ fontSize: "48px", color: "#ccc" }}>
+                      <div className="w-full h-full flex items-center justify-center text-4xl text-slate-300">
                         {esServicio ? '🛠️' : '📦'}
                       </div>
                     )}
                     
                     {/* Badge */}
-                    <div style={{
-                      position: "absolute",
-                      top: "12px",
-                      right: "12px",
-                      background: esServicio ? "#ff5722" : "#4CAF50",
-                      color: "white",
-                      padding: "6px 12px",
-                      borderRadius: "6px",
-                      fontSize: "11px",
-                      fontWeight: "bold"
-                    }}>
+                    <div className={`absolute top-3 right-3 px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-wider text-white shadow-lg ${
+                      esServicio ? "bg-orange-500" : "bg-emerald-500"
+                    }`}>
                       {esServicio ? "🛠️ SERVICIO" : "📦 PRODUCTO"}
                     </div>
                   </div>
 
                   {/* Info */}
-                  <div style={{ padding: "16px" }}>
-                    <h3 style={{
-                      fontSize: "18px",
-                      fontWeight: "bold",
-                      color: "#333",
-                      margin: "0 0 8px 0",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap"
-                    }}>
+                  <div className="p-5">
+                    <h3 className="text-lg font-bold text-slate-800 mb-2 truncate group-hover:text-blue-600 transition-colors">
                       {item.nombre || item.titulo}
                     </h3>
 
-                    <p style={{
-                      fontSize: "14px",
-                      color: "#666",
-                      margin: "0 0 8px 0",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap"
-                    }}>
+                    <p className="text-sm text-slate-500 mb-3 flex items-center gap-1 truncate">
                       📍 {item.ubicacion}
                     </p>
 
                     {/* Estado del producto (solo para productos) */}
                     {!esServicio && item.estado && (
-                      <p style={{
-                        fontSize: "12px",
-                        color: "#888",
-                        margin: "0 0 8px 0",
-                        fontStyle: "italic"
-                      }}>
+                      <p className="text-xs text-slate-400 mb-3 italic">
                         Estado: {item.estado}
                       </p>
                     )}
 
-                    <div style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center"
-                    }}>
-                      <div style={{
-                        fontSize: "24px",
-                        fontWeight: "bold",
-                        color: "#00ccff"
-                      }}>
+                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-50">
+                      <div className="text-xl font-bold text-slate-900">
                         {esServicio && item.tipoPrecio === "negociable" 
                           ? "A negociar" 
                           : esServicio && item.tipoPrecio === "desde"
@@ -682,14 +430,7 @@ export default function Catalogo() {
                         }
                       </div>
 
-                      <span style={{
-                        padding: "4px 12px",
-                        background: "#e7f6ff",
-                        color: "#00ccff",
-                        borderRadius: "12px",
-                        fontSize: "12px",
-                        fontWeight: "600"
-                      }}>
+                      <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-semibold border border-slate-200">
                         {item.categoria}
                       </span>
                     </div>

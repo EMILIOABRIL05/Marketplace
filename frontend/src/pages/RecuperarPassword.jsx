@@ -83,95 +83,36 @@ export default function RecuperarPassword() {
   }
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      display: "flex",
-      flexDirection: "column",
-      fontFamily: "Arial, sans-serif"
-    }}>
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       
       {/* Header */}
-      <div style={{
-        background: "white",
-        padding: "15px 40px",
-        boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{
-            width: "40px",
-            height: "40px",
-            background: "#2563eb",
-            borderRadius: "8px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontSize: "24px"
-          }}>
+      <div className="bg-white px-10 py-4 shadow-sm border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-xl shadow-lg shadow-blue-600/30">
             🛒
           </div>
-          <h1 style={{
-            margin: "0",
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: "#1e40af"
-          }}>
-            Sistema de Ventas Multiempresa
+          <h1 className="m-0 text-lg font-bold text-slate-800 tracking-wide">
+            VEYCOFLASH
           </h1>
         </div>
       </div>
 
       {/* Contenido Principal */}
-      <div style={{
-        flex: 1,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "40px 20px"
-      }}>
-        <div style={{
-          background: "white",
-          borderRadius: "16px",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-          padding: "40px",
-          width: "100%",
-          maxWidth: "450px",
-          textAlign: "center"
-        }}>
+      <div className="flex-1 flex items-center justify-center p-5">
+        <div className="bg-white rounded-2xl shadow-xl p-10 w-full max-w-md text-center border border-slate-100">
           
           {/* Ícono */}
-          <div style={{
-            width: "80px",
-            height: "80px",
-            background: "#e0f2fe",
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 24px",
-            fontSize: "40px"
-          }}>
+          <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
             📧
           </div>
 
           {/* Título */}
-          <h2 style={{
-            color: "#1e40af",
-            fontSize: "28px",
-            fontWeight: "bold",
-            marginBottom: "12px"
-          }}>
+          <h2 className="text-blue-800 text-2xl font-bold mb-3">
             Recuperar contraseña
           </h2>
 
           {/* Descripción */}
-          <p style={{
-            color: "#666",
-            fontSize: "14px",
-            marginBottom: "30px",
-            lineHeight: "1.6"
-          }}>
+          <p className="text-slate-500 text-sm mb-8 leading-relaxed">
             {paso === 1 && "Ingresa tu correo electrónico y te enviaremos un código para restablecer tu contraseña"}
             {paso === 2 && "Ingresa el código de 6 dígitos que enviamos a tu correo"}
             {paso === 3 && "Ingresa tu nueva contraseña"}
@@ -180,24 +121,12 @@ export default function RecuperarPassword() {
           {/* Formulario Paso 1: Email */}
           {paso === 1 && (
             <form onSubmit={handleEnviarCodigo}>
-              <div style={{ marginBottom: "20px", textAlign: "left" }}>
-                <label style={{
-                  display: "block",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333",
-                  marginBottom: "8px"
-                }}>
+              <div className="mb-5 text-left">
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Correo electrónico
                 </label>
-                <div style={{ position: "relative" }}>
-                  <span style={{
-                    position: "absolute",
-                    left: "12px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    fontSize: "18px"
-                  }}>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg">
                     📧
                   </span>
                   <input
@@ -205,43 +134,20 @@ export default function RecuperarPassword() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="tucorreo@ejemplo.com"
-                    style={{
-                      width: "100%",
-                      padding: "12px 12px 12px 45px",
-                      border: "2px solid #e5e7eb",
-                      borderRadius: "8px",
-                      fontSize: "16px",
-                      boxSizing: "border-box"
-                    }}
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                     required
                   />
                 </div>
               </div>
 
               {error && (
-                <div style={{
-                  background: "#fee",
-                  border: "1px solid #fcc",
-                  color: "#c33",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  marginBottom: "20px"
-                }}>
+                <div className="bg-red-50 border border-red-100 text-red-600 p-3 rounded-xl text-sm mb-5">
                   {error}
                 </div>
               )}
 
               {mensaje && (
-                <div style={{
-                  background: "#d4edda",
-                  border: "1px solid #c3e6cb",
-                  color: "#155724",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  marginBottom: "20px"
-                }}>
+                <div className="bg-green-50 border border-green-100 text-green-600 p-3 rounded-xl text-sm mb-5">
                   {mensaje}
                 </div>
               )}
@@ -249,18 +155,7 @@ export default function RecuperarPassword() {
               <button
                 type="submit"
                 disabled={cargando}
-                style={{
-                  width: "100%",
-                  background: cargando ? "#999" : "#2563eb",
-                  color: "white",
-                  fontWeight: "600",
-                  padding: "14px",
-                  borderRadius: "8px",
-                  border: "none",
-                  cursor: cargando ? "not-allowed" : "pointer",
-                  fontSize: "16px",
-                  marginBottom: "16px"
-                }}
+                className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 disabled:bg-slate-400 disabled:cursor-not-allowed disabled:shadow-none mb-4"
               >
                 {cargando ? "Enviando..." : "→ Enviar código"}
               </button>
@@ -270,14 +165,8 @@ export default function RecuperarPassword() {
           {/* Formulario Paso 2: Código */}
           {paso === 2 && (
             <form onSubmit={handleVerificarCodigo}>
-              <div style={{ marginBottom: "20px", textAlign: "left" }}>
-                <label style={{
-                  display: "block",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333",
-                  marginBottom: "8px"
-                }}>
+              <div className="mb-5 text-left">
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Código de verificación
                 </label>
                 <input
@@ -286,44 +175,19 @@ export default function RecuperarPassword() {
                   onChange={(e) => setCodigo(e.target.value)}
                   placeholder="123456"
                   maxLength="6"
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "2px solid #e5e7eb",
-                    borderRadius: "8px",
-                    fontSize: "24px",
-                    textAlign: "center",
-                    letterSpacing: "8px",
-                    boxSizing: "border-box"
-                  }}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-2xl text-center tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-mono"
                   required
                 />
               </div>
 
               {error && (
-                <div style={{
-                  background: "#fee",
-                  border: "1px solid #fcc",
-                  color: "#c33",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  marginBottom: "20px"
-                }}>
+                <div className="bg-red-50 border border-red-100 text-red-600 p-3 rounded-xl text-sm mb-5">
                   {error}
                 </div>
               )}
 
               {mensaje && (
-                <div style={{
-                  background: "#d4edda",
-                  border: "1px solid #c3e6cb",
-                  color: "#155724",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  marginBottom: "20px"
-                }}>
+                <div className="bg-green-50 border border-green-100 text-green-600 p-3 rounded-xl text-sm mb-5">
                   {mensaje}
                 </div>
               )}
@@ -331,18 +195,7 @@ export default function RecuperarPassword() {
               <button
                 type="submit"
                 disabled={cargando}
-                style={{
-                  width: "100%",
-                  background: cargando ? "#999" : "#2563eb",
-                  color: "white",
-                  fontWeight: "600",
-                  padding: "14px",
-                  borderRadius: "8px",
-                  border: "none",
-                  cursor: cargando ? "not-allowed" : "pointer",
-                  fontSize: "16px",
-                  marginBottom: "16px"
-                }}
+                className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 disabled:bg-slate-400 disabled:cursor-not-allowed disabled:shadow-none mb-4"
               >
                 {cargando ? "Verificando..." : "→ Verificar código"}
               </button>
@@ -352,14 +205,8 @@ export default function RecuperarPassword() {
           {/* Formulario Paso 3: Nueva Contraseña */}
           {paso === 3 && (
             <form onSubmit={handleRestablecerPassword}>
-              <div style={{ marginBottom: "20px", textAlign: "left" }}>
-                <label style={{
-                  display: "block",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333",
-                  marginBottom: "8px"
-                }}>
+              <div className="mb-5 text-left">
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Nueva contraseña
                 </label>
                 <input
@@ -367,26 +214,13 @@ export default function RecuperarPassword() {
                   value={nuevaPassword}
                   onChange={(e) => setNuevaPassword(e.target.value)}
                   placeholder="••••••••"
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "2px solid #e5e7eb",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    boxSizing: "border-box"
-                  }}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   required
                 />
               </div>
 
-              <div style={{ marginBottom: "20px", textAlign: "left" }}>
-                <label style={{
-                  display: "block",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333",
-                  marginBottom: "8px"
-                }}>
+              <div className="mb-5 text-left">
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Confirmar contraseña
                 </label>
                 <input
@@ -394,42 +228,19 @@ export default function RecuperarPassword() {
                   value={confirmarPassword}
                   onChange={(e) => setConfirmarPassword(e.target.value)}
                   placeholder="••••••••"
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "2px solid #e5e7eb",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    boxSizing: "border-box"
-                  }}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   required
                 />
               </div>
 
               {error && (
-                <div style={{
-                  background: "#fee",
-                  border: "1px solid #fcc",
-                  color: "#c33",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  marginBottom: "20px"
-                }}>
+                <div className="bg-red-50 border border-red-100 text-red-600 p-3 rounded-xl text-sm mb-5">
                   {error}
                 </div>
               )}
 
               {mensaje && (
-                <div style={{
-                  background: "#d4edda",
-                  border: "1px solid #c3e6cb",
-                  color: "#155724",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  marginBottom: "20px"
-                }}>
+                <div className="bg-green-50 border border-green-100 text-green-600 p-3 rounded-xl text-sm mb-5">
                   {mensaje}
                 </div>
               )}
@@ -437,18 +248,7 @@ export default function RecuperarPassword() {
               <button
                 type="submit"
                 disabled={cargando}
-                style={{
-                  width: "100%",
-                  background: cargando ? "#999" : "#10b981",
-                  color: "white",
-                  fontWeight: "600",
-                  padding: "14px",
-                  borderRadius: "8px",
-                  border: "none",
-                  cursor: cargando ? "not-allowed" : "pointer",
-                  fontSize: "16px",
-                  marginBottom: "16px"
-                }}
+                className="w-full bg-green-500 text-white font-bold py-3.5 rounded-xl hover:bg-green-600 transition-all shadow-lg shadow-green-500/20 disabled:bg-slate-400 disabled:cursor-not-allowed disabled:shadow-none mb-4"
               >
                 {cargando ? "Guardando..." : "→ Restablecer contraseña"}
               </button>
@@ -458,30 +258,15 @@ export default function RecuperarPassword() {
           {/* Link volver */}
           <button
             onClick={() => nav("/login")}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#2563eb",
-              fontSize: "14px",
-              cursor: "pointer",
-              textDecoration: "underline"
-            }}
+            className="text-blue-600 text-sm hover:underline font-medium bg-transparent border-none cursor-pointer"
           >
             Volver al inicio de sesión
           </button>
 
           {/* Footer */}
-          <div style={{
-            marginTop: "30px",
-            paddingTop: "20px",
-            borderTop: "1px solid #e5e7eb"
-          }}>
-            <p style={{
-              color: "#999",
-              fontSize: "12px",
-              margin: "0"
-            }}>
-              ©2025 Sistema de Ventas Multiempresa
+          <div className="mt-8 pt-6 border-t border-slate-100">
+            <p className="text-slate-400 text-xs m-0">
+              ©2025 VEYCOFLASH
             </p>
           </div>
 

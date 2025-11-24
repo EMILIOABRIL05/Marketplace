@@ -117,6 +117,8 @@ public class ServicioController {
             @RequestParam("duracion") String duracion,
             @RequestParam(value = "condiciones", required = false) String condiciones,
             @RequestParam("vendedorId") Long vendedorId,
+            @RequestParam(value = "deunaNumero", required = false) String deunaNumero,
+            @RequestParam(value = "deunaQr", required = false) MultipartFile deunaQr,
             @RequestParam(value = "imagenes", required = false) List<MultipartFile> imagenes) {
 
         try {
@@ -125,6 +127,7 @@ public class ServicioController {
             System.out.println("Título: " + titulo);
             System.out.println("Días disponibles: " + diasDisponibles);
             System.out.println("Vendedor ID: " + vendedorId);
+            System.out.println("Deuna Numero: " + deunaNumero);
             System.out.println("Imágenes: " + (imagenes != null ? imagenes.size() : 0));
 
             // Buscar el vendedor
@@ -158,6 +161,39 @@ public class ServicioController {
                     modalidad, ciudad, barrio, diasDisponibles, horario,
                     duracion, condiciones, vendedor
             );
+            
+            if (deunaNumero != null && !deunaNumero.isEmpty()) {
+                servicio.setDeunaNumero(deunaNumero);
+            }
+            
+            // Nota: ServicioService.crearServicio maneja las imágenes, pero no el QR específico de Deuna
+            // Necesitamos manejar el QR aquí o modificar el servicio.
+            // Para simplificar, guardaremos el QR aquí y lo setearemos antes de llamar al servicio.
+            
+            if (deunaQr != null && !deunaQr.isEmpty()) {
+                // Usamos un método helper para guardar (duplicado de ProductoController o movido a un util)
+                // Como no tengo acceso fácil a ProductoController.guardarImagen desde aquí sin hacerlo público estático,
+                // implementaré una lógica similar o asumiré que ServicioService puede manejarlo si lo modifico.
+                // Mejor opción: Implementar lógica de guardado aquí mismo.
+                
+                String uploadDir = System.getProperty("user.dir") + java.io.File.separator + "uploads" + java.io.File.separator + "servicios" + java.io.File.separator;
+                java.io.File directory = new java.io.File(uploadDir);
+                if (!directory.exists()) directory.mkdirs();
+                
+                String extension = "";
+                String originalFilename = deunaQr.getOriginalFilename();
+                if (originalFilename != null && originalFilename.contains(".")) {
+                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                }
+                
+                String fileName = System.currentTimeMillis() + "_qr_" + java.util.UUID.randomUUID().toString() + extension;
+                String filePath = uploadDir + fileName;
+                
+                java.io.File file = new java.io.File(filePath);
+                deunaQr.transferTo(file);
+                
+                servicio.setDeunaQrUrl("/uploads/servicios/" + fileName);
+            }
 
             Servicio servicioCreado = servicioService.crearServicio(servicio, imagenes);
             return ResponseEntity.status(HttpStatus.CREATED).body(servicioCreado);
@@ -185,6 +221,8 @@ public class ServicioController {
             @RequestParam(value = "horario", required = false) String horario,
             @RequestParam("duracion") String duracion,
             @RequestParam(value = "condiciones", required = false) String condiciones,
+            @RequestParam(value = "deunaNumero", required = false) String deunaNumero,
+            @RequestParam(value = "deunaQr", required = false) MultipartFile deunaQr,
             @RequestParam(value = "imagenes", required = false) List<MultipartFile> imagenes) {
 
         try {
@@ -201,6 +239,30 @@ public class ServicioController {
             servicioActualizado.setHorario(horario);
             servicioActualizado.setDuracion(duracion);
             servicioActualizado.setCondiciones(condiciones);
+            
+            if (deunaNumero != null) {
+                servicioActualizado.setDeunaNumero(deunaNumero);
+            }
+            
+            if (deunaQr != null && !deunaQr.isEmpty()) {
+                String uploadDir = System.getProperty("user.dir") + java.io.File.separator + "uploads" + java.io.File.separator + "servicios" + java.io.File.separator;
+                java.io.File directory = new java.io.File(uploadDir);
+                if (!directory.exists()) directory.mkdirs();
+                
+                String extension = "";
+                String originalFilename = deunaQr.getOriginalFilename();
+                if (originalFilename != null && originalFilename.contains(".")) {
+                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                }
+                
+                String fileName = System.currentTimeMillis() + "_qr_" + java.util.UUID.randomUUID().toString() + extension;
+                String filePath = uploadDir + fileName;
+                
+                java.io.File file = new java.io.File(filePath);
+                deunaQr.transferTo(file);
+                
+                servicioActualizado.setDeunaQrUrl("/uploads/servicios/" + fileName);
+            }
 
             Servicio servicio = servicioService.actualizarServicio(id, servicioActualizado, imagenes);
             return ResponseEntity.ok(servicio);

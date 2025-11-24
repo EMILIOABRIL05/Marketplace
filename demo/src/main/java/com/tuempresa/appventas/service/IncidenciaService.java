@@ -1,14 +1,20 @@
 package com.tuempresa.appventas.service;
 
-import com.tuempresa.appventas.model.*;
-import com.tuempresa.appventas.repository.IncidenciaRepository;
+import java.text.Normalizer;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import com.tuempresa.appventas.model.Incidencia;
+import com.tuempresa.appventas.model.Producto;
+import com.tuempresa.appventas.model.Servicio;
+import com.tuempresa.appventas.model.Usuario;
+import com.tuempresa.appventas.repository.IncidenciaRepository;
 
 @Service
 public class IncidenciaService {
@@ -20,7 +26,10 @@ public class IncidenciaService {
     private static final List<String> PALABRAS_PROHIBIDAS = Arrays.asList(
             "arma", "armas", "droga", "drogas", "explosivo", "explosivos",
             "robo", "robado", "robada", "ilegal", "ilegales", "pirateria",
-            "falsificacion", "falsificado", "replica", "contrabando"
+            "falsificacion", "falsificado", "replica", "contrabando",
+            "mariguana", "marihuana", "cannabis", "cocaina", "heroina",
+            "lsd", "extasis", "anfetamina", "metanfetamina", "cristal",
+            "polvo de angel", "fentanilo", "crack", "hachis"
     );
 
     // Crear incidencia por detección automática de producto
@@ -179,15 +188,29 @@ public class IncidenciaService {
 
     // Detectar contenido prohibido en texto
     private String detectarContenidoProhibido(String titulo, String descripcion) {
-        String textoCompleto = (titulo + " " + descripcion).toLowerCase();
+        String textoCompleto = normalizarTexto(titulo + " " + descripcion);
+        System.out.println(">>> Verificando contenido prohibido en: " + textoCompleto);
 
         for (String palabraProhibida : PALABRAS_PROHIBIDAS) {
-            if (textoCompleto.contains(palabraProhibida)) {
+            // Normalizamos también la palabra prohibida por si acaso
+            String palabraNormalizada = normalizarTexto(palabraProhibida);
+            
+            // Buscamos la palabra completa o como parte de otra
+            if (textoCompleto.contains(palabraNormalizada)) {
+                System.out.println(">>> DETECTADO: " + palabraNormalizada);
                 return "Palabra prohibida detectada: " + palabraProhibida;
             }
         }
 
         return null; // No se detectó contenido prohibido
+    }
+
+    // Método para normalizar texto (eliminar acentos y poner en minúsculas)
+    private String normalizarTexto(String input) {
+        if (input == null) return "";
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(normalized).replaceAll("").toLowerCase();
     }
 
     // Verificar si un producto tiene incidencias activas

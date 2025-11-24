@@ -72,6 +72,12 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!-- Jackson Annotations -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+
         <!-- JWT para autenticación -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

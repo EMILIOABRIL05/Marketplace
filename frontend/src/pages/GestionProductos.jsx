@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
-const GestionUsuarios = () => {
+const GestionProductos = () => {
   const navigate = useNavigate();
-  const [usuarios, setUsuarios] = useState([]);
+  const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filtroTipo, setFiltroTipo] = useState('todos');
   const [searchTerm, setSearchTerm] = useState('');
   
   const usuario = JSON.parse(localStorage.getItem('user'));
@@ -18,41 +17,56 @@ const GestionUsuarios = () => {
       navigate('/login');
       return;
     }
-    cargarUsuarios();
+    cargarProductos();
   }, []);
 
-  const cargarUsuarios = async () => {
+  const cargarProductos = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/usuarios');
-      setUsuarios(response.data);
+      // Solicitamos modo admin para ver todos los productos (incluidos ocultos)
+      const response = await api.get('/productos?adminMode=true');
+      setProductos(response.data);
     } catch (error) {
-      console.error('Error al cargar usuarios:', error);
-      alert('Error al cargar usuarios');
+      console.error('Error al cargar productos:', error);
+      alert('Error al cargar productos');
     } finally {
       setLoading(false);
     }
   };
 
-  const cambiarEstadoUsuario = async (usuarioId, nuevoEstado) => {
+  const cambiarEstadoProducto = async (productoId, nuevoEstado) => {
     try {
-      await api.put(`/usuarios/${usuarioId}/estado?nuevoEstado=${nuevoEstado}`);
-      alert(`Usuario ${nuevoEstado === 'ACTIVO' ? 'activado' : 'suspendido'} exitosamente`);
-      cargarUsuarios();
+      await api.put(`/productos/${productoId}/estado?nuevoEstado=${nuevoEstado}`);
+      let mensaje = 'Producto actualizado exitosamente';
+      if (nuevoEstado === 'ACTIVO') mensaje = 'Producto activado exitosamente';
+      if (nuevoEstado === 'OCULTO') mensaje = 'Producto oculto exitosamente';
+      if (nuevoEstado === 'PROHIBIDO') mensaje = 'Producto prohibido exitosamente';
+      
+      alert(mensaje);
+      cargarProductos();
     } catch (error) {
       console.error('Error al cambiar estado:', error);
-      alert('Error al cambiar estado del usuario');
+      alert('Error al cambiar estado del producto');
     }
   };
 
-  const usuariosFiltrados = usuarios.filter(u => {
-    const cumpleTipo = filtroTipo === 'todos' || u.tipoUsuario === filtroTipo;
-    const cumpleBusqueda = searchTerm === '' || 
-      u.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.apellido?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email?.toLowerCase().includes(searchTerm.toLowerCase());
+  const eliminarProducto = async (productoId) => {
+    if (!window.confirm('¿Estás seguro de eliminar este producto definitivamente?')) return;
     
-    return cumpleTipo && cumpleBusqueda;
+    try {
+      await api.delete(`/productos/${productoId}`);
+      alert('Producto eliminado exitosamente');
+      cargarProductos();
+    } catch (error) {
+      console.error('Error al eliminar producto:', error);
+      alert('Error al eliminar producto');
+    }
+  };
+
+  const productosFiltrados = productos.filter(p => {
+    return searchTerm === '' || 
+      p.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.descripcion?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   // Funciones de navegación del sidebar
@@ -101,14 +115,14 @@ const GestionUsuarios = () => {
 
           <button 
             onClick={gestionarProductos}
-            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm"
           >
             📦 Productos
           </button>
 
           <button 
             onClick={gestionarUsuarios}
-            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm"
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
           >
             👥 Usuarios
           </button>
@@ -171,50 +185,33 @@ const GestionUsuarios = () => {
         
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Gestión de Usuarios</h1>
-          <p className="text-slate-500">Administra y modera cuentas de usuarios</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Gestión de Productos</h1>
+          <p className="text-slate-500">Administra los productos de la plataforma</p>
         </div>
 
         {/* Filtros y Búsqueda */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-slate-700 font-semibold mb-2 text-sm">Filtrar por Tipo</label>
-              <select
-                value={filtroTipo}
-                onChange={(e) => setFiltroTipo(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-700"
-              >
-                <option value="todos">Todos</option>
-                <option value="USUARIO">Usuarios/Compradores</option>
-                <option value="VENDEDOR">Vendedores</option>
-                <option value="MODERADOR">Moderadores</option>
-                <option value="ADMINISTRADOR">Administradores</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-slate-700 font-semibold mb-2 text-sm">Buscar</label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Nombre, apellido o email..."
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-700"
-              />
-            </div>
+          <div>
+            <label className="block text-slate-700 font-semibold mb-2 text-sm">Buscar</label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Nombre o descripción..."
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-700"
+            />
           </div>
         </div>
 
-        {/* Tabla de Usuarios */}
+        {/* Tabla de Productos */}
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-slate-600">Cargando usuarios...</p>
+            <p className="mt-4 text-slate-600">Cargando productos...</p>
           </div>
-        ) : usuariosFiltrados.length === 0 ? (
+        ) : productosFiltrados.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
-            <p className="text-slate-500 text-lg">No hay usuarios que coincidan con los filtros</p>
+            <p className="text-slate-500 text-lg">No hay productos que coincidan con los filtros</p>
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -222,91 +219,99 @@ const GestionUsuarios = () => {
               <table className="min-w-full divide-y divide-slate-200">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Usuario
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      Producto
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Email
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      Precio
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Tipo
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      Vendedor
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Estado
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Verificado
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Acciones
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-200">
-                  {usuariosFiltrados.map((u) => (
-                    <tr key={u.id} className="hover:bg-slate-50 transition-colors">
+                  {productosFiltrados.map((p) => (
+                    <tr key={p.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
+                          {p.imagenUrl1 ? (
+                            <img className="h-10 w-10 rounded-lg mr-3 object-cover border border-slate-200" src={`http://localhost:8080${p.imagenUrl1}`} alt="" />
+                          ) : (
+                            <div className="h-10 w-10 rounded-lg mr-3 bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200">
+                              📷
+                            </div>
+                          )}
                           <div>
                             <div className="text-sm font-medium text-slate-900">
-                              {u.nombre} {u.apellido}
+                              {p.nombre}
                             </div>
                             <div className="text-xs text-slate-500">
-                              ID: {u.id}
+                              ID: {p.id}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-slate-600">{u.email}</div>
+                        <div className="text-sm font-medium text-slate-900">${p.precio}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-slate-600">
+                          {p.vendedor ? `${p.vendedor.nombre} ${p.vendedor.apellido}` : 'Desconocido'}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          u.tipoUsuario === 'ADMINISTRADOR' ? 'bg-red-100 text-red-800' :
-                          u.tipoUsuario === 'MODERADOR' ? 'bg-purple-100 text-purple-800' :
-                          u.tipoUsuario === 'VENDEDOR' ? 'bg-blue-100 text-blue-800' :
-                          'bg-slate-100 text-slate-800'
+                          p.estado === 'ACTIVO' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
                         }`}>
-                          {u.tipoUsuario}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          u.estado === 'ACTIVO' ? 'bg-emerald-100 text-emerald-800' :
-                          u.estado === 'SUSPENDIDO' ? 'bg-red-100 text-red-800' :
-                          u.estado === 'INACTIVO' ? 'bg-slate-100 text-slate-800' :
-                          'bg-amber-100 text-amber-800'
-                        }`}>
-                          {u.estado || 'PENDIENTE'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          u.cuentaVerificada ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                        }`}>
-                          {u.cuentaVerificada ? 'Sí' : 'No'}
+                          {p.estado}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        {u.tipoUsuario !== 'ADMINISTRADOR' && u.id !== usuario.id && (
-                          <div className="flex gap-3">
-                            {u.estado !== 'ACTIVO' ? (
-                              <button
-                                onClick={() => cambiarEstadoUsuario(u.id, 'ACTIVO')}
-                                className="text-emerald-600 hover:text-emerald-900 font-semibold transition-colors"
-                              >
-                                Activar
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => cambiarEstadoUsuario(u.id, 'SUSPENDIDO')}
-                                className="text-red-600 hover:text-red-900 font-semibold transition-colors"
-                              >
-                                Suspender
-                              </button>
-                            )}
-                          </div>
-                        )}
+                        <div className="flex gap-2">
+                          {/* Botón Activar (si está oculto o prohibido) */}
+                          {(p.estado === 'OCULTO' || p.estado === 'PROHIBIDO') && (
+                            <button
+                              onClick={() => cambiarEstadoProducto(p.id, 'ACTIVO')}
+                              className="text-emerald-600 hover:text-emerald-900 font-medium transition-colors"
+                            >
+                              Activar
+                            </button>
+                          )}
+
+                          {/* Botón Ocultar (si está activo) */}
+                          {p.estado === 'ACTIVO' && (
+                            <button
+                              onClick={() => cambiarEstadoProducto(p.id, 'OCULTO')}
+                              className="text-amber-600 hover:text-amber-900 font-medium transition-colors"
+                            >
+                              Ocultar
+                            </button>
+                          )}
+
+                          {/* Botón Prohibir (si está activo u oculto) */}
+                          {(p.estado === 'ACTIVO' || p.estado === 'OCULTO') && (
+                            <button
+                              onClick={() => cambiarEstadoProducto(p.id, 'PROHIBIDO')}
+                              className="text-purple-600 hover:text-purple-900 font-medium transition-colors"
+                            >
+                              Prohibir
+                            </button>
+                          )}
+
+                          <button
+                            onClick={() => eliminarProducto(p.id)}
+                            className="text-red-600 hover:text-red-900 font-medium transition-colors"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -315,32 +320,6 @@ const GestionUsuarios = () => {
             </div>
           </div>
         )}
-
-        {/* Estadísticas */}
-        <div className="grid md:grid-cols-4 gap-6 mt-8">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <p className="text-slate-500 text-sm font-medium mb-1">Total Usuarios</p>
-            <p className="text-3xl font-bold text-slate-900">{usuarios.length}</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <p className="text-slate-500 text-sm font-medium mb-1">Activos</p>
-            <p className="text-3xl font-bold text-emerald-600">
-              {usuarios.filter(u => u.estado === 'ACTIVO').length}
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <p className="text-slate-500 text-sm font-medium mb-1">Suspendidos</p>
-            <p className="text-3xl font-bold text-red-600">
-              {usuarios.filter(u => u.estado === 'SUSPENDIDO').length}
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <p className="text-slate-500 text-sm font-medium mb-1">Verificados</p>
-            <p className="text-3xl font-bold text-blue-600">
-              {usuarios.filter(u => u.cuentaVerificada).length}
-            </p>
-          </div>
-        </div>
 
         {/* Botón Volver */}
         <div className="mt-8">
@@ -356,4 +335,4 @@ const GestionUsuarios = () => {
   );
 };
 
-export default GestionUsuarios;
+export default GestionProductos;

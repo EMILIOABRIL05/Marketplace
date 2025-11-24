@@ -7,6 +7,7 @@ const DashboardAdmin = () => {
     const navigate = useNavigate();
     const usuario = JSON.parse(localStorage.getItem('user'));
     const tipoUsuario = localStorage.getItem('tipoUsuario');
+    const esAdmin = tipoUsuario === 'ADMINISTRADOR';
     
     const [estadisticas, setEstadisticas] = useState({});
     const [actividades, setActividades] = useState([]);
@@ -116,7 +117,7 @@ const DashboardAdmin = () => {
     };
 
     // Funciones para los botones
-    const gestionarProductos = () => navigate('/catalogo');
+    const gestionarProductos = () => navigate('/gestion-productos');
     const gestionarTransacciones = () => alert('Gestionar Transacciones - Próximamente');
     const gestionarUsuarios = () => navigate('/gestion-usuarios');
     const revisarIncidentes = () => navigate('/gestion-incidencias');
@@ -125,18 +126,11 @@ const DashboardAdmin = () => {
 
     if (loading) {
         return (
-            <div style={{ 
-                minHeight: "100vh", 
-                background: "#f8f9fa", 
-                display: "flex", 
-                alignItems: "center", 
-                justifyContent: "center",
-                fontFamily: "Arial, sans-serif" 
-            }}>
-                <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: "48px", marginBottom: "20px" }}>⏳</div>
-                    <h2 style={{ color: "#1a202c" }}>Cargando Dashboard...</h2>
-                    <p style={{ color: "#718096" }}>Obteniendo datos en tiempo real</p>
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
+                <div className="text-center">
+                    <div className="text-5xl mb-5 animate-bounce">⏳</div>
+                    <h2 className="text-slate-800 text-2xl font-bold mb-2">Cargando Dashboard...</h2>
+                    <p className="text-slate-500">Obteniendo datos en tiempo real</p>
                 </div>
             </div>
         );
@@ -144,46 +138,23 @@ const DashboardAdmin = () => {
 
     if (error) {
         return (
-            <div style={{ 
-                minHeight: "100vh", 
-                background: "#f8f9fa", 
-                display: "flex", 
-                alignItems: "center", 
-                justifyContent: "center",
-                fontFamily: "Arial, sans-serif" 
-            }}>
-                <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: "48px", marginBottom: "20px" }}>⚠️</div>
-                    <h2 style={{ color: "#e53e3e" }}>Error</h2>
-                    <p style={{ color: "#718096", marginBottom: "20px", maxWidth: "400px" }}>
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
+                <div className="text-center">
+                    <div className="text-5xl mb-5">⚠️</div>
+                    <h2 className="text-red-600 text-2xl font-bold mb-2">Error</h2>
+                    <p className="text-slate-500 mb-5 max-w-md mx-auto">
                         {error}
                     </p>
-                    <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+                    <div className="flex gap-3 justify-center">
                         <button 
                             onClick={cargarDashboard}
-                            style={{
-                                background: "#2d5bff",
-                                color: "white",
-                                border: "none",
-                                padding: "10px 20px",
-                                borderRadius: "8px",
-                                cursor: "pointer",
-                                fontWeight: "500"
-                            }}
+                            className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-sm"
                         >
                             Reintentar
                         </button>
                         <button 
                             onClick={volverASelector}
-                            style={{
-                                background: "#e2e8f0",
-                                color: "#4a5568",
-                                border: "none",
-                                padding: "10px 20px",
-                                borderRadius: "8px",
-                                cursor: "pointer",
-                                fontWeight: "500"
-                            }}
+                            className="bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-medium hover:bg-slate-300 transition-colors"
                         >
                             Volver al Selector
                         </button>
@@ -194,573 +165,259 @@ const DashboardAdmin = () => {
     }
 
     return (
-        <div style={{ minHeight: "100vh", background: "#f8f9fa", display: "flex", fontFamily: "Arial, sans-serif" }}>
+        <div className="min-h-screen bg-slate-50 flex font-sans">
             
-            {/* Sidebar Azul */}
-            <div style={{
-                width: "235px",
-                background: "#2d5bff",
-                color: "white",
-                padding: "0",
-                display: "flex",
-                flexDirection: "column",
-                position: "relative"
-            }}>
+            {/* Sidebar Celeste */}
+            <div className="w-[280px] bg-sky-50 text-slate-800 flex flex-col relative z-10 shadow-2xl">
                 
                 {/* Logo Header */}
-                <div style={{
-                    padding: "25px 20px",
-                    borderBottom: "1px solid rgba(255,255,255,0.1)"
-                }}>
-                    <div style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px"
-                    }}>
-                        <div style={{
-                            width: "36px",
-                            height: "36px",
-                            background: "white",
-                            borderRadius: "8px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "22px"
-                        }}>
+                <div className="p-6 border-b border-slate-200">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-xl text-white shadow-lg shadow-blue-500/30">
                             🛒
                         </div>
                         <div>
-                            <h1 style={{
-                                margin: 0,
-                                fontSize: "16px",
-                                fontWeight: "bold",
-                                color: "white",
-                                letterSpacing: "0.5px"
-                            }}>
+                            <h1 className="m-0 text-lg font-bold text-slate-800 tracking-wide">
                                 VEYCOFLASH
                             </h1>
+                            <span className="text-xs text-slate-500">
+                                Panel de {esAdmin ? 'Administración' : 'Moderación'}
+                            </span>
                         </div>
                     </div>
                 </div>
 
                 {/* Navigation Menu */}
-                <nav style={{ flex: 1, padding: "15px 0" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                        <button 
-                            style={{
-                                background: "rgba(255,255,255,0.15)",
-                                color: "white",
-                                border: "none",
-                                padding: "12px 20px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                textAlign: "left",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "12px",
-                                transition: "all 0.2s ease"
-                            }}
-                        >
-                            📊 Dashboard
-                        </button>
+                <nav className="flex-1 p-6 flex flex-col gap-2">
+                    <button 
+                        className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm hover:shadow-md"
+                    >
+                        📊 Dashboard
+                    </button>
 
-                        <button 
-                            onClick={gestionarProductos}
-                            style={{
-                                background: "transparent",
-                                color: "rgba(255,255,255,0.85)",
-                                border: "none",
-                                padding: "12px 20px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                textAlign: "left",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "12px",
-                                transition: "all 0.2s ease"
-                            }}
-                            onMouseEnter={(e) => {
-                                e.target.style.background = "rgba(255,255,255,0.08)";
-                                e.target.style.color = "white";
-                            }}
-                            onMouseLeave={(e) => {
-                                e.target.style.background = "transparent";
-                                e.target.style.color = "rgba(255,255,255,0.85)";
-                            }}
-                        >
-                            📦 Productos
-                        </button>
+                    <button 
+                        onClick={gestionarProductos}
+                        className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+                    >
+                        📦 Productos
+                    </button>
 
-                        <button 
-                            onClick={gestionarUsuarios}
-                            style={{
-                                background: "transparent",
-                                color: "rgba(255,255,255,0.85)",
-                                border: "none",
-                                padding: "12px 20px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                textAlign: "left",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "12px",
-                                transition: "all 0.2s ease"
-                            }}
-                            onMouseEnter={(e) => {
-                                e.target.style.background = "rgba(255,255,255,0.08)";
-                                e.target.style.color = "white";
-                            }}
-                            onMouseLeave={(e) => {
-                                e.target.style.background = "transparent";
-                                e.target.style.color = "rgba(255,255,255,0.85)";
-                            }}
-                        >
-                            👥 Usuarios
-                        </button>
+                    <button 
+                        onClick={gestionarUsuarios}
+                        className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+                    >
+                        👥 Usuarios
+                    </button>
 
-                        <button 
-                            onClick={revisarIncidentes}
-                            style={{
-                                background: "transparent",
-                                color: "rgba(255,255,255,0.85)",
-                                border: "none",
-                                padding: "12px 20px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                textAlign: "left",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "12px",
-                                transition: "all 0.2s ease"
-                            }}
-                            onMouseEnter={(e) => {
-                                e.target.style.background = "rgba(255,255,255,0.08)";
-                                e.target.style.color = "white";
-                            }}
-                            onMouseLeave={(e) => {
-                                e.target.style.background = "transparent";
-                                e.target.style.color = "rgba(255,255,255,0.85)";
-                            }}
-                        >
-                            ⚠️ Incidentes y Reportes
-                        </button>
+                    <button 
+                        onClick={revisarIncidentes}
+                        className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+                    >
+                        ⚠️ Incidentes y Reportes
+                    </button>
 
-                        <button 
-                            onClick={revisionIncidentes}
-                            style={{
-                                background: "transparent",
-                                color: "rgba(255,255,255,0.85)",
-                                border: "none",
-                                padding: "12px 20px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                textAlign: "left",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "12px",
-                                transition: "all 0.2s ease"
-                            }}
-                            onMouseEnter={(e) => {
-                                e.target.style.background = "rgba(255,255,255,0.08)";
-                                e.target.style.color = "white";
-                            }}
-                            onMouseLeave={(e) => {
-                                e.target.style.background = "transparent";
-                                e.target.style.color = "rgba(255,255,255,0.85)";
-                            }}
-                        >
-                            ✅ Revisión de Incidentes
-                        </button>
 
-                        {tipoUsuario === 'ADMINISTRADOR' && (
-                            <button 
-                                onClick={gestionarModeradores}
-                                style={{
-                                    background: "transparent",
-                                    color: "rgba(255,255,255,0.85)",
-                                    border: "none",
-                                    padding: "12px 20px",
-                                    cursor: "pointer",
-                                    fontSize: "14px",
-                                    fontWeight: "500",
-                                    textAlign: "left",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "12px",
-                                    transition: "all 0.2s ease"
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.target.style.background = "rgba(255,255,255,0.08)";
-                                    e.target.style.color = "white";
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.background = "transparent";
-                                    e.target.style.color = "rgba(255,255,255,0.85)";
-                                }}
-                            >
-                                🛡️ Moderadores
-                            </button>
-                        )}
-                    </div>
+
+                    {tipoUsuario === 'ADMINISTRADOR' && (
+                        <button 
+                            onClick={gestionarModeradores}
+                            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+                        >
+                            🛡️ Moderadores
+                        </button>
+                    )}
                 </nav>
 
                 {/* Footer con versión y botones */}
-                <div style={{
-                    padding: "20px",
-                    borderTop: "1px solid rgba(255,255,255,0.1)"
-                }}>
+                <div className="p-6 border-t border-slate-200 bg-slate-100/50">
                     <button 
                         onClick={volverASelector}
-                        style={{
-                            background: "rgba(255,255,255,0.1)",
-                            color: "white",
-                            border: "none",
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "500",
-                            textAlign: "left",
-                            width: "100%",
-                            marginBottom: "8px",
-                            transition: "all 0.2s ease"
-                        }}
-                        onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.15)"}
-                        onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.1)"}
+                        className="w-full text-left px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 bg-white text-slate-600 border border-slate-200 font-medium text-xs mb-2 hover:bg-slate-50 hover:text-slate-800"
                     >
                         🔄 Cambiar Modo
                     </button>
 
                     <button 
                         onClick={irACatalogo}
-                        style={{
-                            background: "rgba(255,255,255,0.1)",
-                            color: "white",
-                            border: "none",
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "500",
-                            textAlign: "left",
-                            width: "100%",
-                            marginBottom: "8px",
-                            transition: "all 0.2s ease"
-                        }}
-                        onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.15)"}
-                        onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.1)"}
+                        className="w-full text-left px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 bg-white text-slate-600 border border-slate-200 font-medium text-xs mb-2 hover:bg-slate-50 hover:text-slate-800"
                     >
                         🛍️ Ir al Catálogo
                     </button>
 
                     <button 
                         onClick={cerrarSesion}
-                        style={{
-                            background: "rgba(255,255,255,0.1)",
-                            color: "white",
-                            border: "none",
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "500",
-                            textAlign: "left",
-                            width: "100%",
-                            marginBottom: "15px",
-                            transition: "all 0.2s ease"
-                        }}
-                        onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.15)"}
-                        onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.1)"}
+                        className="w-full text-left px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 font-medium text-xs mb-4"
                     >
                         🚪 Cerrar Sesión
                     </button>
 
-                    <div style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px",
-                        padding: "10px 0"
-                    }}>
-                        <div style={{
-                            width: "32px",
-                            height: "32px",
-                            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                            borderRadius: "50%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "white",
-                            fontSize: "14px",
-                            fontWeight: "bold",
-                            position: "relative"
-                        }}>
-                            A
-                            <div style={{
-                                position: "absolute",
-                                bottom: "-2px",
-                                right: "-2px",
-                                width: "12px",
-                                height: "12px",
-                                background: "#fbbf24",
-                                borderRadius: "50%",
-                                border: "2px solid #2d5bff"
-                            }}></div>
+                    <div className="flex items-center gap-3 pt-3 border-t border-slate-200">
+                        <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold relative shadow-lg shadow-blue-600/30">
+                            {esAdmin ? 'A' : 'M'}
+                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></div>
+                        </div>
+                        <div>
+                            <div className="text-xs font-bold text-slate-800">
+                                {esAdmin ? 'Administrador' : 'Moderador'}
+                            </div>
+                            <div className="text-[10px] text-slate-500">En línea</div>
                         </div>
                     </div>
-
-                    <p style={{
-                        margin: "10px 0 0 0",
-                        fontSize: "11px",
-                        color: "rgba(255,255,255,0.5)",
-                        fontWeight: "500"
-                    }}>
-                        VEYCOFLASH<br/>Versión 1.0
-                    </p>
                 </div>
             </div>
 
             {/* Contenido Principal */}
-            <div style={{ flex: 1, padding: "30px 40px", background: "#f5f7fa", overflowY: "auto" }}>
+            <div className="flex-1 p-10 bg-slate-50 overflow-y-auto h-screen">
                 
                 {/* Header */}
-                <div style={{ marginBottom: "30px" }}>
-                    <h1 style={{ margin: "0 0 5px 0", fontSize: "32px", fontWeight: "bold", color: "#1a202c" }}>
+                <div className="mb-10">
+                    <h1 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight">
                         Dashboard
                     </h1>
-                    <p style={{ margin: 0, color: "#718096", fontSize: "15px" }}>
-                        Resumen de la plataforma de compra y venta
+                    <p className="text-slate-500 text-base">
+                        Resumen general y métricas de la plataforma
                     </p>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "25px" }}>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
                     {/* Sección Izquierda - Actividades Recientes */}
-                    <div>
-                        {/* Grid de Métricas - ACTUALIZADO CON 5 COLUMNAS */}
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", gap: "20px", marginBottom: "30px" }}>
+                    <div className="lg:col-span-2">
+                        {/* Grid de Métricas */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-8">
                             {/* Usuarios Activos */}
-                            <div style={{
-                                background: "white",
-                                padding: "20px",
-                                borderRadius: "12px",
-                                boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "15px",
-                                position: "relative"
-                            }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                    <h3 style={{ margin: 0, color: "#718096", fontSize: "13px", fontWeight: "600" }}>
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 relative">
+                                <div className="flex justify-between items-start">
+                                    <h3 className="m-0 text-slate-500 text-sm font-semibold">
                                         Usuarios Activos
                                     </h3>
-                                    <div style={{
-                                        width: "40px",
-                                        height: "40px",
-                                        background: "#3b82f6",
-                                        borderRadius: "50%",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        fontSize: "20px"
-                                    }}>👥</div>
+                                    <div className="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center text-xl">
+                                        👥
+                                    </div>
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: "28px", fontWeight: "700", color: "#1a202c", marginBottom: "5px" }}>
+                                    <div className="text-3xl font-bold text-slate-900 mb-1">
                                         {estadisticas.usuariosActivos || 0}
                                     </div>
-                                    <div style={{ fontSize: "12px", color: "#718096" }}>
-                                        +{estadisticas.usuariosEsteMes || 0} este mes
+                                    <div className="text-xs text-emerald-500 font-medium flex items-center gap-1">
+                                        <span>↑</span> {estadisticas.usuariosEsteMes || 0} este mes
                                     </div>
                                 </div>
                             </div>
 
                             {/* Productos Publicados */}
-                            <div style={{
-                                background: "white",
-                                padding: "20px",
-                                borderRadius: "12px",
-                                boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "15px"
-                            }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                    <h3 style={{ margin: 0, color: "#718096", fontSize: "13px", fontWeight: "600" }}>
-                                        Productos Publicados
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
+                                <div className="flex justify-between items-start">
+                                    <h3 className="m-0 text-slate-500 text-sm font-semibold">
+                                        Productos
                                     </h3>
-                                    <div style={{
-                                        width: "40px",
-                                        height: "40px",
-                                        background: "#06b6d4",
-                                        borderRadius: "50%",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        fontSize: "20px"
-                                    }}>📦</div>
+                                    <div className="w-10 h-10 bg-cyan-50 text-cyan-500 rounded-xl flex items-center justify-center text-xl">
+                                        📦
+                                    </div>
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: "28px", fontWeight: "700", color: "#1a202c", marginBottom: "5px" }}>
+                                    <div className="text-3xl font-bold text-slate-900 mb-1">
                                         {estadisticas.productosPublicados || 0}
                                     </div>
-                                    <div style={{ fontSize: "12px", color: "#718096" }}>
-                                        +{estadisticas.productosEsteMes || 0} este mes
+                                    <div className="text-xs text-emerald-500 font-medium flex items-center gap-1">
+                                        <span>↑</span> {estadisticas.productosEsteMes || 0} este mes
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Servicios Publicados - NUEVO */}
-                            <div style={{
-                                background: "white",
-                                padding: "20px",
-                                borderRadius: "12px",
-                                boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "15px"
-                            }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                    <h3 style={{ margin: 0, color: "#718096", fontSize: "13px", fontWeight: "600" }}>
-                                        Servicios Publicados
+                            {/* Servicios Publicados */}
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
+                                <div className="flex justify-between items-start">
+                                    <h3 className="m-0 text-slate-500 text-sm font-semibold">
+                                        Servicios
                                     </h3>
-                                    <div style={{
-                                        width: "40px",
-                                        height: "40px",
-                                        background: "#10b981",
-                                        borderRadius: "50%",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        fontSize: "20px"
-                                    }}>🔧</div>
+                                    <div className="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center text-xl">
+                                        🔧
+                                    </div>
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: "28px", fontWeight: "700", color: "#1a202c", marginBottom: "5px" }}>
+                                    <div className="text-3xl font-bold text-slate-900 mb-1">
                                         {estadisticas.serviciosPublicados || 0}
                                     </div>
-                                    <div style={{ fontSize: "12px", color: "#718096" }}>
-                                        +{estadisticas.serviciosEsteMes || 0} este mes
+                                    <div className="text-xs text-emerald-500 font-medium flex items-center gap-1">
+                                        <span>↑</span> {estadisticas.serviciosEsteMes || 0} este mes
                                     </div>
                                 </div>
                             </div>
 
                             {/* Transacciones */}
-                            <div style={{
-                                background: "white",
-                                padding: "20px",
-                                borderRadius: "12px",
-                                boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "15px"
-                            }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                    <h3 style={{ margin: 0, color: "#718096", fontSize: "13px", fontWeight: "600" }}>
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
+                                <div className="flex justify-between items-start">
+                                    <h3 className="m-0 text-slate-500 text-sm font-semibold">
                                         Transacciones
                                     </h3>
-                                    <div style={{
-                                        width: "40px",
-                                        height: "40px",
-                                        background: "#8b5cf6",
-                                        borderRadius: "50%",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        fontSize: "20px"
-                                    }}>🛒</div>
+                                    <div className="w-10 h-10 bg-violet-50 text-violet-500 rounded-xl flex items-center justify-center text-xl">
+                                        🛒
+                                    </div>
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: "28px", fontWeight: "700", color: "#1a202c", marginBottom: "5px" }}>
+                                    <div className="text-3xl font-bold text-slate-900 mb-1">
                                         {estadisticas.transaccionesTotales || 0}
                                     </div>
-                                    <div style={{ fontSize: "12px", color: "#718096" }}>
-                                        +{estadisticas.transaccionesEstaSemana || 0} esta semana
+                                    <div className="text-xs text-emerald-500 font-medium flex items-center gap-1">
+                                        <span>↑</span> {estadisticas.transaccionesEstaSemana || 0} esta semana
                                     </div>
                                 </div>
                             </div>
 
                             {/* Tasa de Éxito */}
-                            <div style={{
-                                background: "white",
-                                padding: "20px",
-                                borderRadius: "12px",
-                                boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "15px"
-                            }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                    <h3 style={{ margin: 0, color: "#718096", fontSize: "13px", fontWeight: "600" }}>
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
+                                <div className="flex justify-between items-start">
+                                    <h3 className="m-0 text-slate-500 text-sm font-semibold">
                                         Tasa de Éxito
                                     </h3>
-                                    <div style={{
-                                        width: "40px",
-                                        height: "40px",
-                                        background: "#f59e0b",
-                                        borderRadius: "50%",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        fontSize: "20px"
-                                    }}>📈</div>
+                                    <div className="w-10 h-10 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center text-xl">
+                                        📈
+                                    </div>
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: "28px", fontWeight: "700", color: "#1a202c", marginBottom: "5px" }}>
+                                    <div className="text-3xl font-bold text-slate-900 mb-1">
                                         {Math.round(estadisticas.tasaExito || 0)}%
                                     </div>
-                                    <div style={{ fontSize: "12px", color: "#718096" }}>
-                                        +{Math.round(estadisticas.tasaExitoEsteMes || 0)}% este mes
+                                    <div className="text-xs text-emerald-500 font-medium flex items-center gap-1">
+                                        <span>↑</span> {Math.round(estadisticas.tasaExitoEsteMes || 0)}% este mes
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Actividades Recientes */}
-                        <div style={{ background: "white", padding: "25px", borderRadius: "12px", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
-                            <h2 style={{ margin: "0 0 20px 0", color: "#1a202c", fontSize: "18px", fontWeight: "700" }}>
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <h2 className="m-0 mb-6 text-slate-900 text-lg font-bold">
                                 Actividades Recientes
                             </h2>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+                            <div className="flex flex-col">
                                 {actividades.length > 0 ? (
                                     actividades.map((actividad, index) => (
-                                        <div key={index} style={{ 
-                                            display: "flex", 
-                                            justifyContent: "space-between",
-                                            alignItems: "flex-start", 
-                                            padding: "15px 0", 
-                                            borderBottom: index < actividades.length - 1 ? "1px solid #e2e8f0" : "none"
-                                        }}>
-                                            <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                                                <div style={{ fontSize: "1.3rem", opacity: "0.7", marginTop: "2px" }}>
+                                        <div key={index} className={`flex justify-between items-center py-4 ${
+                                            index < actividades.length - 1 ? "border-b border-slate-50" : ""
+                                        }`}>
+                                            <div className="flex gap-4 items-center">
+                                                <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-lg">
                                                     {actividad.tipo && actividad.tipo.includes('Producto') ? '📦' : 
                                                      actividad.tipo && actividad.tipo.includes('Servicio') ? '🔧' : '💰'}
                                                 </div>
                                                 <div>
-                                                    <h4 style={{ margin: "0 0 4px 0", color: "#1a202c", fontSize: "14px", fontWeight: "600" }}>
+                                                    <h4 className="m-0 mb-1 text-slate-900 text-sm font-semibold">
                                                         {actividad.tipo || "Actividad del sistema"}
                                                     </h4>
-                                                    <p style={{ margin: 0, color: "#718096", fontSize: "13px" }}>
-                                                        Por: {actividad.usuario || "Usuario desconocido"}
+                                                    <p className="m-0 text-slate-500 text-xs">
+                                                        Por: <span className="font-medium text-slate-700">{actividad.usuario || "Usuario desconocido"}</span>
                                                     </p>
                                                 </div>
                                             </div>
-                                            <span style={{ 
-                                                fontSize: "12px", 
-                                                color: "#3b82f6",
-                                                fontWeight: "500",
-                                                whiteSpace: "nowrap"
-                                            }}>
+                                            <span className="text-xs text-slate-500 font-medium bg-slate-50 px-3 py-1 rounded-full">
                                                 {actividad.fecha ? new Date(actividad.fecha).toLocaleDateString() : "Fecha no disponible"}
                                             </span>
                                         </div>
                                     ))
                                 ) : (
-                                    <div style={{ textAlign: "center", padding: "20px", color: "#718096" }}>
+                                    <div className="text-center py-10 text-slate-400">
                                         No hay actividades recientes
                                     </div>
                                 )}
@@ -769,41 +426,26 @@ const DashboardAdmin = () => {
                     </div>
 
                     {/* Sección Derecha - Estado de la Plataforma */}
-                    <div style={{ background: "white", padding: "25px", borderRadius: "12px", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", height: "fit-content" }}>
-                        <h2 style={{ margin: "0 0 20px 0", color: "#1a202c", fontSize: "18px", fontWeight: "700" }}>
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-fit">
+                        <h2 className="m-0 mb-6 text-slate-900 text-lg font-bold">
                             Estado de la Plataforma
                         </h2>
                         
-                        <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                        <div className="flex flex-col gap-4">
                             {[
-                                { label: "Estado del Servidor", value: estados.servidor || "Verificando...", color: "#10b981" },
-                                { label: "Pasarela de Pago", value: estados.pago || "Verificando...", color: "#10b981" },
-                                { label: "Sistema de Notificaciones", value: estados.notificaciones || "Verificando...", color: "#10b981" },
-                                { label: "Tiempo de Respuesta", value: estados.respuesta || "Verificando...", color: "#f59e0b" }
+                                { label: "Estado del Servidor", value: estados.servidor || "Verificando...", color: "text-emerald-500", bg: "bg-emerald-500", ring: "ring-emerald-100" },
+                                { label: "Pasarela de Pago", value: estados.pago || "Verificando...", color: "text-emerald-500", bg: "bg-emerald-500", ring: "ring-emerald-100" },
+                                { label: "Sistema de Notificaciones", value: estados.notificaciones || "Verificando...", color: "text-emerald-500", bg: "bg-emerald-500", ring: "ring-emerald-100" },
+                                { label: "Tiempo de Respuesta", value: estados.respuesta || "Verificando...", color: "text-amber-500", bg: "bg-amber-500", ring: "ring-amber-100" }
                             ].map((item, index) => (
-                                <div key={index} style={{ 
-                                    display: "flex", 
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    padding: "12px 0",
-                                    borderBottom: index < 3 ? "1px solid #e2e8f0" : "none"
-                                }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                        <div style={{ 
-                                            width: "8px", 
-                                            height: "8px", 
-                                            borderRadius: "50%", 
-                                            background: item.color 
-                                        }}></div>
-                                        <span style={{ fontSize: "14px", fontWeight: "500", color: "#1a202c" }}>
+                                <div key={index} className="flex justify-between items-center p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-2.5 h-2.5 rounded-full ${item.bg} ring-4 ${item.ring}`}></div>
+                                        <span className="text-sm font-semibold text-slate-700">
                                             {item.label}
                                         </span>
                                     </div>
-                                    <small style={{ 
-                                        fontSize: "12px", 
-                                        color: item.color,
-                                        fontWeight: "600"
-                                    }}>
+                                    <small className={`text-xs ${item.color} font-bold bg-white px-2 py-1 rounded-md shadow-sm`}>
                                         {item.value}
                                     </small>
                                 </div>

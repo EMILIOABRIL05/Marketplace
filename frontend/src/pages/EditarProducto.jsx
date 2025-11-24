@@ -16,8 +16,13 @@ export default function EditarProducto() {
     categoria: "",
     ubicacion: "",
     stock: "",
-    estado: "" // ← CAMBIADO: de estadoProducto a estado
+    estado: "", // ← CAMBIADO: de estadoProducto a estado
+    deunaNumero: ""
   });
+
+  const [deunaQr, setDeunaQr] = useState(null);
+  const [deunaQrPreview, setDeunaQrPreview] = useState(null);
+  const [deunaQrExistente, setDeunaQrExistente] = useState(null);
 
   const categorias = [
     "Electrónica",
@@ -77,8 +82,13 @@ export default function EditarProducto() {
         categoria: producto.tipo || "",
         ubicacion: producto.ubicacion || "",
         stock: producto.cantidad || "", // ← cantidad del backend a stock del frontend
-        estado: producto.estadoProducto || "Nuevo" // ← valor por defecto
+        estado: producto.estadoProducto || "Nuevo", // ← valor por defecto
+        deunaNumero: producto.deunaNumero || ""
       });
+
+      if (producto.deunaQrUrl) {
+        setDeunaQrExistente(producto.deunaQrUrl);
+      }
 
       // Cargar imágenes existentes
       const imagenesExistentes = [];
@@ -142,6 +152,36 @@ export default function EditarProducto() {
     });
 
     e.target.value = "";
+  }
+
+  function handleQrChange(e) {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+
+    if (!archivo.type.startsWith('image/')) {
+      alert("El archivo debe ser una imagen");
+      return;
+    }
+
+    if (archivo.size > 5 * 1024 * 1024) {
+      alert("La imagen supera los 5MB");
+      return;
+    }
+
+    setDeunaQr(archivo);
+    
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setDeunaQrPreview(reader.result);
+    };
+    reader.readAsDataURL(archivo);
+  }
+
+  function eliminarQr() {
+    setDeunaQr(null);
+    setDeunaQrPreview(null);
+    // Nota: No eliminamos el QR existente del backend aquí, solo la nueva selección
+    // Si se quisiera eliminar el existente, necesitaríamos lógica adicional en el backend
   }
 
   function eliminarImagen(index) {
@@ -210,6 +250,14 @@ export default function EditarProducto() {
         formDataToSend.append("cantidad", formData.stock); // ← CORREGIDO: agregar cantidad
         formDataToSend.append("estado", formData.estado); // ← CORREGIDO: agregar estado
         formDataToSend.append("vendedorId", user.id);
+        
+        if (formData.deunaNumero) {
+          formDataToSend.append("deunaNumero", formData.deunaNumero);
+        }
+        
+        if (deunaQr) {
+          formDataToSend.append("deunaQr", deunaQr);
+        }
 
         // Agregar solo las nuevas imágenes
         imagenes.forEach(img => {
@@ -226,7 +274,38 @@ export default function EditarProducto() {
         });
       } else {
         // Si no hay nuevas imágenes, actualizar solo los datos
-        await api.put(`/productos/${id}`, dataToSend);
+        // Pero si hay QR nuevo, debemos usar FormData
+        if (deunaQr) {
+            const formDataToSend = new FormData();
+            formDataToSend.append("nombre", formData.nombre);
+            formDataToSend.append("descripcion", formData.descripcion);
+            formDataToSend.append("precio", formData.precio);
+            formDataToSend.append("categoria", formData.categoria);
+            formDataToSend.append("ubicacion", formData.ubicacion);
+            formDataToSend.append("cantidad", formData.stock);
+            formDataToSend.append("estado", formData.estado);
+            formDataToSend.append("vendedorId", user.id);
+            
+            if (formData.deunaNumero) {
+                formDataToSend.append("deunaNumero", formData.deunaNumero);
+            }
+            
+            formDataToSend.append("deunaQr", deunaQr);
+            
+            await api.put(`/productos/${id}`, formDataToSend, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: `Bearer ${user.token}`
+                }
+            });
+        } else {
+            // Agregar deunaNumero al objeto JSON
+            const dataWithDeuna = {
+                ...dataToSend,
+                deunaNumero: formData.deunaNumero
+            };
+            await api.put(`/productos/${id}`, dataWithDeuna);
+        }
       }
 
       alert("✅ Producto actualizado correctamente");
@@ -241,243 +320,110 @@ export default function EditarProducto() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontSize: "18px", color: "#666" }}>Cargando producto...</p>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg text-slate-600 font-medium">Cargando producto...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ 
-      minHeight: "100vh", 
-      background: "white", 
-      display: "flex",
-      fontFamily: "Arial, sans-serif"
-    }}>
+    <div className="min-h-screen bg-slate-50 flex font-sans">
       
-      {/* Sidebar Azul */}
-      <div style={{
-        width: "280px",
-        background: "#00ccff",
-        color: "white",
-        padding: "30px 20px",
-        display: "flex",
-        flexDirection: "column"
-      }}>
+      {/* Sidebar Celeste */}
+      <div className="w-[280px] bg-sky-50 text-slate-800 flex flex-col relative z-10 shadow-2xl">
         
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          marginBottom: "50px",
-          paddingBottom: "20px",
-          borderBottom: "2px solid rgba(255,255,255,0.3)"
-        }}>
-          <div style={{
-            width: "40px",
-            height: "40px",
-            background: "rgba(255,255,255,0.2)",
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-            backdropFilter: "blur(10px)"
-          }}>
-            🛒
+        {/* Logo Header */}
+        <div className="p-6 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-xl text-white shadow-lg shadow-blue-500/30">
+              🛒
+            </div>
+            <div>
+              <h1 className="m-0 text-lg font-bold text-slate-800 tracking-wide">
+                VEYCOFLASH
+              </h1>
+            </div>
           </div>
-          <h1 style={{
-            margin: 0,
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: "#1a237e"
-          }}>
-            VEYCOFLASH
-          </h1>
         </div>
 
-        <nav style={{ flex: 1 }}>
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "15px"
-          }}>
-            <button 
-              onClick={() => nav("/catalogo")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              🏠 Catálogo
-            </button>
+        {/* Navigation Menu */}
+        <nav className="flex-1 p-6 flex flex-col gap-2">
+          <button 
+            onClick={() => nav("/catalogo")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm hover:shadow-md"
+          >
+            🏠 Catálogo
+          </button>
 
-            <button 
-              onClick={() => nav("/publicar")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              ➕ Publicar Producto
-            </button>
+          <button 
+            onClick={() => nav("/publicar")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ➕ Publicar
+          </button>
 
-            <button 
-              onClick={() => nav("/favoritos")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              ❤️ Favoritos
-            </button>
+          <button 
+            onClick={() => nav("/favoritos")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ❤️ Favoritos
+          </button>
 
-            <button 
-              onClick={() => nav("/historial")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              📊 Historial
-            </button>
+          <button 
+            onClick={() => nav("/historial")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            📊 Historial
+          </button>
 
-            <button 
-              onClick={() => nav("/perfil")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              👤 Mi Perfil
-            </button>
-          </div>
+          <button 
+            onClick={() => nav("/mensajes")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💬 Mensajes
+          </button>
+
+          <button 
+            onClick={() => nav("/perfil")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            👤 Mi Perfil
+          </button>
         </nav>
       </div>
 
       {/* Contenido Principal */}
-      <div style={{
-        flex: 1,
-        padding: "30px 40px",
-        background: "#f8f9fa",
-        overflowY: "auto"
-      }}>
+      <div className="flex-1 p-10 bg-slate-50 overflow-y-auto h-screen">
         
         {/* Header */}
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "30px"
-        }}>
+        <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 style={{
-              color: "#333",
-              fontSize: "28px",
-              fontWeight: "bold",
-              margin: "0 0 8px 0"
-            }}>
+            <h1 className="text-2xl font-bold text-slate-800 mb-2">
               ✏️ Editar Producto
             </h1>
-            <p style={{ color: "#666", margin: 0, fontSize: "14px" }}>
+            <p className="text-slate-500 text-sm">
               Modifica la información de tu producto
             </p>
           </div>
           
           <button 
             onClick={() => nav("/perfil")}
-            style={{
-              background: "#6c757d",
-              color: "white",
-              border: "none",
-              padding: "12px 24px",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontWeight: "bold",
-              transition: "background 0.3s ease"
-            }}
-            onMouseEnter={(e) => e.target.style.background = "#5a6268"}
-            onMouseLeave={(e) => e.target.style.background = "#6c757d"}
+            className="bg-white text-slate-600 border border-slate-200 px-6 py-3 rounded-xl cursor-pointer text-sm font-bold hover:bg-slate-50 transition-all shadow-sm"
           >
             ← Volver al Perfil
           </button>
         </div>
 
         {/* Formulario */}
-        <div style={{
-          background: "white",
-          borderRadius: "12px",
-          padding: "30px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          maxWidth: "800px"
-        }}>
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 max-w-4xl">
           <form onSubmit={handleSubmit}>
             
             {/* Nombre del Producto */}
-            <div style={{ marginBottom: "24px" }}>
-              <label style={{
-                display: "block",
-                marginBottom: "8px",
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#333"
-              }}>
+            <div className="mb-6">
+              <label className="block text-sm font-bold text-slate-700 mb-2">
                 Nombre del Producto *
               </label>
               <input
@@ -486,30 +432,13 @@ export default function EditarProducto() {
                 value={formData.nombre}
                 onChange={handleChange}
                 placeholder="Ej: iPhone 13 Pro Max"
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  border: "2px solid #e9ecef",
-                  borderRadius: "8px",
-                  fontSize: "16px",
-                  outline: "none",
-                  transition: "border 0.3s ease",
-                  boxSizing: "border-box"
-                }}
-                onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
             </div>
 
             {/* Descripción */}
-            <div style={{ marginBottom: "24px" }}>
-              <label style={{
-                display: "block",
-                marginBottom: "8px",
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#333"
-              }}>
+            <div className="mb-6">
+              <label className="block text-sm font-bold text-slate-700 mb-2">
                 Descripción *
               </label>
               <textarea
@@ -518,38 +447,14 @@ export default function EditarProducto() {
                 onChange={handleChange}
                 placeholder="Describe tu producto en detalle..."
                 rows="5"
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  border: "2px solid #e9ecef",
-                  borderRadius: "8px",
-                  fontSize: "16px",
-                  outline: "none",
-                  resize: "vertical",
-                  fontFamily: "Arial, sans-serif",
-                  transition: "border 0.3s ease",
-                  boxSizing: "border-box"
-                }}
-                onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
               />
             </div>
 
             {/* Precio, Categoría y Stock */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
-              gap: "20px",
-              marginBottom: "24px"
-            }}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div>
-                <label style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333"
-                }}>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Precio ($) *
                 </label>
                 <input
@@ -560,49 +465,19 @@ export default function EditarProducto() {
                   placeholder="0.00"
                   step="0.01"
                   min="0"
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: "2px solid #e9ecef",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    outline: "none",
-                    transition: "border 0.3s ease",
-                    boxSizing: "border-box"
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                  onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 />
               </div>
 
               <div>
-                <label style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333"
-                }}>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Categoría *
                 </label>
                 <select
                   name="categoria"
                   value={formData.categoria}
                   onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: "2px solid #e9ecef",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    outline: "none",
-                    cursor: "pointer",
-                    transition: "border 0.3s ease",
-                    boxSizing: "border-box",
-                    background: "white"
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                  onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                 >
                   <option value="">Selecciona una categoría</option>
                   {categorias.map(cat => (
@@ -612,13 +487,7 @@ export default function EditarProducto() {
               </div>
 
               <div>
-                <label style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333"
-                }}>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Stock (Cantidad) *
                 </label>
                 <input
@@ -628,57 +497,22 @@ export default function EditarProducto() {
                   onChange={handleChange}
                   placeholder="0"
                   min="1"
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: "2px solid #e9ecef",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    outline: "none",
-                    transition: "border 0.3s ease",
-                    boxSizing: "border-box"
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                  onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 />
               </div>
             </div>
 
             {/* Ubicación y Estado */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "20px",
-              marginBottom: "24px"
-            }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333"
-                }}>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Provincia *
                 </label>
                 <select
                   name="ubicacion"
                   value={formData.ubicacion}
                   onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: "2px solid #e9ecef",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    outline: "none",
-                    cursor: "pointer",
-                    transition: "border 0.3s ease",
-                    boxSizing: "border-box",
-                    background: "white"
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                  onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                 >
                   <option value="">Selecciona una provincia</option>
                   {provincias.map(provincia => (
@@ -688,33 +522,14 @@ export default function EditarProducto() {
               </div>
 
               <div>
-                <label style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333"
-                }}>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Estado del Producto *
                 </label>
                 <select
-                  name="estado" // ← CAMBIADO: de estadoProducto a estado
+                  name="estado"
                   value={formData.estado}
                   onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: "2px solid #e9ecef",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    outline: "none",
-                    cursor: "pointer",
-                    transition: "border 0.3s ease",
-                    boxSizing: "border-box",
-                    background: "white"
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                  onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                 >
                   <option value="">Selecciona el estado</option>
                   {estadosProducto.map(est => (
@@ -724,100 +539,136 @@ export default function EditarProducto() {
               </div>
             </div>
 
+            {/* Sección de Pagos Deuna */}
+            <div className="mb-8 p-6 bg-emerald-50 border border-emerald-100 rounded-2xl">
+              <h3 className="text-lg font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                💳 Datos de Pago (Deuna)
+              </h3>
+              <p className="text-sm text-emerald-600 mb-4">
+                Actualiza tu número de cuenta y código QR.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block mb-2 text-sm font-bold text-emerald-700">
+                    Número de Cuenta Deuna
+                  </label>
+                  <input
+                    type="text"
+                    name="deunaNumero"
+                    value={formData.deunaNumero}
+                    onChange={handleChange}
+                    placeholder="Ej: 1234567890"
+                    className="w-full px-4 py-3 bg-white border border-emerald-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-2 text-sm font-bold text-emerald-700">
+                    Código QR Deuna (Imagen)
+                  </label>
+                  
+                  {!deunaQrPreview && !deunaQrExistente ? (
+                    <div 
+                      className="border-2 border-dashed border-emerald-300 rounded-xl p-4 text-center bg-white hover:bg-emerald-50 cursor-pointer transition-all"
+                      onClick={() => document.getElementById("qr-input").click()}
+                    >
+                      <div className="text-2xl mb-2">📱</div>
+                      <p className="text-xs font-bold text-emerald-700">Subir QR</p>
+                      <input
+                        id="qr-input"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleQrChange}
+                        className="hidden"
+                      />
+                    </div>
+                  ) : (
+                    <div className="relative w-32 h-32 mx-auto bg-white rounded-xl overflow-hidden border border-emerald-200 shadow-sm group">
+                      <img 
+                        src={deunaQrPreview || `http://localhost:8080${deunaQrExistente}`} 
+                        alt="QR Preview" 
+                        className="w-full h-full object-contain"
+                      />
+                      
+                      {/* Badge tipo de imagen */}
+                      <div className={`absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-bold shadow-sm text-white ${
+                        deunaQrPreview ? "bg-yellow-500" : "bg-green-500"
+                      }`}>
+                        {deunaQrPreview ? 'NUEVO' : 'ACTUAL'}
+                      </div>
+
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button
+                            type="button"
+                            onClick={() => document.getElementById("qr-input").click()}
+                            className="bg-white text-emerald-600 px-2 py-1 rounded text-xs font-bold mr-1"
+                          >
+                            Cambiar
+                          </button>
+                          {deunaQrPreview && (
+                            <button
+                                type="button"
+                                onClick={eliminarQr}
+                                className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold"
+                            >
+                                Cancelar
+                            </button>
+                          )}
+                      </div>
+                      <input
+                        id="qr-input"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleQrChange}
+                        className="hidden"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Gestión de Imágenes */}
-            <div style={{ marginBottom: "30px" }}>
-              <label style={{
-                display: "block",
-                marginBottom: "8px",
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#333"
-              }}>
+            <div className="mb-8">
+              <label className="block text-sm font-bold text-slate-700 mb-2">
                 Imágenes del Producto * (mínimo 1, máximo 5)
               </label>
 
               {/* Galería de imágenes */}
               {imagenes.length > 0 && (
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-                  gap: "12px",
-                  marginBottom: "16px"
-                }}>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
                   {imagenes.map((img, index) => (
-                    <div key={index} style={{
-                      position: "relative",
-                      aspectRatio: "1",
-                      borderRadius: "8px",
-                      overflow: "hidden",
-                      border: index === 0 ? "3px solid #00ccff" : "2px solid #e9ecef",
-                      background: "#f8f9fa"
-                    }}>
+                    <div key={index} className={`relative aspect-square rounded-xl overflow-hidden border-2 ${
+                      index === 0 ? "border-blue-500" : "border-slate-200"
+                    } bg-slate-50 group`}>
                       <img 
                         src={img.tipo === 'existente' ? `http://localhost:8080${img.url}` : img.preview}
                         alt={`Preview ${index + 1}`}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover"
-                        }}
+                        className="w-full h-full object-cover"
                       />
                       
                       {/* Badge "Principal" */}
                       {index === 0 && (
-                        <div style={{
-                          position: "absolute",
-                          top: "8px",
-                          left: "8px",
-                          background: "#00ccff",
-                          color: "white",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          fontSize: "11px",
-                          fontWeight: "bold"
-                        }}>
+                        <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm">
                           ⭐ PRINCIPAL
                         </div>
                       )}
 
                       {/* Badge tipo de imagen */}
-                      <div style={{
-                        position: "absolute",
-                        top: "8px",
-                        right: "8px",
-                        background: img.tipo === 'existente' ? "#28a745" : "#ffc107",
-                        color: "white",
-                        padding: "2px 6px",
-                        borderRadius: "4px",
-                        fontSize: "10px",
-                        fontWeight: "bold"
-                      }}>
+                      <div className={`absolute top-2 right-2 px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm text-white ${
+                        img.tipo === 'existente' ? "bg-green-500" : "bg-yellow-500"
+                      }`}>
                         {img.tipo === 'existente' ? 'EXISTENTE' : 'NUEVA'}
                       </div>
 
                       {/* Botones de acción */}
-                      <div style={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        background: "rgba(0,0,0,0.7)",
-                        display: "flex",
-                        justifyContent: "space-around",
-                        padding: "8px"
-                      }}>
+                      <div className="absolute inset-x-0 bottom-0 bg-black/60 p-2 flex justify-around opacity-0 group-hover:opacity-100 transition-opacity">
                         {index !== 0 && (
                           <button
                             type="button"
                             onClick={() => establecerPrincipal(index)}
-                            style={{
-                              background: "transparent",
-                              color: "white",
-                              border: "none",
-                              cursor: "pointer",
-                              fontSize: "18px",
-                              padding: "4px"
-                            }}
+                            className="text-white hover:text-yellow-400 transition-colors text-lg"
                             title="Establecer como principal"
                           >
                             ⭐
@@ -826,14 +677,7 @@ export default function EditarProducto() {
                         <button
                           type="button"
                           onClick={() => eliminarImagen(index)}
-                          style={{
-                            background: "transparent",
-                            color: "#ff4444",
-                            border: "none",
-                            cursor: "pointer",
-                            fontSize: "18px",
-                            padding: "4px"
-                          }}
+                          className="text-white hover:text-red-400 transition-colors text-lg"
                           title="Eliminar"
                         >
                           🗑️
@@ -847,24 +691,14 @@ export default function EditarProducto() {
               {/* Botón para agregar más imágenes */}
               {imagenes.length < 5 && (
                 <div 
-                  style={{
-                    border: "2px dashed #00ccff",
-                    borderRadius: "8px",
-                    padding: "30px",
-                    textAlign: "center",
-                    background: "#f8f9fa",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease"
-                  }}
-                  onMouseEnter={(e) => e.target.style.background = "#e9ecef"}
-                  onMouseLeave={(e) => e.target.style.background = "#f8f9fa"}
+                  className="border-2 border-dashed border-blue-300 rounded-xl p-8 text-center bg-blue-50/50 hover:bg-blue-50 cursor-pointer transition-all group"
                   onClick={() => document.getElementById("imagenes-input").click()}
                 >
-                  <div style={{ fontSize: "48px", marginBottom: "12px" }}>📸</div>
-                  <p style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600", color: "#333" }}>
+                  <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">📸</div>
+                  <p className="text-sm font-bold text-slate-700 mb-1">
                     {imagenes.length === 0 ? "Haz clic para agregar imágenes" : `Agregar más imágenes (${imagenes.length}/5)`}
                   </p>
-                  <p style={{ margin: 0, fontSize: "13px", color: "#666" }}>
+                  <p className="text-xs text-slate-500">
                     JPG, PNG o GIF (máximo 5MB cada una)
                   </p>
                   <input
@@ -873,47 +707,24 @@ export default function EditarProducto() {
                     accept="image/*"
                     multiple
                     onChange={handleImagenesChange}
-                    style={{ display: "none" }}
+                    className="hidden"
                   />
                 </div>
               )}
 
               {imagenes.length > 0 && (
-                <p style={{ 
-                  margin: "12px 0 0 0", 
-                  fontSize: "13px", 
-                  color: "#666",
-                  fontStyle: "italic"
-                }}>
+                <p className="mt-3 text-xs text-slate-500 italic">
                   💡 La primera imagen será la principal. Haz clic en ⭐ para cambiarla.
                 </p>
               )}
             </div>
 
             {/* Botones */}
-            <div style={{
-              display: "flex",
-              gap: "12px",
-              justifyContent: "flex-end",
-              paddingTop: "20px",
-              borderTop: "2px solid #e9ecef"
-            }}>
+            <div className="flex gap-3 justify-end pt-6 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => nav("/perfil")}
-                style={{
-                  background: "#6c757d",
-                  color: "white",
-                  border: "none",
-                  padding: "14px 28px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  transition: "background 0.3s ease"
-                }}
-                onMouseEnter={(e) => e.target.style.background = "#5a6268"}
-                onMouseLeave={(e) => e.target.style.background = "#6c757d"}
+                className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
               >
                 Cancelar
               </button>
@@ -921,19 +732,11 @@ export default function EditarProducto() {
               <button
                 type="submit"
                 disabled={guardando}
-                style={{
-                  background: guardando ? "#999" : "#00ccff",
-                  color: "white",
-                  border: "none",
-                  padding: "14px 28px",
-                  borderRadius: "8px",
-                  cursor: guardando ? "not-allowed" : "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  transition: "background 0.3s ease"
-                }}
-                onMouseEnter={(e) => !guardando && (e.target.style.background = "#00b3e6")}
-                onMouseLeave={(e) => !guardando && (e.target.style.background = "#00ccff")}
+                className={`px-6 py-3 rounded-xl text-sm font-bold text-white transition-all shadow-lg shadow-blue-500/20 ${
+                  guardando 
+                    ? "bg-slate-400 cursor-not-allowed" 
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
               >
                 {guardando ? "Guardando..." : "💾 Guardar Cambios"}
               </button>
@@ -943,20 +746,12 @@ export default function EditarProducto() {
         </div>
 
         {/* Nota informativa */}
-        <div style={{
-          marginTop: "20px",
-          padding: "16px",
-          background: "#d1ecf1",
-          border: "1px solid #bee5eb",
-          borderRadius: "8px",
-          maxWidth: "800px"
-        }}>
-          <p style={{
-            margin: 0,
-            fontSize: "14px",
-            color: "#0c5460"
-          }}>
-            💡 <strong>Consejo:</strong> Puedes mantener las imágenes existentes o agregar nuevas. Las imágenes marcadas como "EXISTENTE" se conservarán, las "NUEVAS" reemplazarán a las anteriores.
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl max-w-4xl">
+          <p className="text-sm text-blue-800 flex items-start gap-2">
+            <span className="text-lg">💡</span>
+            <span>
+              <strong>Consejo:</strong> Puedes mantener las imágenes existentes o agregar nuevas. Las imágenes marcadas como "EXISTENTE" se conservarán, las "NUEVAS" reemplazarán a las anteriores.
+            </span>
           </p>
         </div>
 

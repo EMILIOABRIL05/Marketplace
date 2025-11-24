@@ -1,16 +1,17 @@
 package com.tuempresa.appventas.service;
 
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tuempresa.appventas.model.Mensaje;
 import com.tuempresa.appventas.model.Producto;
 import com.tuempresa.appventas.model.Servicio;
 import com.tuempresa.appventas.model.Usuario;
 import com.tuempresa.appventas.repository.MensajeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class MensajeService {
@@ -18,25 +19,58 @@ public class MensajeService {
     @Autowired
     private MensajeRepository mensajeRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     // Enviar mensaje simple
     @Transactional
     public Mensaje enviarMensaje(Usuario remitente, Usuario destinatario, String contenido) {
         Mensaje mensaje = new Mensaje(remitente, destinatario, contenido);
-        return mensajeRepository.save(mensaje);
+        Mensaje guardado = mensajeRepository.save(mensaje);
+        
+        // Enviar notificación por correo
+        emailService.enviarNotificacionMensaje(
+            destinatario.getEmail(), 
+            destinatario.getNombre(), 
+            remitente.getNombre() + " " + remitente.getApellido(), 
+            contenido
+        );
+        
+        return guardado;
     }
 
     // Enviar mensaje relacionado con un producto
     @Transactional
     public Mensaje enviarMensajeProducto(Usuario remitente, Usuario destinatario, String contenido, Producto producto) {
         Mensaje mensaje = new Mensaje(remitente, destinatario, contenido, producto);
-        return mensajeRepository.save(mensaje);
+        Mensaje guardado = mensajeRepository.save(mensaje);
+        
+        // Enviar notificación por correo
+        emailService.enviarNotificacionMensaje(
+            destinatario.getEmail(), 
+            destinatario.getNombre(), 
+            remitente.getNombre() + " " + remitente.getApellido(), 
+            "Sobre producto " + producto.getNombre() + ": " + contenido
+        );
+        
+        return guardado;
     }
 
     // Enviar mensaje relacionado con un servicio
     @Transactional
     public Mensaje enviarMensajeServicio(Usuario remitente, Usuario destinatario, String contenido, Servicio servicio) {
         Mensaje mensaje = new Mensaje(remitente, destinatario, contenido, servicio);
-        return mensajeRepository.save(mensaje);
+        Mensaje guardado = mensajeRepository.save(mensaje);
+        
+        // Enviar notificación por correo
+        emailService.enviarNotificacionMensaje(
+            destinatario.getEmail(), 
+            destinatario.getNombre(), 
+            remitente.getNombre() + " " + remitente.getApellido(), 
+            "Sobre servicio " + servicio.getTitulo() + ": " + contenido
+        );
+        
+        return guardado;
     }
 
     // Marcar mensaje como leído

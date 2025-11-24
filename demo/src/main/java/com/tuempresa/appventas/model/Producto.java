@@ -1,7 +1,17 @@
 package com.tuempresa.appventas.model;
 
-import jakarta.persistence.*;
 import java.util.Date;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "productos")
@@ -48,6 +58,12 @@ public class Producto {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaExpiracion;
+
+    @Column(name = "deuna_numero")
+    private String deunaNumero;
+
+    @Column(name = "deuna_qr_url", length = 1000)
+    private String deunaQrUrl;
 
     @ManyToOne
     @JoinColumn(name = "vendedor_id")
@@ -125,6 +141,12 @@ public class Producto {
 
     public Date getFechaExpiracion() { return fechaExpiracion; }
     public void setFechaExpiracion(Date fechaExpiracion) { this.fechaExpiracion = fechaExpiracion; }
+
+    public String getDeunaNumero() { return deunaNumero; }
+    public void setDeunaNumero(String deunaNumero) { this.deunaNumero = deunaNumero; }
+
+    public String getDeunaQrUrl() { return deunaQrUrl; }
+    public void setDeunaQrUrl(String deunaQrUrl) { this.deunaQrUrl = deunaQrUrl; }
 
     public Usuario getVendedor() { return vendedor; }
     public void setVendedor(Usuario vendedor) { this.vendedor = vendedor; }

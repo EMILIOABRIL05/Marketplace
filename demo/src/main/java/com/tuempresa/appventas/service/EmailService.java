@@ -129,4 +129,35 @@ public class EmailService {
             System.err.println("Email de confirmación no enviado");
         }
     }
+
+    // NUEVO: Notificación de nuevo mensaje
+    public void enviarNotificacionMensaje(String emailDestino, String nombreDestinatario, String nombreRemitente, String contenido) {
+        try {
+            SimpleMailMessage mensaje = new SimpleMailMessage();
+            mensaje.setFrom(fromEmail);
+            mensaje.setTo(emailDestino);
+            mensaje.setSubject("💬 Nuevo mensaje de " + nombreRemitente);
+
+            String cuerpoMensaje = String.format(
+                    "Hola %s,\n\n" +
+                            "Tienes un nuevo mensaje de %s:\n\n" +
+                            "\"%s\"\n\n" +
+                            "Para responder, ingresa a la plataforma:\n" +
+                            "%s/mensajes\n\n" +
+                            "Saludos,\n" +
+                            "Equipo de Sistema de Ventas",
+                    nombreDestinatario,
+                    nombreRemitente,
+                    contenido,
+                    appUrl
+            );
+
+            mensaje.setText(cuerpoMensaje);
+            mailSender.send(mensaje);
+            System.out.println("📧 Notificación de mensaje enviada a: " + emailDestino);
+
+        } catch (Exception e) {
+            System.err.println("⚠️ No se pudo enviar la notificación de mensaje: " + e.getMessage());
+        }
+    }
 }

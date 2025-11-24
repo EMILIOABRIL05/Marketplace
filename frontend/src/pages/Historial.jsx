@@ -158,245 +158,137 @@ export default function Historial() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontSize: "18px", color: "#666" }}>Cargando historial...</p>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg text-slate-600 font-medium">Cargando historial...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ 
-      minHeight: "100vh", 
-      background: "white", 
-      display: "flex",
-      fontFamily: "Arial, sans-serif"
-    }}>
+    <div className="min-h-screen bg-slate-50 flex font-sans">
       
-      {/* Sidebar Azul */}
-      <div style={{
-        width: "280px",
-        background: "#00ccff",
-        color: "white",
-        padding: "30px 20px",
-        display: "flex",
-        flexDirection: "column"
-      }}>
+      {/* Sidebar Celeste */}
+      <div className="w-[280px] bg-sky-50 text-slate-800 flex flex-col relative z-10 shadow-2xl">
         
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          marginBottom: "50px",
-          paddingBottom: "20px",
-          borderBottom: "2px solid rgba(255,255,255,0.3)"
-        }}>
-          <div style={{
-            width: "40px",
-            height: "40px",
-            background: "rgba(255,255,255,0.2)",
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-            backdropFilter: "blur(10px)"
-          }}>
-            🛒
+        {/* Logo Header */}
+        <div className="p-6 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-xl text-white shadow-lg shadow-blue-500/30">
+              🛒
+            </div>
+            <div>
+              <h1 className="m-0 text-lg font-bold text-slate-800 tracking-wide">
+                VEYCOFLASH
+              </h1>
+            </div>
           </div>
-          <h1 style={{
-            margin: 0,
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: "#1a237e"
-          }}>
-            VEYCOFLASH
-          </h1>
         </div>
 
-        <nav style={{ flex: 1 }}>
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "15px"
-          }}>
-            <button 
-              onClick={() => nav("/catalogo")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              🏠 Catálogo
-            </button>
+        {/* Navigation Menu */}
+        <nav className="flex-1 p-6 flex flex-col gap-2">
+          <button 
+            onClick={() => nav("/catalogo")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            🏠 Catálogo
+          </button>
 
-            <button 
-              onClick={() => nav("/publicar")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              ➕ Publicar
-            </button>
+          <button 
+            onClick={() => nav("/mis-compras")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            🛍️ Mis Compras
+          </button>
 
-            <button 
-              onClick={() => nav("/favoritos")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              ❤️ Favoritos
-            </button>
+          <button 
+            onClick={() => nav("/mis-ventas")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💰 Mis Ventas
+          </button>
 
-            <button 
-              onClick={() => nav("/historial")}
-              style={{
-                background: "rgba(255,255,255,0.4)",
-                color: "#1a237e",
-                border: "2px solid rgba(255,255,255,0.5)",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)"
-              }}
-            >
-              📊 Historial
-            </button>
+          <button 
+            onClick={() => nav("/publicar")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ➕ Publicar
+          </button>
 
-            <button 
-              onClick={() => nav("/perfil")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              👤 Mi Perfil
-            </button>
-          </div>
+          <button 
+            onClick={() => nav("/favoritos")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ❤️ Favoritos
+          </button>
+
+          <button 
+            onClick={() => nav("/historial")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm"
+          >
+            📊 Historial
+          </button>
+
+          <button 
+            onClick={() => nav("/mensajes")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💬 Mensajes
+          </button>
+
+          <button 
+            onClick={() => nav("/perfil")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            👤 Mi Perfil
+          </button>
         </nav>
+
+        {/* Footer con versión y botones */}
+        <div className="p-6 border-t border-slate-200 bg-slate-100/50">
+          <button 
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 font-medium text-sm"
+          >
+            🚪 Cerrar Sesión
+          </button>
+        </div>
       </div>
 
       {/* Contenido Principal */}
-      <div style={{
-        flex: 1,
-        padding: "30px 40px",
-        background: "#f8f9fa",
-        overflowY: "auto"
-      }}>
+      <div className="flex-1 p-10 bg-slate-50 overflow-y-auto h-screen">
         
         {/* Header con búsqueda */}
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "30px",
-          gap: "20px"
-        }}>
-          <div style={{ flex: 1 }}>
-            <h1 style={{
-              color: "#333",
-              fontSize: "28px",
-              fontWeight: "bold",
-              margin: "0 0 8px 0"
-            }}>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">
               📊 Historial de Visitas
             </h1>
-            <p style={{ color: "#666", margin: 0, fontSize: "14px" }}>
+            <p className="text-slate-500 text-sm">
               Productos y servicios que has visitado
             </p>
           </div>
 
-          <input
-            type="text"
-            placeholder="🔍 Buscar en historial..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            style={{
-              padding: "12px 20px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "16px",
-              width: "300px",
-              outline: "none",
-              transition: "border 0.3s ease"
-            }}
-            onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-            onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
-          />
+          <div className="relative w-full md:w-auto">
+            <input
+              type="text"
+              placeholder="🔍 Buscar en historial..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="w-full md:w-[300px] px-5 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
+            />
+          </div>
         </div>
 
         {/* Filtros */}
-        <div style={{
-          display: "flex",
-          gap: "12px",
-          marginBottom: "30px",
-          alignItems: "center",
-          flexWrap: "wrap"
-        }}>
+        <div className="flex flex-wrap gap-3 mb-8 items-center">
           {/* Filtro Tipo */}
           <select
             value={tipoFiltro}
             onChange={(e) => setTipoFiltro(e.target.value)}
-            style={{
-              padding: "10px 16px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              background: "white",
-              cursor: "pointer",
-              outline: "none",
-              minWidth: "150px"
-            }}
+            className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer shadow-sm min-w-[140px]"
           >
             <option value="">📦 Todos</option>
             <option value="producto">📦 Productos</option>
@@ -407,18 +299,7 @@ export default function Historial() {
           <select
             value={categoriaFiltro}
             onChange={(e) => setCategoriaFiltro(e.target.value)}
-            style={{
-              padding: "10px 16px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              background: "white",
-              cursor: "pointer",
-              outline: "none",
-              minWidth: "180px"
-            }}
+            className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer shadow-sm min-w-[180px]"
           >
             <option value="">Todas las categorías</option>
             {categorias.filter(c => c !== "Todas").map(cat => (
@@ -430,18 +311,7 @@ export default function Historial() {
           <select
             value={ubicacionFiltro}
             onChange={(e) => setUbicacionFiltro(e.target.value)}
-            style={{
-              padding: "10px 16px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              background: "white",
-              cursor: "pointer",
-              outline: "none",
-              minWidth: "180px"
-            }}
+            className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer shadow-sm min-w-[180px]"
           >
             <option value="">Todas las provincias</option>
             {provincias.map(prov => (
@@ -453,18 +323,7 @@ export default function Historial() {
           <select
             value={estadoFiltro}
             onChange={(e) => setEstadoFiltro(e.target.value)}
-            style={{
-              padding: "10px 16px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              background: "white",
-              cursor: "pointer",
-              outline: "none",
-              minWidth: "180px"
-            }}
+            className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer shadow-sm min-w-[180px]"
           >
             <option value="">Todos los estados</option>
             {estadosProducto.map(estado => (
@@ -476,28 +335,12 @@ export default function Historial() {
           <select
             value={ordenPrecio}
             onChange={(e) => setOrdenPrecio(e.target.value)}
-            style={{
-              padding: "10px 16px",
-              border: "2px solid #e9ecef",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              background: "white",
-              cursor: "pointer",
-              outline: "none",
-              minWidth: "180px"
-            }}
+            className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer shadow-sm min-w-[180px]"
           >
             <option value="">Ordenar por precio</option>
             <option value="asc">Precio: Menor a Mayor</option>
             <option value="desc">Precio: Mayor a Menor</option>
           </select>
-
-          {/* Contador */}
-          <div style={{ fontSize: "14px", color: "#666", marginLeft: "auto" }}>
-            <strong style={{ color: "#333" }}>{historialFiltrado.length}</strong> resultados
-          </div>
 
           {/* Limpiar filtros */}
           {(categoriaFiltro || tipoFiltro || ubicacionFiltro || estadoFiltro || ordenPrecio || busqueda) && (
@@ -510,61 +353,39 @@ export default function Historial() {
                 setOrdenPrecio("");
                 setBusqueda("");
               }}
-              style={{
-                padding: "10px 16px",
-                background: "#f8f9fa",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                color: "#666",
-                fontSize: "14px",
-                fontWeight: "600",
-                cursor: "pointer"
-              }}
+              className="px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
             >
-              ✕ Limpiar filtros
+              ✕ Limpiar
             </button>
           )}
+
+          {/* Contador */}
+          <div className="ml-auto text-sm text-slate-500">
+            <strong className="text-slate-800">{historialFiltrado.length}</strong> resultados
+          </div>
         </div>
 
         {/* Lista de Historial */}
         {historialOrdenado.length === 0 ? (
-          <div style={{
-            textAlign: "center",
-            padding: "60px 20px",
-            background: "white",
-            borderRadius: "12px"
-          }}>
-            <div style={{ fontSize: "80px", marginBottom: "20px" }}>📭</div>
-            <h2 style={{ fontSize: "24px", color: "#666", marginBottom: "12px" }}>
+          <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-slate-100">
+            <div className="text-6xl mb-4">📭</div>
+            <h2 className="text-xl font-bold text-slate-700 mb-2">
               {historial.length === 0 ? "No tienes historial de visitas" : "No se encontraron resultados"}
             </h2>
-            <p style={{ color: "#999", marginBottom: "24px" }}>
+            <p className="text-slate-500 mb-6">
               {historial.length === 0 
                 ? "Explora productos y servicios, tu historial se guardará aquí" 
                 : "Intenta con otros filtros"}
             </p>
             <button
               onClick={() => nav("/catalogo")}
-              style={{
-                background: "#00ccff",
-                color: "white",
-                padding: "12px 32px",
-                borderRadius: "8px",
-                border: "none",
-                fontSize: "16px",
-                fontWeight: "bold",
-                cursor: "pointer"
-              }}
+              className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-bold text-sm shadow-lg shadow-blue-600/20"
             >
               Ir al Catálogo
             </button>
           </div>
         ) : (
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "16px"
-          }}>
+          <div className="flex flex-col gap-4">
             {historialOrdenado.map(item => {
               const esServicio = item.servicio != null;
               const elemento = esServicio ? item.servicio : item.producto;
@@ -574,113 +395,46 @@ export default function Historial() {
                 <div 
                   key={item.id} 
                   onClick={() => nav(esServicio ? `/servicio/${elemento.id}` : `/producto/${elemento.id}`)}
-                  style={{
-                    display: "flex",
-                    gap: "20px",
-                    padding: "16px",
-                    background: "white",
-                    border: "1px solid #e9ecef",
-                    borderRadius: "12px",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-                    position: "relative"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.05)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
+                  className="flex gap-5 p-4 bg-white border border-slate-100 rounded-2xl cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group"
                 >
                   {/* Imagen */}
-                  <div style={{
-                    width: "120px",
-                    height: "120px",
-                    flexShrink: 0,
-                    background: "#f8f9fa",
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                    position: "relative"
-                  }}>
+                  <div className="w-32 h-32 flex-shrink-0 bg-slate-100 rounded-xl flex items-center justify-center overflow-hidden relative">
                     {primeraImagen ? (
                       <img 
                         src={`http://localhost:8080${primeraImagen}`}
                         alt={elemento.nombre || elemento.titulo}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover"
-                        }}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
                           e.target.style.display = "none";
-                          e.target.parentElement.innerHTML = `<span style="font-size: 40px; color: #ccc;">${esServicio ? '🛠️' : '📦'}</span>`;
+                          e.target.parentElement.innerHTML = `<span class="text-4xl text-slate-300">${esServicio ? '🛠️' : '📦'}</span>`;
                         }}
                       />
                     ) : (
-                      <span style={{ fontSize: "40px", color: "#ccc" }}>
+                      <span className="text-4xl text-slate-300">
                         {esServicio ? '🛠️' : '📦'}
                       </span>
                     )}
                     
                     {/* Badge tipo */}
-                    <div style={{
-                      position: "absolute",
-                      top: "8px",
-                      right: "8px",
-                      background: esServicio ? "#ff5722" : "#4CAF50",
-                      color: "white",
-                      padding: "4px 8px",
-                      borderRadius: "4px",
-                      fontSize: "10px",
-                      fontWeight: "bold"
-                    }}>
+                    <div className={`absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold text-white shadow-sm ${
+                      esServicio ? "bg-orange-500" : "bg-green-500"
+                    }`}>
                       {esServicio ? "🛠️" : "📦"}
                     </div>
                   </div>
 
                   {/* Información */}
-                  <div style={{
-                    flex: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "8px"
-                  }}>
-                    <div style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "start"
-                    }}>
+                  <div className="flex-1 flex flex-col gap-2">
+                    <div className="flex justify-between items-start">
                       <div>
-                        <h3 style={{
-                          fontSize: "18px",
-                          fontWeight: "bold",
-                          color: "#333",
-                          margin: "0 0 4px 0"
-                        }}>
+                        <h3 className="text-lg font-bold text-slate-800 mb-1 group-hover:text-blue-600 transition-colors">
                           {elemento.nombre || elemento.titulo}
                         </h3>
-                        <p style={{
-                          fontSize: "14px",
-                          color: "#666",
-                          margin: "0"
-                        }}>
-                          {elemento.descripcion?.substring(0, 150)}
-                          {elemento.descripcion?.length > 150 ? "..." : ""}
+                        <p className="text-sm text-slate-500 line-clamp-2">
+                          {elemento.descripcion}
                         </p>
                       </div>
-                      <span style={{
-                        fontSize: "24px",
-                        fontWeight: "bold",
-                        color: "#00ccff",
-                        flexShrink: 0,
-                        marginLeft: "20px"
-                      }}>
+                      <span className="text-xl font-bold text-blue-600 flex-shrink-0 ml-5">
                         {esServicio && elemento.tipoPrecio === "negociable" 
                           ? "A negociar" 
                           : esServicio && elemento.tipoPrecio === "desde"
@@ -690,25 +444,19 @@ export default function Historial() {
                       </span>
                     </div>
 
-                    <div style={{
-                      display: "flex",
-                      gap: "20px",
-                      fontSize: "13px",
-                      color: "#666",
-                      marginTop: "auto"
-                    }}>
-                      <span>
+                    <div className="flex gap-4 text-xs text-slate-500 mt-auto pt-2 border-t border-slate-50">
+                      <span className="flex items-center gap-1">
                         📍 {elemento.ubicacion || elemento.ciudad}
                       </span>
-                      <span>
+                      <span className="flex items-center gap-1">
                         🏷️ {elemento.categoria || elemento.tipo}
                       </span>
                       {!esServicio && (elemento.estadoProducto || elemento.estado) && (
-                        <span>
+                        <span className="flex items-center gap-1">
                           ⭐ {elemento.estadoProducto || elemento.estado}
                         </span>
                       )}
-                      <span style={{ marginLeft: "auto", color: "#999" }}>
+                      <span className="ml-auto text-slate-400 font-medium">
                         🕒 {formatearFecha(item.fechaVisto)}
                       </span>
                     </div>

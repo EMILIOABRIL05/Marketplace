@@ -1,17 +1,31 @@
 package com.tuempresa.appventas.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.tuempresa.appventas.model.Producto;
 import com.tuempresa.appventas.model.Usuario;
 import com.tuempresa.appventas.repository.ProductoRepository;
 import com.tuempresa.appventas.service.ProductoService;
 import com.tuempresa.appventas.service.UsuarioService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -28,9 +42,21 @@ public class ProductoController {
         this.productoRepository = productoRepository;
     }
 
-    // Listar productos
+    // Listar productos (modificado para soportar modo admin)
     @GetMapping
-    public ResponseEntity<List<Producto>> listar(@RequestParam(required = false) String estado) {
+    public ResponseEntity<List<Producto>> listar(
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false, defaultValue = "false") boolean adminMode) {
+        
+        if (adminMode) {
+            // Si es modo admin, devolver todos (o filtrar por estado si se especifica)
+            if (estado != null) {
+                return ResponseEntity.ok(productoRepository.findByEstado(estado));
+            }
+            return ResponseEntity.ok(productoService.obtenerTodosLosProductos());
+        }
+        
+        // Comportamiento por defecto (solo activos)
         return ResponseEntity.ok(productoService.obtenerProductosActivos());
     }
 
@@ -52,6 +78,8 @@ public class ProductoController {
             @RequestParam("vendedorId") Long vendedorId,
             @RequestParam(value = "cantidad", defaultValue = "1") Integer cantidad,
             @RequestParam(value = "estadoProducto", required = false) String estadoProducto,
+            @RequestParam(value = "deunaNumero", required = false) String deunaNumero,
+            @RequestParam(value = "deunaQr", required = false) MultipartFile deunaQr,
             @RequestParam(value = "imagenes", required = false) List<MultipartFile> imagenes
     ) {
         try {
@@ -61,6 +89,7 @@ public class ProductoController {
             System.out.println("Precio: " + precio);
             System.out.println("Cantidad: " + cantidad);
             System.out.println("Estado Producto: " + estadoProducto);
+            System.out.println("Deuna Numero: " + deunaNumero);
             System.out.println("Vendedor ID: " + vendedorId);
             System.out.println("Imágenes: " + (imagenes != null ? imagenes.size() : 0));
 
@@ -107,6 +136,17 @@ public class ProductoController {
             producto.setCodigo("PROD-" + System.currentTimeMillis());
             producto.setCantidad(cantidad);
             producto.setEstadoProducto(estadoProducto != null ? estadoProducto : "Nuevo");
+            
+            // Guardar número Deuna
+            if (deunaNumero != null && !deunaNumero.isEmpty()) {
+                producto.setDeunaNumero(deunaNumero);
+            }
+
+            // Guardar QR Deuna
+            if (deunaQr != null && !deunaQr.isEmpty()) {
+                String qrUrl = guardarImagen(deunaQr);
+                producto.setDeunaQrUrl(qrUrl);
+            }
 
             // Guardar todas las imágenes
             List<String> imagenesUrls = new ArrayList<>();
@@ -147,6 +187,8 @@ public class ProductoController {
             @RequestParam(value = "estado", required = false) String estado,
             @RequestParam(value = "cantidad", required = false) Integer cantidad,
             @RequestParam(value = "estadoProducto", required = false) String estadoProducto,
+            @RequestParam(value = "deunaNumero", required = false) String deunaNumero,
+            @RequestParam(value = "deunaQr", required = false) MultipartFile deunaQr,
             @RequestParam(value = "imagenes", required = false) List<MultipartFile> imagenes) {
 
         try {
@@ -162,6 +204,12 @@ public class ProductoController {
             if (estado != null) productoExistente.setEstado(estado);
             if (cantidad != null && cantidad >= 0) productoExistente.setCantidad(cantidad);
             if (estadoProducto != null) productoExistente.setEstadoProducto(estadoProducto);
+            if (deunaNumero != null) productoExistente.setDeunaNumero(deunaNumero);
+            
+            if (deunaQr != null && !deunaQr.isEmpty()) {
+                String qrUrl = guardarImagen(deunaQr);
+                productoExistente.setDeunaQrUrl(qrUrl);
+            }
 
             // Manejar imágenes si se envían
             if (imagenes != null && !imagenes.isEmpty()) {

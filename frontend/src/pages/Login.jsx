@@ -123,8 +123,15 @@ export default function Login() {
       return;
     }
     
-    if (password.length < 5) {
-      setError("La contraseña debe tener al menos 5 caracteres");
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres");
+      return;
+    }
+
+    // Validación de contraseña fuerte
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\W]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError("La contraseña debe ser fuerte: al menos 8 caracteres, una mayúscula, una minúscula y un número.");
       return;
     }
     
@@ -169,94 +176,94 @@ export default function Login() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f0f4f8", paddingTop: "20px" }}>
-      <div style={{ background: "white", padding: "15px 40px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "40px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{ width: "40px", height: "40px", background: "#2563eb", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "24px" }}>
+    <div className="min-h-screen bg-slate-50 pt-5">
+      <div className="bg-white py-4 px-10 shadow-sm mb-10">
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white text-2xl">
             🛒
           </div>
-          <h1 style={{ margin: "0", fontSize: "20px", fontWeight: "bold", color: "#1e40af" }}>Sistema de Ventas Multiempresa</h1>
+          <h1 className="m-0 text-xl font-bold text-blue-800">Sistema de Ventas Multiempresa</h1>
         </div>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "center", padding: "0 20px 40px" }}>
-        <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "40px", width: "100%", maxWidth: "500px" }}>
+      <div className="flex justify-center px-5 pb-10">
+        <div className="bg-white rounded-xl shadow-lg p-10 w-full max-w-[500px]">
           
           {isRegistering ? (
             <>
-              <h2 style={{ color: "#1e40af", fontSize: "24px", fontWeight: "bold", marginBottom: "10px", textAlign: "center" }}>Crear cuenta nueva</h2>
-              <p style={{ color: "#666", fontSize: "14px", textAlign: "center", marginBottom: "30px" }}>Completa el siguiente formulario para registrarte</p>
+              <h2 className="text-blue-800 text-2xl font-bold mb-2.5 text-center">Crear cuenta nueva</h2>
+              <p className="text-gray-500 text-sm text-center mb-8">Completa el siguiente formulario para registrarte</p>
 
-              <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <form onSubmit={handleRegister} className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Nombre</label>
+                    <label className="block text-xs font-semibold text-gray-800 mb-1.5">Nombre</label>
                     <input
                       type="text"
                       value={nombre}
                       onChange={(e) => setNombre(e.target.value)}
                       placeholder="Tu nombre"
-                      style={{ width: "100%", padding: "12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" }}
+                      className="w-full p-3 border border-gray-200 rounded-md text-sm box-border focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       required
                     />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Apellido</label>
+                    <label className="block text-xs font-semibold text-gray-800 mb-1.5">Apellido</label>
                     <input
                       type="text"
                       value={apellido}
                       onChange={(e) => setApellido(e.target.value)}
                       placeholder="Tu apellido"
-                      style={{ width: "100%", padding: "12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" }}
+                      className="w-full p-3 border border-gray-200 rounded-md text-sm box-border focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Cédula</label>
+                  <label className="block text-xs font-semibold text-gray-800 mb-1.5">Cédula</label>
                   <input
                     type="text"
                     value={cedula}
                     onChange={handleCedulaChange}
                     placeholder="1234567890"
                     maxLength="10"
-                    style={{ width: "100%", padding: "12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" }}
+                    className="w-full p-3 border border-gray-200 rounded-md text-sm box-border focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     required
                   />
-                  <p style={{ fontSize: "12px", color: "#999", margin: "4px 0 0 0" }}>Solo números, exactamente 10 dígitos</p>
+                  <p className="text-xs text-gray-400 mt-1 m-0">Solo números, exactamente 10 dígitos</p>
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Correo electrónico</label>
+                  <label className="block text-xs font-semibold text-gray-800 mb-1.5">Correo electrónico</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="tucorreo@ejemplo.com"
-                    style={{ width: "100%", padding: "12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" }}
+                    className="w-full p-3 border border-gray-200 rounded-md text-sm box-border focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Teléfono</label>
+                  <label className="block text-xs font-semibold text-gray-800 mb-1.5">Teléfono</label>
                   <input
                     type="tel"
                     value={telefono}
                     onChange={(e) => setTelefono(e.target.value)}
                     placeholder="0987654321"
-                    style={{ width: "100%", padding: "12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" }}
+                    className="w-full p-3 border border-gray-200 rounded-md text-sm box-border focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Género</label>
+                  <label className="block text-xs font-semibold text-gray-800 mb-1.5">Género</label>
                   <select
                     value={genero}
                     onChange={(e) => setGenero(e.target.value)}
-                    style={{ width: "100%", padding: "12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" }}
+                    className="w-full p-3 border border-gray-200 rounded-md text-sm box-border focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     required
                   >
                     <option value="">Selecciona tu género</option>
@@ -267,65 +274,63 @@ export default function Login() {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Dirección</label>
+                  <label className="block text-xs font-semibold text-gray-800 mb-1.5">Dirección</label>
                   <input
                     type="text"
                     value={direccion}
                     onChange={(e) => setDireccion(e.target.value)}
                     placeholder="Calle, número, ciudad"
-                    style={{ width: "100%", padding: "12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" }}
+                    className="w-full p-3 border border-gray-200 rounded-md text-sm box-border focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Contraseña</label>
+                  <label className="block text-xs font-semibold text-gray-800 mb-1.5">Contraseña</label>
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    style={{ width: "100%", padding: "12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" }}
+                    className="w-full p-3 border border-gray-200 rounded-md text-sm box-border focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     required
                   />
-                  <p style={{ fontSize: "12px", color: "#999", margin: "4px 0 0 0" }}>Mínimo 5 caracteres</p>
+                  <p className="text-xs text-gray-400 mt-1 m-0">Mínimo 8 caracteres, mayúscula, minúscula y número</p>
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Confirmar contraseña</label>
+                  <label className="block text-xs font-semibold text-gray-800 mb-1.5">Confirmar contraseña</label>
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repite tu contraseña"
-                    style={{ width: "100%", padding: "12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" }}
+                    className="w-full p-3 border border-gray-200 rounded-md text-sm box-border focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 {error && (
-                  <div style={{ background: "#fee", border: "1px solid #fcc", color: "#c33", padding: "12px", borderRadius: "6px", fontSize: "13px" }}>
+                  <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-md text-xs">
                     {error}
                   </div>
                 )}
 
                 {successMessage && (
-                  <div style={{ background: "#efe", border: "1px solid #cfc", color: "#3c3", padding: "12px", borderRadius: "6px", fontSize: "13px" }}>
+                  <div className="bg-green-50 border border-green-200 text-green-600 p-3 rounded-md text-xs">
                     {successMessage}
                   </div>
                 )}
 
                 <button
                   type="submit"
-                  style={{ background: "#2563eb", color: "white", fontWeight: "600", padding: "12px", borderRadius: "6px", border: "none", cursor: "pointer", fontSize: "16px", transition: "background 0.3s" }}
-                  onMouseEnter={(e) => e.target.style.background = "#1d4ed8"}
-                  onMouseLeave={(e) => e.target.style.background = "#2563eb"}
+                  className="bg-blue-600 text-white font-semibold p-3 rounded-md border-none cursor-pointer text-base transition-colors duration-300 hover:bg-blue-700"
                 >
                   → Crear cuenta
                 </button>
               </form>
 
-              <div style={{ marginTop: "20px", textAlign: "center" }}>
-                <p style={{ color: "#666", fontSize: "13px", margin: "0" }}>
+              <div className="mt-5 text-center">
+                <p className="text-gray-500 text-xs m-0">
                   ¿Ya tienes una cuenta?{" "}
                   <button
                     onClick={() => {
@@ -333,7 +338,7 @@ export default function Login() {
                       setError("");
                       setSuccessMessage("");
                     }}
-                    style={{ color: "#2563eb", fontWeight: "600", cursor: "pointer", border: "none", background: "none", textDecoration: "underline" }}
+                    className="text-blue-600 font-semibold cursor-pointer border-none bg-transparent underline hover:text-blue-800"
                   >
                     Inicia sesión
                   </button>
@@ -342,42 +347,42 @@ export default function Login() {
             </>
           ) : (
             <>
-              <h2 style={{ color: "#1e40af", fontSize: "24px", fontWeight: "bold", marginBottom: "10px", textAlign: "center" }}>Iniciar sesión</h2>
-              <p style={{ color: "#666", fontSize: "13px", textAlign: "center", marginBottom: "30px" }}>Accede con tu correo y contraseña para continuar</p>
+              <h2 className="text-blue-800 text-2xl font-bold mb-2.5 text-center">Iniciar sesión</h2>
+              <p className="text-gray-500 text-xs text-center mb-8">Accede con tu correo y contraseña para continuar</p>
 
-              <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <form onSubmit={handleLogin} className="flex flex-col gap-4">
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Correo electrónico</label>
+                  <label className="block text-xs font-semibold text-gray-800 mb-1.5">Correo electrónico</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="tucorreo@ejemplo.com"
-                    style={{ width: "100%", padding: "12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" }}
+                    className="w-full p-3 border border-gray-200 rounded-md text-sm box-border focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Contraseña</label>
+                  <label className="block text-xs font-semibold text-gray-800 mb-1.5">Contraseña</label>
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    style={{ width: "100%", padding: "12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" }}
+                    className="w-full p-3 border border-gray-200 rounded-md text-sm box-border focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 {error && (
-                  <div style={{ background: "#fee", border: "1px solid #fcc", color: "#c33", padding: "12px", borderRadius: "6px", fontSize: "13px" }}>
+                  <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-md text-xs">
                     {error}
                   </div>
                 )}
 
                 {successMessage && (
-                  <div style={{ background: "#efe", border: "1px solid #cfc", color: "#3c3", padding: "12px", borderRadius: "6px", fontSize: "13px" }}>
+                  <div className="bg-green-50 border border-green-200 text-green-600 p-3 rounded-md text-xs">
                     {successMessage}
                   </div>
                 )}
@@ -386,34 +391,34 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={handleResendVerification}
-                    style={{ background: "#f59e0b", color: "white", fontWeight: "600", padding: "10px", borderRadius: "6px", border: "none", cursor: "pointer", fontSize: "14px" }}
+                    className="bg-amber-500 text-white font-semibold p-2.5 rounded-md border-none cursor-pointer text-sm hover:bg-amber-600 transition-colors"
                   >
                     📧 Reenviar email de verificación
                   </button>
                 )}
 
                 {showResendForm && (
-                  <div style={{ padding: "16px", background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: "6px" }}>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#333", marginBottom: "6px" }}>Email para reenviar verificación</label>
+                  <div className="p-4 bg-sky-50 border border-sky-200 rounded-md">
+                    <label className="block text-xs font-semibold text-gray-800 mb-1.5">Email para reenviar verificación</label>
                     <input
                       type="email"
                       value={resendEmail}
                       onChange={(e) => setResendEmail(e.target.value)}
                       placeholder="tucorreo@ejemplo.com"
-                      style={{ width: "100%", padding: "10px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box", marginBottom: "10px" }}
+                      className="w-full p-2.5 border border-gray-200 rounded-md text-sm box-border mb-2.5 focus:outline-none focus:border-blue-500"
                     />
-                    <div style={{ display: "flex", gap: "8px" }}>
+                    <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={handleResendVerification}
-                        style={{ flex: 1, background: "#059669", color: "white", fontWeight: "600", padding: "10px", borderRadius: "6px", border: "none", cursor: "pointer", fontSize: "14px" }}
+                        className="flex-1 bg-emerald-600 text-white font-semibold p-2.5 rounded-md border-none cursor-pointer text-sm hover:bg-emerald-700 transition-colors"
                       >
                         ✉️ Enviar
                       </button>
                       <button
                         type="button"
                         onClick={() => { setShowResendForm(false); setResendEmail(""); setError(""); }}
-                        style={{ flex: 1, background: "#6b7280", color: "white", fontWeight: "600", padding: "10px", borderRadius: "6px", border: "none", cursor: "pointer", fontSize: "14px" }}
+                        className="flex-1 bg-gray-500 text-white font-semibold p-2.5 rounded-md border-none cursor-pointer text-sm hover:bg-gray-600 transition-colors"
                       >
                         Cancelar
                       </button>
@@ -423,49 +428,31 @@ export default function Login() {
 
                 <button
                   type="submit"
-                  style={{ background: "#2563eb", color: "white", fontWeight: "600", padding: "12px", borderRadius: "6px", border: "none", cursor: "pointer", fontSize: "16px", transition: "background 0.3s" }}
-                  onMouseEnter={(e) => e.target.style.background = "#1d4ed8"}
-                  onMouseLeave={(e) => e.target.style.background = "#2563eb"}
+                  className="bg-blue-600 text-white font-semibold p-3 rounded-md border-none cursor-pointer text-base transition-colors duration-300 hover:bg-blue-700"
                 >
                   → Iniciar sesión
                 </button>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "8px" }}>
+                <div className="flex flex-col gap-2 mt-2">
                   <button
                     type="button"
                     onClick={() => nav("/recuperar-password")}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "#2563eb",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                      padding: "0"
-                    }}
+                    className="bg-transparent border-none text-blue-600 text-sm cursor-pointer underline p-0 hover:text-blue-800 text-left"
                   >
                     ¿Olvidaste tu contraseña?
                   </button>
                   <button
                     type="button"
                     onClick={() => { setShowResendForm(true); setError(""); setSuccessMessage(""); }}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "#059669",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                      padding: "0"
-                    }}
+                    className="bg-transparent border-none text-emerald-600 text-sm cursor-pointer underline p-0 hover:text-emerald-800 text-left"
                   >
                     ¿No verificaste tu email? Reenviar verificación
                   </button>
                 </div>
               </form>
 
-              <div style={{ marginTop: "20px", textAlign: "center" }}>
-                <p style={{ color: "#666", fontSize: "13px", margin: "0" }}>
+              <div className="mt-5 text-center">
+                <p className="text-gray-500 text-xs m-0">
                   ¿No tienes una cuenta?{" "}
                   <button
                     onClick={() => {
@@ -473,7 +460,7 @@ export default function Login() {
                       setError("");
                       setSuccessMessage("");
                     }}
-                    style={{ color: "#2563eb", fontWeight: "600", cursor: "pointer", border: "none", background: "none", textDecoration: "underline" }}
+                    className="text-blue-600 font-semibold cursor-pointer border-none bg-transparent underline hover:text-blue-800"
                   >
                     Crear cuenta nueva
                   </button>
@@ -482,8 +469,8 @@ export default function Login() {
             </>
           )}
 
-          <div style={{ marginTop: "30px", textAlign: "center", paddingTop: "20px", borderTop: "1px solid #eee" }}>
-            <p style={{ color: "#999", fontSize: "12px", margin: "0" }}>©2025 Sistema de Ventas Multiempresa</p>
+          <div className="mt-8 pt-5 border-t border-gray-100 text-center">
+            <p className="text-gray-400 text-xs m-0">©2025 Sistema de Ventas Multiempresa</p>
           </div>
         </div>
       </div>

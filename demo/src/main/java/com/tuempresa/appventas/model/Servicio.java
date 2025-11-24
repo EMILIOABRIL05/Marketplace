@@ -1,8 +1,18 @@
 package com.tuempresa.appventas.model;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "servicios")
@@ -64,6 +74,12 @@ public class Servicio {
     // CONTROLAR VISIBILIDAD
     @Column(length = 20)
     private String estado = "ACTIVO"; // "ACTIVO", "OCULTO"
+
+    @Column(name = "deuna_numero")
+    private String deunaNumero;
+
+    @Column(name = "deuna_qr_url", length = 1000)
+    private String deunaQrUrl;
 
     // Constructores
     public Servicio() {
@@ -147,4 +163,10 @@ public class Servicio {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public String getDeunaNumero() { return deunaNumero; }
+    public void setDeunaNumero(String deunaNumero) { this.deunaNumero = deunaNumero; }
+
+    public String getDeunaQrUrl() { return deunaQrUrl; }
+    public void setDeunaQrUrl(String deunaQrUrl) { this.deunaQrUrl = deunaQrUrl; }
 }

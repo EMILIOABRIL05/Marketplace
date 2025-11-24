@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 
 const Mensajes = () => {
   const navigate = useNavigate();
@@ -11,8 +11,15 @@ const Mensajes = () => {
   const [nuevoMensaje, setNuevoMensaje] = useState('');
   const [loading, setLoading] = useState(false);
   const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0);
+  const [contextoItem, setContextoItem] = useState(null);
   
-  const usuario = JSON.parse(localStorage.getItem('usuario'));
+  // Estados para valoración
+  const [mostrarModalValoracion, setMostrarModalValoracion] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comentarioValoracion, setComentarioValoracion] = useState("");
+  const [enviandoValoracion, setEnviandoValoracion] = useState(false);
+  
+  const usuario = JSON.parse(localStorage.getItem('user'));
 
   // Parámetros para iniciar chat desde producto/servicio
   const vendedorId = searchParams.get('vendedorId');
@@ -32,6 +39,12 @@ const Mensajes = () => {
       iniciarConversacionDirecta();
     }
 
+    if (productoId) {
+      cargarContextoProducto(productoId);
+    } else if (servicioId) {
+      cargarContextoServicio(servicioId);
+    }
+
     // Actualizar cada 10 segundos
     const interval = setInterval(() => {
       if (conversacionActual) {
@@ -43,10 +56,28 @@ const Mensajes = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const cargarContextoProducto = async (id) => {
+    try {
+      const res = await api.get(`/productos/public/${id}`);
+      setContextoItem({ tipo: 'producto', data: res.data });
+    } catch (error) {
+      console.error("Error cargando contexto producto:", error);
+    }
+  };
+
+  const cargarContextoServicio = async (id) => {
+    try {
+      const res = await api.get(`/servicios/public/${id}`);
+      setContextoItem({ tipo: 'servicio', data: res.data });
+    } catch (error) {
+      console.error("Error cargando contexto servicio:", error);
+    }
+  };
+
   const iniciarConversacionDirecta = async () => {
     try {
       // Cargar datos del vendedor
-      const response = await axios.get(`http://localhost:8080/api/usuarios/${vendedorId}`);
+      const response = await api.get(`/usuarios/${vendedorId}`);
       const vendedor = response.data;
 
       // Crear conversación temporal
@@ -70,7 +101,7 @@ const Mensajes = () => {
 
   const cargarConversaciones = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/mensajes/conversaciones/${usuario.id}`);
+      const response = await api.get(`/mensajes/conversaciones/${usuario.id}`);
       const conversacionesData = response.data;
 
       // Procesar conversaciones para obtener el otro usuario
@@ -93,7 +124,7 @@ const Mensajes = () => {
 
   const cargarMensajesNoLeidos = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/mensajes/no-leidos/count/${usuario.id}`);
+      const response = await api.get(`/mensajes/no-leidos/count/${usuario.id}`);
       setMensajesNoLeidos(response.data.count);
     } catch (error) {
       console.error('Error al cargar mensajes no leídos:', error);
@@ -102,11 +133,11 @@ const Mensajes = () => {
 
   const cargarMensajesConversacion = async (conversacionId) => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/mensajes/conversacion/${conversacionId}`);
+      const response = await api.get(`/mensajes/conversacion/${conversacionId}`);
       setMensajes(response.data);
 
       // Marcar como leídos
-      await axios.put(`http://localhost:8080/api/mensajes/conversacion/${conversacionId}/leer?usuarioId=${usuario.id}`);
+      await api.put(`/mensajes/conversacion/${conversacionId}/leer?usuarioId=${usuario.id}`);
       cargarMensajesNoLeidos();
     } catch (error) {
       console.error('Error al cargar mensajes:', error);
@@ -137,7 +168,7 @@ const Mensajes = () => {
         mensajeData.servicioId = servicioId;
       }
 
-      await axios.post('http://localhost:8080/api/mensajes/enviar', mensajeData);
+      await api.post('/mensajes/enviar', mensajeData);
 
       setNuevoMensaje('');
       cargarMensajesConversacion(conversacionActual.conversacionId);
@@ -150,96 +181,246 @@ const Mensajes = () => {
     }
   };
 
+  const enviarValoracion = async (e) => {
+    e.preventDefault();
+    if (rating === 0) {
+      alert("Por favor selecciona una calificación");
+      return;
+    }
+
+    setEnviandoValoracion(true);
+    try {
+      // Simulación de envío de valoración
+      // await api.post(`/usuarios/${conversacionActual.otroUsuario.id}/valorar`, {
+      //   calificacion: rating,
+      //   comentario: comentarioValoracion,
+      //   evaluadorId: usuario.id
+      // });
+      
+      // Simulamos delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      alert("✅ ¡Valoración enviada con éxito! Gracias por tu opinión.");
+      setMostrarModalValoracion(false);
+      setRating(0);
+      setComentarioValoracion("");
+    } catch (error) {
+      console.error("Error enviando valoración:", error);
+      alert("Error al enviar la valoración");
+    } finally {
+      setEnviandoValoracion(false);
+    }
+  };
+
+  function handleLogout() {
+    localStorage.removeItem("user");
+    navigate("/");
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      <div className="flex h-screen">
-        {/* Lista de Conversaciones */}
-        <div className="w-1/3 bg-white border-r border-gray-200 overflow-y-auto">
-          <div className="p-4 border-b border-gray-200 bg-blue-600">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white">Mensajes</h2>
-              {mensajesNoLeidos > 0 && (
-                <span className="px-3 py-1 bg-red-500 text-white rounded-full text-sm font-bold">
-                  {mensajesNoLeidos}
-                </span>
-              )}
+    <div className="min-h-screen bg-slate-50 flex font-sans">
+      
+      {/* Sidebar Celeste */}
+      <div className="w-[280px] bg-sky-50 text-slate-800 flex flex-col relative z-10 shadow-2xl">
+        
+        {/* Logo Header */}
+        <div className="p-6 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-xl text-white shadow-lg shadow-blue-500/30">
+              🛒
+            </div>
+            <div>
+              <h1 className="m-0 text-lg font-bold text-slate-800 tracking-wide">
+                VEYCOFLASH
+              </h1>
             </div>
           </div>
+        </div>
 
-          {conversaciones.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              <p>No hay conversaciones</p>
-            </div>
-          ) : (
-            <div>
-              {conversaciones.map((conv) => (
-                <div
-                  key={conv.conversacionId}
-                  onClick={() => seleccionarConversacion(conv)}
-                  className={`p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition ${
-                    conversacionActual?.conversacionId === conv.conversacionId ? 'bg-blue-50' : ''
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-800">
+        {/* Navigation Menu */}
+        <nav className="flex-1 p-6 flex flex-col gap-2">
+          <button 
+            onClick={() => navigate("/catalogo")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            🏠 Catálogo
+          </button>
+
+          <button 
+            onClick={() => navigate("/mis-compras")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            🛍️ Mis Compras
+          </button>
+
+          <button 
+            onClick={() => navigate("/mis-ventas")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💰 Mis Ventas
+          </button>
+
+          <button 
+            onClick={() => navigate("/publicar")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ➕ Publicar
+          </button>
+
+          <button 
+            onClick={() => navigate("/favoritos")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ❤️ Favoritos
+          </button>
+
+          <button 
+            onClick={() => navigate("/historial")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            📊 Historial
+          </button>
+
+          <button 
+            onClick={() => navigate("/mensajes")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm"
+          >
+            💬 Mensajes
+          </button>
+
+          <button 
+            onClick={() => navigate("/perfil")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            👤 Mi Perfil
+          </button>
+        </nav>
+
+        {/* Footer con versión y botones */}
+        <div className="p-6 border-t border-slate-200 bg-slate-100/50">
+          <button 
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 font-medium text-sm"
+          >
+            🚪 Cerrar Sesión
+          </button>
+        </div>
+      </div>
+
+      {/* Contenido Principal - Chat Layout */}
+      <div className="flex-1 flex h-screen overflow-hidden">
+        
+        {/* Lista de Conversaciones */}
+        <div className="w-80 bg-white border-r border-slate-200 flex flex-col">
+          <div className="p-6 border-b border-slate-100">
+            <h2 className="text-xl font-bold text-slate-800 m-0">Mensajes</h2>
+            {mensajesNoLeidos > 0 && (
+              <span className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-xs font-bold">
+                {mensajesNoLeidos} nuevos mensajes
+              </span>
+            )}
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
+            {conversaciones.length === 0 ? (
+              <div className="p-8 text-center text-slate-400">
+                <div className="text-4xl mb-2">💬</div>
+                <p className="text-sm">No hay conversaciones</p>
+              </div>
+            ) : (
+              <div>
+                {conversaciones.map((conv) => (
+                  <div
+                    key={conv.conversacionId}
+                    onClick={() => seleccionarConversacion(conv)}
+                    className={`p-4 border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors ${
+                      conversacionActual?.conversacionId === conv.conversacionId ? 'bg-blue-50/50 border-l-4 border-l-blue-500' : 'border-l-4 border-l-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="font-semibold text-slate-800 text-sm">
                         {conv.otroUsuario.nombre} {conv.otroUsuario.apellido}
                       </p>
-                      <p className="text-sm text-gray-600 truncate">{conv.ultimoMensaje}</p>
-                      <p className="text-xs text-gray-400">
-                        {new Date(conv.fechaUltimoMensaje).toLocaleString()}
-                      </p>
+                      {conv.noLeido && (
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      )}
                     </div>
-                    {conv.noLeido && (
-                      <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-                    )}
+                    <p className="text-xs text-slate-500 truncate mb-1">{conv.ultimoMensaje}</p>
+                    <p className="text-[10px] text-slate-400">
+                      {new Date(conv.fechaUltimoMensaje).toLocaleString()}
+                    </p>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="p-4">
-            <button
-              onClick={() => navigate('/catalogo')}
-              className="w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
-            >
-              ← Volver al Catálogo
-            </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Chat Actual */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col bg-slate-50">
           {conversacionActual ? (
             <>
               {/* Header del Chat */}
-              <div className="p-4 bg-white border-b border-gray-200">
-                <h3 className="text-xl font-bold text-gray-800">
-                  {conversacionActual.otroUsuario.nombre} {conversacionActual.otroUsuario.apellido}
-                </h3>
-                <p className="text-sm text-gray-600">{conversacionActual.otroUsuario.email}</p>
+              <div className="p-4 bg-white border-b border-slate-200 shadow-sm flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold">
+                    {conversacionActual.otroUsuario.nombre.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-800 m-0">
+                      {conversacionActual.otroUsuario.nombre} {conversacionActual.otroUsuario.apellido}
+                    </h3>
+                    <p className="text-xs text-slate-500 m-0">{conversacionActual.otroUsuario.email}</p>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => setMostrarModalValoracion(true)}
+                  className="px-4 py-2 bg-yellow-400/10 text-yellow-600 hover:bg-yellow-400/20 rounded-lg text-xs font-bold transition-all flex items-center gap-2 border border-yellow-400/20"
+                >
+                  ⭐ Valorar Vendedor
+                </button>
               </div>
 
+              {/* Contexto del Producto/Servicio */}
+              {contextoItem && (
+                <div className="px-4 py-3 bg-blue-50 border-b border-blue-100 flex items-center gap-4">
+                  <div className="text-xl">
+                    {contextoItem.tipo === 'producto' ? '📦' : '🛠️'}
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-blue-600 font-bold uppercase tracking-wider m-0">
+                      Interesado en {contextoItem.tipo}
+                    </p>
+                    <p className="font-bold text-slate-800 text-sm m-0">
+                      {contextoItem.tipo === 'producto' ? contextoItem.data.nombre : contextoItem.data.titulo}
+                    </p>
+                    <p className="text-xs text-slate-600 font-medium m-0">
+                      ${contextoItem.data.precio?.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Mensajes */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {mensajes.map((msg) => (
                   <div
                     key={msg.id}
                     className={`flex ${msg.remitente.id === usuario.id ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-md px-4 py-2 rounded-lg ${
+                      className={`max-w-md px-5 py-3 rounded-2xl text-sm shadow-sm ${
                         msg.remitente.id === usuario.id
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-800 border border-gray-200'
+                          ? 'bg-blue-600 text-white rounded-br-none'
+                          : 'bg-white text-slate-700 border border-slate-100 rounded-bl-none'
                       }`}
                     >
-                      <p>{msg.contenido}</p>
-                      <p className={`text-xs mt-1 ${
-                        msg.remitente.id === usuario.id ? 'text-blue-100' : 'text-gray-500'
+                      <p className="m-0 leading-relaxed">{msg.contenido}</p>
+                      <p className={`text-[10px] mt-1 text-right ${
+                        msg.remitente.id === usuario.id ? 'text-blue-200' : 'text-slate-400'
                       }`}>
-                        {new Date(msg.fechaEnvio).toLocaleTimeString()}
+                        {new Date(msg.fechaEnvio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                   </div>
@@ -247,19 +428,19 @@ const Mensajes = () => {
               </div>
 
               {/* Input de Mensaje */}
-              <form onSubmit={enviarMensaje} className="p-4 bg-white border-t border-gray-200">
-                <div className="flex gap-2">
+              <form onSubmit={enviarMensaje} className="p-4 bg-white border-t border-slate-200">
+                <div className="flex gap-3">
                   <input
                     type="text"
                     value={nuevoMensaje}
                     onChange={(e) => setNuevoMensaje(e.target.value)}
                     placeholder="Escribe un mensaje..."
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
                   />
                   <button
                     type="submit"
                     disabled={loading || !nuevoMensaje.trim()}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all disabled:bg-slate-300 disabled:cursor-not-allowed font-medium text-sm shadow-lg shadow-slate-900/20"
                   >
                     Enviar
                   </button>
@@ -267,12 +448,81 @@ const Mensajes = () => {
               </form>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-gray-50">
-              <p className="text-gray-500 text-lg">Selecciona una conversación para comenzar</p>
+            <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 text-slate-400">
+              <div className="text-6xl mb-4 opacity-20">💬</div>
+              <p className="text-lg font-medium">Selecciona una conversación</p>
+              <p className="text-sm opacity-60">para comenzar a chatear</p>
             </div>
           )}
         </div>
       </div>
+
+      {/* Modal de Valoración */}
+      {mostrarModalValoracion && conversacionActual && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 max-w-[400px] w-[90%] shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 text-yellow-500">
+                ⭐
+              </div>
+              <h2 className="text-xl font-bold text-slate-800 mb-2">
+                Valorar a {conversacionActual.otroUsuario.nombre}
+              </h2>
+              <p className="text-sm text-slate-500">
+                ¿Cómo fue tu experiencia con este vendedor?
+              </p>
+            </div>
+
+            <form onSubmit={enviarValoracion}>
+              <div className="flex justify-center gap-2 mb-6">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    className={`text-3xl transition-all hover:scale-110 focus:outline-none ${
+                      star <= rating ? "text-yellow-400" : "text-slate-200"
+                    }`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+
+              <div className="mb-6">
+                <textarea
+                  value={comentarioValoracion}
+                  onChange={(e) => setComentarioValoracion(e.target.value)}
+                  placeholder="Escribe un comentario sobre tu experiencia..."
+                  rows="4"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMostrarModalValoracion(false);
+                    setRating(0);
+                    setComentarioValoracion("");
+                  }}
+                  className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={enviandoValoracion || rating === 0}
+                  className="flex-1 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all disabled:bg-slate-300 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20"
+                >
+                  {enviandoValoracion ? "Enviando..." : "Enviar Valoración"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

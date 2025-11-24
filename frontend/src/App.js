@@ -16,8 +16,12 @@ import SelectorModo from './pages/SelectorModo';
 import DashboardAdmin from './pages/DashboardAdmin';
 import GestionIncidencias from './pages/GestionIncidencias';
 import GestionUsuarios from './pages/GestionUsuarios';
+import GestionProductos from './pages/GestionProductos';
 import RegistrarModerador from './pages/RegistrarModerador';
 import Mensajes from './pages/Mensajes';
+import Carrito from './pages/Carrito';
+import MisCompras from './pages/MisCompras';
+import MisVentas from './pages/MisVentas';
 
 function App() {
   return (
@@ -26,12 +30,16 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/catalogo" element={<Catalogo />} />
+        <Route path="/carrito" element={<Carrito />} />
+        <Route path="/mis-compras" element={<MisCompras />} />
+        <Route path="/mis-ventas" element={<MisVentas />} />
         <Route path="/publicar" element={<PublicarProducto />} />
         
         <Route path="/selector-modo" element={<SelectorModo />} />
         <Route path="/dashboard-admin" element={<DashboardAdmin />} />
         <Route path="/gestion-incidencias" element={<GestionIncidencias />} />
         <Route path="/gestion-usuarios" element={<GestionUsuarios />} />
+        <Route path="/gestion-productos" element={<GestionProductos />} />
         <Route path="/registrar-moderador" element={<RegistrarModerador />} />
         <Route path="/mensajes" element={<Mensajes />} />
         

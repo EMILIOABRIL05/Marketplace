@@ -14,8 +14,12 @@ export default function PublicarProductoForm({ onVolver }) {
     categoria: "",
     ubicacion: "",
     stock: "",
-    estado: ""
+    estado: "",
+    deunaNumero: ""
   });
+  
+  const [deunaQr, setDeunaQr] = useState(null);
+  const [deunaQrPreview, setDeunaQrPreview] = useState(null);
 
   const categorias = [
     "Electrónica",
@@ -113,6 +117,34 @@ export default function PublicarProductoForm({ onVolver }) {
     e.target.value = "";
   }
 
+  function handleQrChange(e) {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+
+    if (!archivo.type.startsWith('image/')) {
+      alert("El archivo debe ser una imagen");
+      return;
+    }
+
+    if (archivo.size > 5 * 1024 * 1024) {
+      alert("La imagen supera los 5MB");
+      return;
+    }
+
+    setDeunaQr(archivo);
+    
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setDeunaQrPreview(reader.result);
+    };
+    reader.readAsDataURL(archivo);
+  }
+
+  function eliminarQr() {
+    setDeunaQr(null);
+    setDeunaQrPreview(null);
+  }
+
   function eliminarImagen(index) {
     setImagenes(prev => prev.filter((_, i) => i !== index));
   }
@@ -124,6 +156,11 @@ export default function PublicarProductoForm({ onVolver }) {
       nuevasImagenes.unshift(imagen);
       return nuevasImagenes;
     });
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("user");
+    nav("/");
   }
 
   async function handleSubmit(e) {
@@ -201,6 +238,14 @@ export default function PublicarProductoForm({ onVolver }) {
       formDataToSend.append("cantidad", formData.stock); // ✅ CAMBIADO: "stock" → "cantidad"
       formDataToSend.append("estadoProducto", formData.estado); // ✅ AGREGADO: enviar estadoProducto
       formDataToSend.append("vendedorId", user.id);
+      
+      if (formData.deunaNumero) {
+        formDataToSend.append("deunaNumero", formData.deunaNumero);
+      }
+      
+      if (deunaQr) {
+        formDataToSend.append("deunaQr", deunaQr);
+      }
 
       imagenes.forEach((img, index) => {
         formDataToSend.append("imagenes", img.archivo);
@@ -251,235 +296,125 @@ export default function PublicarProductoForm({ onVolver }) {
     }
   }
 
-  // ... (El resto del JSX permanece igual - sidebar y formulario visual)
   return (
-    <div style={{ 
-      minHeight: "100vh", 
-      background: "white", 
-      display: "flex",
-      fontFamily: "Arial, sans-serif"
-    }}>
+    <div className="min-h-screen bg-slate-50 flex font-sans">
       
-      {/* Sidebar Azul */}
-      <div style={{
-        width: "280px",
-        background: "#00ccff",
-        color: "white",
-        padding: "30px 20px",
-        display: "flex",
-        flexDirection: "column"
-      }}>
+      {/* Sidebar Celeste */}
+      <div className="w-[280px] bg-sky-50 text-slate-800 flex flex-col relative z-10 shadow-2xl">
         
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          marginBottom: "50px",
-          paddingBottom: "20px",
-          borderBottom: "2px solid rgba(255,255,255,0.3)"
-        }}>
-          <div style={{
-            width: "40px",
-            height: "40px",
-            background: "rgba(255,255,255,0.2)",
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-            backdropFilter: "blur(10px)"
-          }}>
-            🛒
+        {/* Logo Header */}
+        <div className="p-6 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-xl text-white shadow-lg shadow-blue-500/30">
+              🛒
+            </div>
+            <div>
+              <h1 className="m-0 text-lg font-bold text-slate-800 tracking-wide">
+                VEYCOFLASH
+              </h1>
+            </div>
           </div>
-          <h1 style={{
-            margin: 0,
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: "#1a237e"
-          }}>
-            VEYCOFLASH
-          </h1>
         </div>
 
-        <nav style={{ flex: 1 }}>
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "15px"
-          }}>
-            <button 
-              onClick={() => nav("/catalogo")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              🏠 Catálogo
-            </button>
+        {/* Navigation Menu */}
+        <nav className="flex-1 p-6 flex flex-col gap-2">
+          <button 
+            onClick={() => nav("/catalogo")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            🏠 Catálogo
+          </button>
 
-            <button 
-              onClick={() => nav("/publicar")}
-              style={{
-                background: "rgba(255,255,255,0.4)",
-                color: "#1a237e",
-                border: "2px solid rgba(255,255,255,0.5)",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)"
-              }}
-            >
-              ➕ Publicar
-            </button>
+          <button 
+            onClick={() => nav("/mis-compras")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            🛍️ Mis Compras
+          </button>
 
-            <button 
-              onClick={() => nav("/favoritos")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              ❤️ Favoritos
-            </button>
+          <button 
+            onClick={() => nav("/mis-ventas")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💰 Mis Ventas
+          </button>
 
-            <button 
-              onClick={() => nav("/historial")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              📊 Historial
-            </button>
+          <button 
+            onClick={() => nav("/publicar")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm"
+          >
+            ➕ Publicar
+          </button>
 
-            <button 
-              onClick={() => nav("/perfil")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              👤 Mi Perfil
-            </button>
-          </div>
+          <button 
+            onClick={() => nav("/favoritos")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ❤️ Favoritos
+          </button>
+
+          <button 
+            onClick={() => nav("/historial")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            📊 Historial
+          </button>
+
+          <button 
+            onClick={() => nav("/mensajes")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💬 Mensajes
+          </button>
+
+          <button 
+            onClick={() => nav("/perfil")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            👤 Mi Perfil
+          </button>
         </nav>
+
+        {/* Footer con versión y botones */}
+        <div className="p-6 border-t border-slate-200 bg-slate-100/50">
+          <button 
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 font-medium text-sm"
+          >
+            🚪 Cerrar Sesión
+          </button>
+        </div>
       </div>
 
       {/* Contenido Principal */}
-      <div style={{
-        flex: 1,
-        padding: "30px 40px",
-        background: "#f8f9fa",
-        overflowY: "auto"
-      }}>
+      <div className="flex-1 p-10 bg-slate-50 overflow-y-auto h-screen">
         
         {/* Header */}
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "30px"
-        }}>
+        <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 style={{
-              color: "#333",
-              fontSize: "28px",
-              fontWeight: "bold",
-              margin: "0 0 8px 0"
-            }}>
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">
               📦 Publicar Producto
             </h1>
-            <p style={{ color: "#666", margin: 0, fontSize: "14px" }}>
+            <p className="text-slate-500 text-sm">
               Completa la información para publicar tu producto
             </p>
           </div>
           
           <button 
             onClick={onVolver}
-            style={{
-              background: "#6c757d",
-              color: "white",
-              border: "none",
-              padding: "12px 24px",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontWeight: "bold",
-              transition: "background 0.3s ease"
-            }}
-            onMouseEnter={(e) => e.target.style.background = "#5a6268"}
-            onMouseLeave={(e) => e.target.style.background = "#6c757d"}
+            className="px-6 py-3 bg-white text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all font-bold text-sm shadow-sm"
           >
             ← Volver
           </button>
         </div>
 
         {/* Formulario */}
-        <div style={{
-          background: "white",
-          borderRadius: "12px",
-          padding: "30px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          maxWidth: "800px"
-        }}>
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 max-w-4xl mx-auto">
           <form onSubmit={handleSubmit}>
             
             {/* Nombre del Producto */}
-            <div style={{ marginBottom: "24px" }}>
-              <label style={{
-                display: "block",
-                marginBottom: "8px",
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#333"
-              }}>
+            <div className="mb-6">
+              <label className="block mb-2 text-sm font-bold text-slate-700">
                 Nombre del Producto *
               </label>
               <input
@@ -488,30 +423,13 @@ export default function PublicarProductoForm({ onVolver }) {
                 value={formData.nombre}
                 onChange={handleChange}
                 placeholder="Ej: iPhone 13 Pro Max"
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  border: "2px solid #e9ecef",
-                  borderRadius: "8px",
-                  fontSize: "16px",
-                  outline: "none",
-                  transition: "border 0.3s ease",
-                  boxSizing: "border-box"
-                }}
-                onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
             </div>
 
             {/* Descripción */}
-            <div style={{ marginBottom: "24px" }}>
-              <label style={{
-                display: "block",
-                marginBottom: "8px",
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#333"
-              }}>
+            <div className="mb-6">
+              <label className="block mb-2 text-sm font-bold text-slate-700">
                 Descripción *
               </label>
               <textarea
@@ -520,38 +438,14 @@ export default function PublicarProductoForm({ onVolver }) {
                 onChange={handleChange}
                 placeholder="Describe tu producto en detalle..."
                 rows="5"
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  border: "2px solid #e9ecef",
-                  borderRadius: "8px",
-                  fontSize: "16px",
-                  outline: "none",
-                  resize: "vertical",
-                  fontFamily: "Arial, sans-serif",
-                  transition: "border 0.3s ease",
-                  boxSizing: "border-box"
-                }}
-                onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-y font-sans"
               />
             </div>
 
             {/* Precio, Categoría y Stock */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
-              gap: "20px",
-              marginBottom: "24px"
-            }}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div>
-                <label style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333"
-                }}>
+                <label className="block mb-2 text-sm font-bold text-slate-700">
                   Precio ($) *
                 </label>
                 <input
@@ -562,49 +456,19 @@ export default function PublicarProductoForm({ onVolver }) {
                   placeholder="0.00"
                   step="0.01"
                   min="0"
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: "2px solid #e9ecef",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    outline: "none",
-                    transition: "border 0.3s ease",
-                    boxSizing: "border-box"
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                  onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 />
               </div>
 
               <div>
-                <label style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333"
-                }}>
+                <label className="block mb-2 text-sm font-bold text-slate-700">
                   Categoría *
                 </label>
                 <select
                   name="categoria"
                   value={formData.categoria}
                   onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: "2px solid #e9ecef",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    outline: "none",
-                    cursor: "pointer",
-                    transition: "border 0.3s ease",
-                    boxSizing: "border-box",
-                    background: "white"
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                  onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                 >
                   <option value="">Selecciona una categoría</option>
                   {categorias.map(cat => (
@@ -614,13 +478,7 @@ export default function PublicarProductoForm({ onVolver }) {
               </div>
 
               <div>
-                <label style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333"
-                }}>
+                <label className="block mb-2 text-sm font-bold text-slate-700">
                   Stock (Cantidad) *
                 </label>
                 <input
@@ -630,57 +488,22 @@ export default function PublicarProductoForm({ onVolver }) {
                   onChange={handleChange}
                   placeholder="0"
                   min="1"
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: "2px solid #e9ecef",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    outline: "none",
-                    transition: "border 0.3s ease",
-                    boxSizing: "border-box"
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                  onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 />
               </div>
             </div>
 
             {/* Ubicación y Estado */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "20px",
-              marginBottom: "24px"
-            }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333"
-                }}>
+                <label className="block mb-2 text-sm font-bold text-slate-700">
                   Provincia *
                 </label>
                 <select
                   name="ubicacion"
                   value={formData.ubicacion}
                   onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: "2px solid #e9ecef",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    outline: "none",
-                    cursor: "pointer",
-                    transition: "border 0.3s ease",
-                    boxSizing: "border-box",
-                    background: "white"
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                  onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                 >
                   <option value="">Selecciona una provincia</option>
                   {provincias.map(provincia => (
@@ -690,33 +513,14 @@ export default function PublicarProductoForm({ onVolver }) {
               </div>
 
               <div>
-                <label style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#333"
-                }}>
+                <label className="block mb-2 text-sm font-bold text-slate-700">
                   Estado del Producto *
                 </label>
                 <select
                   name="estado"
                   value={formData.estado}
                   onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: "2px solid #e9ecef",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    outline: "none",
-                    cursor: "pointer",
-                    transition: "border 0.3s ease",
-                    boxSizing: "border-box",
-                    background: "white"
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = "#00ccff"}
-                  onBlur={(e) => e.target.style.borderColor = "#e9ecef"}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                 >
                   <option value="">Selecciona el estado</option>
                   {estadosProducto.map(est => (
@@ -726,85 +530,103 @@ export default function PublicarProductoForm({ onVolver }) {
               </div>
             </div>
 
+            {/* Sección de Pagos Deuna */}
+            <div className="mb-8 p-6 bg-emerald-50 border border-emerald-100 rounded-2xl">
+              <h3 className="text-lg font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                💳 Datos de Pago (Deuna)
+              </h3>
+              <p className="text-sm text-emerald-600 mb-4">
+                Agrega tu número de cuenta y código QR para facilitar el pago a tus compradores.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block mb-2 text-sm font-bold text-emerald-700">
+                    Número de Cuenta Deuna
+                  </label>
+                  <input
+                    type="text"
+                    name="deunaNumero"
+                    value={formData.deunaNumero}
+                    onChange={handleChange}
+                    placeholder="Ej: 1234567890"
+                    className="w-full px-4 py-3 bg-white border border-emerald-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-2 text-sm font-bold text-emerald-700">
+                    Código QR Deuna (Imagen)
+                  </label>
+                  
+                  {!deunaQrPreview ? (
+                    <div 
+                      className="border-2 border-dashed border-emerald-300 rounded-xl p-4 text-center bg-white hover:bg-emerald-50 cursor-pointer transition-all"
+                      onClick={() => document.getElementById("qr-input").click()}
+                    >
+                      <div className="text-2xl mb-2">📱</div>
+                      <p className="text-xs font-bold text-emerald-700">Subir QR</p>
+                      <input
+                        id="qr-input"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleQrChange}
+                        className="hidden"
+                      />
+                    </div>
+                  ) : (
+                    <div className="relative w-32 h-32 mx-auto bg-white rounded-xl overflow-hidden border border-emerald-200 shadow-sm">
+                      <img 
+                        src={deunaQrPreview} 
+                        alt="QR Preview" 
+                        className="w-full h-full object-contain"
+                      />
+                      <button
+                        type="button"
+                        onClick={eliminarQr}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-sm hover:bg-red-600"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Upload de Imágenes */}
-            <div style={{ marginBottom: "30px" }}>
-              <label style={{
-                display: "block",
-                marginBottom: "8px",
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#333"
-              }}>
+            <div className="mb-8">
+              <label className="block mb-3 text-sm font-bold text-slate-700">
                 Imágenes del Producto * (mínimo 1, máximo 5)
               </label>
 
               {/* Galería de imágenes */}
               {imagenes.length > 0 && (
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-                  gap: "12px",
-                  marginBottom: "16px"
-                }}>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-4">
                   {imagenes.map((img, index) => (
-                    <div key={index} style={{
-                      position: "relative",
-                      aspectRatio: "1",
-                      borderRadius: "8px",
-                      overflow: "hidden",
-                      border: index === 0 ? "3px solid #00ccff" : "2px solid #e9ecef",
-                      background: "#f8f9fa"
-                    }}>
+                    <div key={index} className={`relative aspect-square rounded-xl overflow-hidden bg-slate-100 ${
+                      index === 0 ? "ring-4 ring-blue-500" : "border border-slate-200"
+                    }`}>
                       <img 
                         src={img.preview} 
                         alt={`Preview ${index + 1}`}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover"
-                        }}
+                        className="w-full h-full object-cover"
                       />
                       
                       {/* Badge "Principal" */}
                       {index === 0 && (
-                        <div style={{
-                          position: "absolute",
-                          top: "8px",
-                          left: "8px",
-                          background: "#00ccff",
-                          color: "white",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          fontSize: "11px",
-                          fontWeight: "bold"
-                        }}>
+                        <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded-md text-[10px] font-bold shadow-sm">
                           ⭐ PRINCIPAL
                         </div>
                       )}
 
                       {/* Botones de acción */}
-                      <div style={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        background: "rgba(0,0,0,0.7)",
-                        display: "flex",
-                        justifyContent: "space-around",
-                        padding: "8px"
-                      }}>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 flex justify-around p-2 backdrop-blur-sm">
                         {index !== 0 && (
                           <button
                             type="button"
                             onClick={() => establecerPrincipal(index)}
-                            style={{
-                              background: "transparent",
-                              color: "white",
-                              border: "none",
-                              cursor: "pointer",
-                              fontSize: "18px",
-                              padding: "4px"
-                            }}
+                            className="text-white hover:text-yellow-300 transition-colors text-lg"
                             title="Establecer como principal"
                           >
                             ⭐
@@ -813,14 +635,7 @@ export default function PublicarProductoForm({ onVolver }) {
                         <button
                           type="button"
                           onClick={() => eliminarImagen(index)}
-                          style={{
-                            background: "transparent",
-                            color: "#ff4444",
-                            border: "none",
-                            cursor: "pointer",
-                            fontSize: "18px",
-                            padding: "4px"
-                          }}
+                          className="text-white hover:text-red-400 transition-colors text-lg"
                           title="Eliminar"
                         >
                           🗑️
@@ -834,24 +649,14 @@ export default function PublicarProductoForm({ onVolver }) {
               {/* Botón para agregar más imágenes */}
               {imagenes.length < 5 && (
                 <div 
-                  style={{
-                    border: "2px dashed #00ccff",
-                    borderRadius: "8px",
-                    padding: "30px",
-                    textAlign: "center",
-                    background: "#f8f9fa",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease"
-                  }}
-                  onMouseEnter={(e) => e.target.style.background = "#e9ecef"}
-                  onMouseLeave={(e) => e.target.style.background = "#f8f9fa"}
+                  className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center bg-slate-50 hover:bg-slate-100 hover:border-blue-500 cursor-pointer transition-all group"
                   onClick={() => document.getElementById("imagenes-input").click()}
                 >
-                  <div style={{ fontSize: "48px", marginBottom: "12px" }}>📸</div>
-                  <p style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600", color: "#333" }}>
+                  <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">📸</div>
+                  <p className="text-slate-700 font-bold mb-1">
                     {imagenes.length === 0 ? "Haz clic para agregar imágenes" : `Agregar más imágenes (${imagenes.length}/5)`}
                   </p>
-                  <p style={{ margin: 0, fontSize: "13px", color: "#666" }}>
+                  <p className="text-xs text-slate-500">
                     JPG, PNG o GIF (máximo 5MB cada una)
                   </p>
                   <input
@@ -860,47 +665,24 @@ export default function PublicarProductoForm({ onVolver }) {
                     accept="image/*"
                     multiple
                     onChange={handleImagenesChange}
-                    style={{ display: "none" }}
+                    className="hidden"
                   />
                 </div>
               )}
 
               {imagenes.length > 0 && (
-                <p style={{ 
-                  margin: "12px 0 0 0", 
-                  fontSize: "13px", 
-                  color: "#666",
-                  fontStyle: "italic"
-                }}>
+                <p className="mt-3 text-xs text-slate-500 italic flex items-center gap-1">
                   💡 La primera imagen será la principal. Haz clic en ⭐ para cambiarla.
                 </p>
               )}
             </div>
 
             {/* Botones */}
-            <div style={{
-              display: "flex",
-              gap: "12px",
-              justifyContent: "flex-end",
-              paddingTop: "20px",
-              borderTop: "2px solid #e9ecef"
-            }}>
+            <div className="flex justify-end gap-4 pt-6 border-t border-slate-100">
               <button
                 type="button"
                 onClick={onVolver}
-                style={{
-                  background: "#6c757d",
-                  color: "white",
-                  border: "none",
-                  padding: "14px 28px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  transition: "background 0.3s ease"
-                }}
-                onMouseEnter={(e) => e.target.style.background = "#5a6268"}
-                onMouseLeave={(e) => e.target.style.background = "#6c757d"}
+                className="px-6 py-3 bg-white text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all font-bold text-sm"
               >
                 Cancelar
               </button>
@@ -908,19 +690,7 @@ export default function PublicarProductoForm({ onVolver }) {
               <button
                 type="submit"
                 disabled={guardando}
-                style={{
-                  background: guardando ? "#999" : "#00ccff",
-                  color: "white",
-                  border: "none",
-                  padding: "14px 28px",
-                  borderRadius: "8px",
-                  cursor: guardando ? "not-allowed" : "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  transition: "background 0.3s ease"
-                }}
-                onMouseEnter={(e) => !guardando && (e.target.style.background = "#00b3e6")}
-                onMouseLeave={(e) => !guardando && (e.target.style.background = "#00ccff")}
+                className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-bold text-sm shadow-lg shadow-blue-600/20 disabled:bg-slate-400 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 {guardando ? "Publicando..." : "📤 Publicar Producto"}
               </button>
@@ -930,20 +700,10 @@ export default function PublicarProductoForm({ onVolver }) {
         </div>
 
         {/* Nota informativa */}
-        <div style={{
-          marginTop: "20px",
-          padding: "16px",
-          background: "#d1ecf1",
-          border: "1px solid #bee5eb",
-          borderRadius: "8px",
-          maxWidth: "800px"
-        }}>
-          <p style={{
-            margin: 0,
-            fontSize: "14px",
-            color: "#0c5460"
-          }}>
-            💡 <strong>Consejo:</strong> Las imágenes de buena calidad ayudan a vender más rápido. Sube varias fotos desde diferentes ángulos para mostrar mejor tu producto.
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl max-w-4xl mx-auto flex items-start gap-3">
+          <div className="text-xl">💡</div>
+          <p className="text-sm text-blue-800 leading-relaxed">
+            <strong>Consejo:</strong> Las imágenes de buena calidad ayudan a vender más rápido. Sube varias fotos desde diferentes ángulos para mostrar mejor tu producto.
           </p>
         </div>
 

@@ -116,6 +116,32 @@ export default function DetalleProducto() {
     }
   }
 
+  async function agregarAlCarrito() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      alert("Debes iniciar sesión para agregar al carrito");
+      nav("/login");
+      return;
+    }
+
+    try {
+      await api.post(`/carrito/${user.id}/agregar`, null, {
+        params: {
+          productoId: id,
+          cantidad: 1
+        }
+      });
+      alert("Producto agregado al carrito exitosamente");
+      // Opcional: redirigir al carrito o preguntar si quiere ir
+      if(window.confirm("Producto agregado. ¿Deseas ir al carrito?")) {
+        nav("/carrito");
+      }
+    } catch (err) {
+      console.error("Error al agregar al carrito:", err);
+      alert("No se pudo agregar al carrito. " + (err.response?.data || "Intenta nuevamente."));
+    }
+  }
+
   async function enviarReporte(e) {
     e.preventDefault();
     
@@ -157,7 +183,7 @@ export default function DetalleProducto() {
       return;
     }
     
-    alert("Funcionalidad de mensajería en desarrollo");
+    nav(`/mensajes?vendedorId=${producto.vendedor.id}&productoId=${producto.id}`);
   }
 
   function handleLogout() {
@@ -190,268 +216,114 @@ export default function DetalleProducto() {
   const imagenes = obtenerImagenesProducto();
 
   return (
-    <div style={{ 
-      minHeight: "100vh", 
-      background: "white", 
-      display: "flex",
-      fontFamily: "Arial, sans-serif"
-    }}>
+    <div className="min-h-screen bg-slate-50 flex font-sans">
       
-      {/* Sidebar Azul */}
-      <div style={{
-        width: "280px",
-        background: "#00ccff",
-        color: "white",
-        padding: "30px 20px",
-        display: "flex",
-        flexDirection: "column"
-      }}>
+      {/* Sidebar Celeste */}
+      <div className="w-[280px] bg-sky-50 text-slate-800 flex flex-col relative z-10 shadow-2xl">
         
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          marginBottom: "50px",
-          paddingBottom: "20px",
-          borderBottom: "2px solid rgba(255,255,255,0.3)"
-        }}>
-          <div style={{
-            width: "40px",
-            height: "40px",
-            background: "rgba(255,255,255,0.2)",
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-            backdropFilter: "blur(10px)"
-          }}>
-            🛒
+        {/* Logo Header */}
+        <div className="p-6 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-xl text-white shadow-lg shadow-blue-500/30">
+              🛒
+            </div>
+            <div>
+              <h1 className="m-0 text-lg font-bold text-slate-800 tracking-wide">
+                VEYCOFLASH
+              </h1>
+            </div>
           </div>
-          <h1 style={{
-            margin: 0,
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: "#1a237e"
-          }}>
-            VEYCOFLASH
-          </h1>
         </div>
 
-        <nav style={{ flex: 1 }}>
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "15px"
-          }}>
-            <button 
-              onClick={() => nav("/catalogo")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              🏠 Catálogo
-            </button>
-
-            <button 
-              onClick={() => nav("/publicar")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              ➕ Publicar Producto
-            </button>
-
-            <button 
-              onClick={() => nav("/favoritos")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              ❤️ Favoritos
-            </button>
-
-            <button 
-              onClick={() => nav("/historial")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              📊 Historial
-            </button>
-
-            <button 
-              onClick={() => nav("/perfil")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              👤 Mi Perfil
-            </button>
-          </div>
-        </nav>
-      </div>
-
-      {/* Contenido Principal */}
-      <div style={{
-        flex: 1,
-        padding: "30px 40px",
-        background: "white",
-        overflowY: "auto"
-      }}>
-        
-        {/* Header */}
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "30px"
-        }}>
+        {/* Navigation Menu */}
+        <nav className="flex-1 p-6 flex flex-col gap-2">
           <button 
             onClick={() => nav("/catalogo")}
-            style={{
-              background: "#f8f9fa",
-              color: "#333",
-              border: "1px solid #ddd",
-              padding: "10px 20px",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "600",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px"
-            }}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm hover:shadow-md"
           >
-            ← Volver al Catálogo
+            🏠 Catálogo
           </button>
-          
+
+          <button 
+            onClick={() => nav("/publicar")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ➕ Publicar Producto
+          </button>
+
+          <button 
+            onClick={() => nav("/favoritos")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ❤️ Favoritos
+          </button>
+
+          <button 
+            onClick={() => nav("/historial")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            📊 Historial
+          </button>
+
+          <button 
+            onClick={() => nav("/mensajes")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💬 Mensajes
+          </button>
+
+          <button 
+            onClick={() => nav("/perfil")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            👤 Mi Perfil
+          </button>
+        </nav>
+
+        {/* Footer con versión y botones */}
+        <div className="p-6 border-t border-slate-200 bg-slate-100/50">
           <button 
             onClick={handleLogout}
-            style={{
-              background: "#ff4444",
-              color: "white",
-              border: "none",
-              padding: "12px 24px",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontWeight: "bold"
-            }}
+            className="w-full text-left px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 font-medium text-sm"
           >
             🚪 Cerrar Sesión
           </button>
         </div>
+      </div>
+
+      {/* Contenido Principal */}
+      <div className="flex-1 p-10 bg-slate-50 overflow-y-auto h-screen">
+        
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <button 
+            onClick={() => nav("/catalogo")}
+            className="bg-white text-slate-600 border border-slate-200 px-5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold flex items-center gap-2 transition-all duration-200 shadow-sm hover:border-slate-300 hover:text-slate-900"
+          >
+            ← Volver al Catálogo
+          </button>
+        </div>
 
         {/* Badge de Producto */}
-        <div style={{
-          display: "inline-block",
-          background: "#4CAF50",
-          color: "white",
-          padding: "8px 16px",
-          borderRadius: "8px",
-          fontSize: "14px",
-          fontWeight: "bold",
-          marginBottom: "20px"
-        }}>
-          📦 PRODUCTO
+        <div className="inline-flex items-center gap-1.5 bg-cyan-50 text-cyan-600 px-3 py-1.5 rounded-full text-xs font-bold mb-6 border border-cyan-100">
+          <span>📦</span> PRODUCTO
         </div>
 
         {/* Detalle del Producto */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "40px",
-          maxWidth: "1200px"
-        }}>
+        <div className="grid grid-cols-[1.2fr_0.8fr] gap-10 max-w-7xl">
           
           {/* Galería de Imágenes */}
           <div>
-            <div style={{
-              background: "#f8f9fa",
-              borderRadius: "12px",
-              padding: "20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: "400px",
-              marginBottom: "20px",
-              position: "relative"
-            }}>
+            <div className="bg-white rounded-3xl p-10 flex items-center justify-center min-h-[500px] mb-5 relative shadow-sm border border-slate-200">
               {imagenes.length > 0 ? (
                 <>
                   <img 
                     src={`http://localhost:8080${imagenes[imagenActual]}`}
                     alt={producto.nombre}
-                    style={{
-                      maxWidth: "100%",
-                      maxHeight: "400px",
-                      objectFit: "contain",
-                      borderRadius: "8px"
-                    }}
+                    className="max-w-full max-h-[450px] object-contain rounded-xl"
                     onError={(e) => {
                       e.target.style.display = "none";
-                      e.target.parentElement.innerHTML = '<div style="text-align: center; color: #999;"><div style="font-size: 80px; margin-bottom: 20px;">📦</div><p>Imagen no disponible</p></div>';
+                      e.target.parentElement.innerHTML = '<div class="text-center text-slate-400"><div class="text-6xl mb-5">📦</div><p>Imagen no disponible</p></div>';
                     }}
                   />
                   
@@ -459,39 +331,13 @@ export default function DetalleProducto() {
                     <>
                       <button
                         onClick={() => setImagenActual((imagenActual - 1 + imagenes.length) % imagenes.length)}
-                        style={{
-                          position: "absolute",
-                          left: "20px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "rgba(0,0,0,0.5)",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: "40px",
-                          height: "40px",
-                          cursor: "pointer",
-                          fontSize: "20px"
-                        }}
+                        className="absolute left-5 top-1/2 -translate-y-1/2 bg-white/90 text-slate-800 border border-slate-200 rounded-full w-12 h-12 cursor-pointer text-2xl flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110"
                       >
                         ‹
                       </button>
                       <button
                         onClick={() => setImagenActual((imagenActual + 1) % imagenes.length)}
-                        style={{
-                          position: "absolute",
-                          right: "20px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "rgba(0,0,0,0.5)",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: "40px",
-                          height: "40px",
-                          cursor: "pointer",
-                          fontSize: "20px"
-                        }}
+                        className="absolute right-5 top-1/2 -translate-y-1/2 bg-white/90 text-slate-800 border border-slate-200 rounded-full w-12 h-12 cursor-pointer text-2xl flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110"
                       >
                         ›
                       </button>
@@ -499,8 +345,8 @@ export default function DetalleProducto() {
                   )}
                 </>
               ) : (
-                <div style={{ textAlign: "center", color: "#999" }}>
-                  <div style={{ fontSize: "80px", marginBottom: "20px" }}>📦</div>
+                <div className="text-center text-slate-400">
+                  <div className="text-8xl mb-5">📦</div>
                   <p>Sin imágenes disponibles</p>
                 </div>
               )}
@@ -508,33 +354,24 @@ export default function DetalleProducto() {
 
             {/* Miniaturas */}
             {imagenes.length > 1 && (
-              <div style={{
-                display: "flex",
-                gap: "12px",
-                marginBottom: "20px",
-                overflowX: "auto"
-              }}>
+              <div className="flex gap-4 mb-8 overflow-x-auto p-1">
                 {imagenes.map((img, index) => (
                   <div
                     key={index}
                     onClick={() => setImagenActual(index)}
-                    style={{
-                      minWidth: "80px",
-                      height: "80px",
-                      background: "#f8f9fa",
-                      borderRadius: "8px",
-                      overflow: "hidden",
-                      cursor: "pointer",
-                      border: index === imagenActual ? "3px solid #00ccff" : "2px solid #e9ecef"
-                    }}
+                    className={`min-w-[80px] h-20 bg-white rounded-xl overflow-hidden cursor-pointer transition-all duration-200 ${
+                      index === imagenActual 
+                        ? "border-2 border-blue-500 ring-2 ring-blue-500/20" 
+                        : "border border-slate-200 hover:border-slate-300"
+                    }`}
                   >
                     <img 
                       src={`http://localhost:8080${img}`}
                       alt={`${producto.nombre} ${index + 1}`}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         e.target.style.display = "none";
-                        e.target.parentElement.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: #e9ecef; color: #999; font-size: 24px;">❌</div>';
+                        e.target.parentElement.innerHTML = '<div class="flex items-center justify-center w-full h-full bg-slate-100 text-slate-400 text-xl">❌</div>';
                       }}
                     />
                   </div>
@@ -543,235 +380,126 @@ export default function DetalleProducto() {
             )}
 
             {/* Botones Favorito y Reportar */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={toggleFavorito}
-                style={{
-                  width: "100%",
-                  padding: "14px",
-                  borderRadius: "8px",
-                  border: "2px solid",
-                  borderColor: esFavorito ? "#ff4444" : "#ddd",
-                  background: esFavorito ? "#ffe6e6" : "white",
-                  color: esFavorito ? "#ff4444" : "#333",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  transition: "all 0.3s"
-                }}
-                onMouseEnter={(e) => {
-                  if (!esFavorito) {
-                    e.target.style.background = "#f8f9fa";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!esFavorito) {
-                    e.target.style.background = "white";
-                  }
-                }}
+                className={`w-full p-3.5 rounded-xl border text-sm font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 shadow-sm ${
+                  esFavorito 
+                    ? "border-red-200 bg-red-50 text-red-500" 
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300"
+                }`}
               >
                 {esFavorito ? "❤️ En Favoritos" : "🤍 Agregar a Favoritos"}
               </button>
 
-              {/* Contactar Vendedor */}
-              {producto.vendedor && (
-                <button
-                  onClick={() => nav(`/mensajes?vendedorId=${producto.vendedor.id}&productoId=${producto.id}`)}
-                  style={{
-                    width: "100%",
-                    padding: "14px",
-                    borderRadius: "8px",
-                    border: "2px solid #00ccff",
-                    background: "#00ccff",
-                    color: "white",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                    transition: "all 0.3s"
-                  }}
-                  onMouseEnter={(e) => e.target.style.background = "#00b8e6"}
-                  onMouseLeave={(e) => e.target.style.background = "#00ccff"}
-                >
-                  💬 Contactar Vendedor
-                </button>
-              )}
-
               <button
                 onClick={() => setMostrarReporte(true)}
-                style={{
-                  width: "100%",
-                  padding: "14px",
-                  borderRadius: "8px",
-                  border: "2px solid #ddd",
-                  background: "white",
-                  color: "#333",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  transition: "all 0.3s"
-                }}
-                onMouseEnter={(e) => e.target.style.background = "#f8f9fa"}
-                onMouseLeave={(e) => e.target.style.background = "white"}
+                className="w-full p-3.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-sm font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900"
               >
-                🚩 Reportar producto
+                🚩 Reportar
               </button>
             </div>
           </div>
 
           {/* Información del Producto */}
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px"
-          }}>
+          <div className="flex flex-col gap-8">
             
             {/* Título, Categoría y Precio */}
             <div>
-              <div style={{ fontSize: "14px", color: "#666", marginBottom: "8px" }}>
-                {producto.tipo} › {producto.estadoProducto || "General"}
+              <div className="text-sm text-slate-500 mb-3 flex items-center gap-2">
+                <span className="bg-slate-100 px-2.5 py-1 rounded-full text-xs font-semibold">{producto.tipo}</span>
+                <span className="text-slate-300">•</span>
+                <span>{producto.estadoProducto || "General"}</span>
               </div>
-              <h1 style={{
-                fontSize: "28px",
-                fontWeight: "bold",
-                color: "#333",
-                margin: "0 0 16px 0"
-              }}>
+              <h1 className="text-3xl font-extrabold text-slate-900 m-0 mb-4 leading-tight tracking-tight">
                 {producto.nombre}
               </h1>
-              <div style={{
-                fontSize: "36px",
-                fontWeight: "bold",
-                color: "#00ccff",
-                marginBottom: "8px"
-              }}>
+              <div className="text-4xl font-extrabold text-blue-500 mb-2 tracking-tight">
                 ${producto.precio?.toFixed(2)}
               </div>
             </div>
 
             {/* Botones de Compra */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div className="flex flex-col gap-4">
               <button 
                 disabled={producto.cantidad <= 0}
-                style={{
-                  width: "100%",
-                  padding: "14px",
-                  borderRadius: "8px",
-                  border: "none",
-                  background: producto.cantidad > 0 ? "#ffc107" : "#ccc",
-                  color: producto.cantidad > 0 ? "#000" : "#666",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  cursor: producto.cantidad > 0 ? "pointer" : "not-allowed"
-                }}
+                className={`w-full p-4 rounded-xl border-none text-base font-semibold transition-all duration-200 ${
+                  producto.cantidad > 0 
+                    ? "bg-blue-500 text-white cursor-pointer shadow-lg shadow-blue-500/30 hover:bg-blue-600" 
+                    : "bg-slate-200 text-white cursor-not-allowed"
+                }`}
               >
-                {producto.cantidad > 0 ? "Agregar al carrito" : "Agotado"}
+                {producto.cantidad > 0 ? "Comprar ahora" : "Sin stock"}
               </button>
               
               <button 
+                onClick={agregarAlCarrito}
                 disabled={producto.cantidad <= 0}
-                style={{
-                  width: "100%",
-                  padding: "14px",
-                  borderRadius: "8px",
-                  border: "none",
-                  background: producto.cantidad > 0 ? "#ff5722" : "#ccc",
-                  color: "white",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  cursor: producto.cantidad > 0 ? "pointer" : "not-allowed"
-                }}
+                className={`w-full p-4 rounded-xl border text-base font-semibold transition-all duration-200 ${
+                  producto.cantidad > 0 
+                    ? "bg-white border-slate-200 text-slate-900 cursor-pointer hover:bg-slate-50 hover:border-slate-300" 
+                    : "bg-white border-slate-200 text-slate-400 cursor-not-allowed"
+                }`}
               >
-                {producto.cantidad > 0 ? "Comprar ahora" : "Sin stock"}
+                {producto.cantidad > 0 ? "Agregar al carrito" : "Agotado"}
               </button>
             </div>
 
             {/* Información del Vendedor */}
             {producto.vendedor && (
-              <div style={{
-                background: "#f8f9fa",
-                padding: "20px",
-                borderRadius: "12px",
-                border: "1px solid #e9ecef"
-              }}>
-                <h3 style={{
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                  color: "#333",
-                  margin: "0 0 12px 0"
-                }}>
-                  Información del Vendedor
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 className="text-base font-bold text-slate-900 m-0 mb-4 flex items-center gap-2">
+                  <span>👤</span> Información del Vendedor
                 </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                    <span style={{ color: "#666" }}>Vendedor:</span>
-                    <span style={{ color: "#333", fontWeight: "600" }}>
-                      {producto.vendedor.nombre} {producto.vendedor.apellido}
-                    </span>
+                <div className="flex flex-col gap-4">
+                  <div className="flex gap-3 items-center">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-xl">
+                      {producto.vendedor.nombre.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="text-slate-900 font-semibold text-base">
+                        {producto.vendedor.nombre} {producto.vendedor.apellido}
+                      </div>
+                      <div className="text-slate-500 text-xs">Vendedor verificado</div>
+                    </div>
                   </div>
                   
                   <button
                     onClick={enviarMensaje}
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      borderRadius: "8px",
-                      border: "none",
-                      background: "#00ccff",
-                      color: "white",
-                      fontSize: "16px",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      transition: "all 0.3s",
-                      marginTop: "8px"
-                    }}
-                    onMouseEnter={(e) => e.target.style.background = "#00b3e6"}
-                    onMouseLeave={(e) => e.target.style.background = "#00ccff"}
+                    className="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-slate-300"
                   >
-                    💬 Enviar mensaje
+                    💬 Contactar Vendedor
                   </button>
                 </div>
               </div>
             )}
 
             {/* Detalles del producto */}
-            <div style={{
-              background: "#f8f9fa",
-              padding: "20px",
-              borderRadius: "12px",
-              marginTop: "20px"
-            }}>
-              <h3 style={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                color: "#333",
-                margin: "0 0 16px 0"
-              }}>
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <h3 className="text-lg font-bold text-slate-900 m-0 mb-5">
                 Detalles del producto
               </h3>
               
-              <div style={{ marginBottom: "16px" }}>
-                <div style={{ display: "flex", padding: "12px 0", borderBottom: "1px solid #ddd" }}>
-                  <span style={{ color: "#666", fontWeight: "600", width: "40%" }}>Código:</span>
-                  <span style={{ color: "#333" }}>{producto.codigo || "N/A"}</span>
+              <div className="mb-6 flex flex-col gap-3">
+                <div className="flex justify-between pb-3 border-b border-slate-100">
+                  <span className="text-slate-500 text-sm">Código</span>
+                  <span className="text-slate-900 font-medium text-sm">{producto.codigo || "N/A"}</span>
                 </div>
-                <div style={{ display: "flex", padding: "12px 0", borderBottom: "1px solid #ddd" }}>
-                  <span style={{ color: "#666", fontWeight: "600", width: "40%" }}>Estado:</span>
-                  <span style={{ color: "#333", fontWeight: "bold" }}>{producto.estadoProducto || "No especificado"}</span>
+                <div className="flex justify-between pb-3 border-b border-slate-100">
+                  <span className="text-slate-500 text-sm">Estado</span>
+                  <span className="text-slate-900 font-medium text-sm">{producto.estadoProducto || "No especificado"}</span>
                 </div>
-                <div style={{ display: "flex", padding: "12px 0", borderBottom: "1px solid #ddd" }}>
-                  <span style={{ color: "#666", fontWeight: "600", width: "40%" }}>Categoría:</span>
-                  <span style={{ color: "#333" }}>{producto.tipo}</span>
+                <div className="flex justify-between pb-3 border-b border-slate-100">
+                  <span className="text-slate-500 text-sm">Categoría</span>
+                  <span className="text-slate-900 font-medium text-sm">{producto.tipo}</span>
                 </div>
-                <div style={{ display: "flex", padding: "12px 0", borderBottom: "1px solid #ddd" }}>
-                  <span style={{ color: "#666", fontWeight: "600", width: "40%" }}>Ubicación:</span>
-                  <span style={{ color: "#333" }}>📍 {producto.ubicacion}</span>
+                <div className="flex justify-between pb-3 border-b border-slate-100">
+                  <span className="text-slate-500 text-sm">Ubicación</span>
+                  <span className="text-slate-900 font-medium text-sm">📍 {producto.ubicacion}</span>
                 </div>
-                <div style={{ display: "flex", padding: "12px 0" }}>
-                  <span style={{ color: "#666", fontWeight: "600", width: "40%" }}>Stock:</span>
-                  <span style={{ 
-                    color: producto.cantidad > 0 ? "#28a745" : "#dc3545",
-                    fontWeight: "bold"
-                  }}>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 text-sm">Stock</span>
+                  <span className={`font-semibold text-sm ${producto.cantidad > 0 ? "text-emerald-500" : "text-red-500"}`}>
                     {producto.cantidad > 0 ? `${producto.cantidad} unidades` : "Agotado"}
                   </span>
                 </div>
@@ -779,64 +507,84 @@ export default function DetalleProducto() {
 
               {producto.descripcion && (
                 <div>
-                  <h4 style={{ fontSize: "14px", fontWeight: "600", color: "#333", marginBottom: "8px" }}>
-                    Descripción:
+                  <h4 className="text-sm font-semibold text-slate-900 mb-3">
+                    Descripción
                   </h4>
-                  <p style={{
-                    color: "#666",
-                    lineHeight: "1.6",
-                    margin: 0,
-                    whiteSpace: "pre-line"
-                  }}>
+                  <p className="text-slate-600 leading-relaxed m-0 whitespace-pre-line text-sm">
                     {producto.descripcion}
                   </p>
                 </div>
               )}
             </div>
+
+            {/* Información de Pago Deuna */}
+            {(producto.deunaNumero || producto.deunaQrUrl) && (
+              <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 shadow-sm">
+                <h3 className="text-lg font-bold text-emerald-900 m-0 mb-4 flex items-center gap-2">
+                  💳 Métodos de Pago
+                </h3>
+                
+                <div className="flex flex-col md:flex-row gap-6 items-center">
+                  {producto.deunaQrUrl && (
+                    <div className="bg-white p-3 rounded-xl border border-emerald-100 shadow-sm">
+                      <img 
+                        src={`http://localhost:8080${producto.deunaQrUrl}`} 
+                        alt="QR Deuna" 
+                        className="w-32 h-32 object-contain"
+                      />
+                      <p className="text-center text-xs font-bold text-emerald-700 mt-2">Escanear para pagar</p>
+                    </div>
+                  )}
+                  
+                  <div className="flex-1">
+                    {producto.deunaNumero && (
+                      <div className="mb-3">
+                        <p className="text-sm text-emerald-700 font-semibold mb-1">Número Deuna / Banco Pichincha</p>
+                        <div className="flex items-center gap-2">
+                          <code className="bg-white px-3 py-2 rounded-lg border border-emerald-200 text-emerald-900 font-mono text-lg font-bold">
+                            {producto.deunaNumero}
+                          </code>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(producto.deunaNumero);
+                              alert("Número copiado al portapapeles");
+                            }}
+                            className="p-2 bg-white text-emerald-600 rounded-lg border border-emerald-200 hover:bg-emerald-100 cursor-pointer transition-colors"
+                            title="Copiar número"
+                          >
+                            📋
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    <p className="text-xs text-emerald-600 italic">
+                      * Verifica los datos antes de realizar cualquier transferencia.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Modal de Reporte */}
       {mostrarReporte && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "rgba(0,0,0,0.5)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: "white",
-            borderRadius: "12px",
-            padding: "30px",
-            maxWidth: "500px",
-            width: "90%"
-          }}>
-            <h2 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px", color: "#333" }}>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl p-8 max-w-lg w-[90%] shadow-2xl">
+            <h2 className="text-2xl font-bold mb-6 text-slate-900">
               Reportar producto
             </h2>
             
-            <form onSubmit={enviarReporte} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <form onSubmit={enviarReporte} className="flex flex-col gap-5">
               <div>
-                <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#333", marginBottom: "8px" }}>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Motivo del reporte *
                 </label>
                 <select
                   value={motivoReporte}
                   onChange={(e) => setMotivoReporte(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "1px solid #ddd",
-                    borderRadius: "6px",
-                    fontSize: "14px"
-                  }}
+                  className="w-full p-3 border border-slate-300 rounded-xl text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   required
                 >
                   <option value="">Selecciona un motivo</option>
@@ -849,7 +597,7 @@ export default function DetalleProducto() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#333", marginBottom: "8px" }}>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Descripción *
                 </label>
                 <textarea
@@ -857,33 +605,15 @@ export default function DetalleProducto() {
                   onChange={(e) => setDescripcionReporte(e.target.value)}
                   placeholder="Explica por qué reportas este producto..."
                   rows="4"
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "1px solid #ddd",
-                    borderRadius: "6px",
-                    fontSize: "14px",
-                    resize: "vertical",
-                    boxSizing: "border-box"
-                  }}
+                  className="w-full p-3 border border-slate-300 rounded-xl text-sm resize-y text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   required
                 />
               </div>
 
-              <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
+              <div className="flex gap-3 mt-2">
                 <button
                   type="submit"
-                  style={{
-                    flex: 1,
-                    background: "#ff4444",
-                    color: "white",
-                    padding: "12px",
-                    borderRadius: "8px",
-                    border: "none",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    cursor: "pointer"
-                  }}
+                  className="flex-1 bg-red-500 text-white p-3 rounded-xl border-none text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600"
                 >
                   Enviar reporte
                 </button>
@@ -894,17 +624,7 @@ export default function DetalleProducto() {
                     setMotivoReporte("");
                     setDescripcionReporte("");
                   }}
-                  style={{
-                    flex: 1,
-                    background: "#6c757d",
-                    color: "white",
-                    padding: "12px",
-                    borderRadius: "8px",
-                    border: "none",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    cursor: "pointer"
-                  }}
+                  className="flex-1 bg-white text-slate-600 p-3 rounded-xl border border-slate-300 text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-slate-50 hover:border-slate-400"
                 >
                   Cancelar
                 </button>

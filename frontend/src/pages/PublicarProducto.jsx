@@ -7,250 +7,129 @@ export default function PublicarProducto() {
   const nav = useNavigate();
   const [tipoPublicacion, setTipoPublicacion] = useState(null); // null, 'producto', 'servicio'
 
+  function handleLogout() {
+    localStorage.removeItem("user");
+    nav("/");
+  }
+
   // Si no se ha seleccionado tipo, mostrar opciones
   if (!tipoPublicacion) {
     return (
-      <div style={{ 
-        minHeight: "100vh", 
-        background: "white", 
-        display: "flex",
-        fontFamily: "Arial, sans-serif"
-      }}>
+      <div className="min-h-screen bg-slate-50 flex font-sans">
         
-        {/* Sidebar Azul */}
-        <div style={{
-          width: "280px",
-          background: "#00ccff",
-          color: "white",
-          padding: "30px 20px",
-          display: "flex",
-          flexDirection: "column"
-        }}>
-          
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            marginBottom: "50px",
-            paddingBottom: "20px",
-            borderBottom: "2px solid rgba(255,255,255,0.3)"
-          }}>
-            <div style={{
-              width: "40px",
-              height: "40px",
-              background: "rgba(255,255,255,0.2)",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "20px",
-              backdropFilter: "blur(10px)"
-            }}>
+      {/* Sidebar Celeste */}
+      <div className="w-[280px] bg-sky-50 text-slate-800 flex flex-col relative z-10 shadow-2xl">
+        
+        {/* Logo Header */}
+        <div className="p-6 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-xl text-white shadow-lg shadow-blue-500/30">
               🛒
             </div>
-            <h1 style={{
-              margin: 0,
-              fontSize: "20px",
-              fontWeight: "bold",
-              color: "#1a237e"
-            }}>
-              VEYCOFLASH
-            </h1>
-          </div>
-
-          <nav style={{ flex: 1 }}>
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "15px"
-            }}>
-              <button 
-                onClick={() => nav("/catalogo")}
-                style={{
-                  background: "rgba(255,255,255,0.2)",
-                  color: "#1a237e",
-                  border: "none",
-                  padding: "15px 20px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  backdropFilter: "blur(10px)",
-                  transition: "all 0.3s ease"
-                }}
-                onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-                onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-              >
-                🏠 Catálogo
-              </button>
-
-              <button 
-                onClick={() => nav("/publicar")}
-                style={{
-                  background: "rgba(255,255,255,0.4)",
-                  color: "#1a237e",
-                  border: "2px solid rgba(255,255,255,0.5)",
-                  padding: "15px 20px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  backdropFilter: "blur(10px)"
-                }}
-              >
-                ➕ Publicar
-              </button>
-
-              <button 
-                onClick={() => nav("/favoritos")}
-                style={{
-                  background: "rgba(255,255,255,0.2)",
-                  color: "#1a237e",
-                  border: "none",
-                  padding: "15px 20px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  backdropFilter: "blur(10px)",
-                  transition: "all 0.3s ease"
-                }}
-                onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-                onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-              >
-                ❤️ Favoritos
-              </button>
-
-              <button 
-                onClick={() => nav("/historial")}
-                style={{
-                  background: "rgba(255,255,255,0.2)",
-                  color: "#1a237e",
-                  border: "none",
-                  padding: "15px 20px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  backdropFilter: "blur(10px)",
-                  transition: "all 0.3s ease"
-                }}
-                onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-                onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-              >
-                📊 Historial
-              </button>
-
-              <button 
-                onClick={() => nav("/perfil")}
-                style={{
-                  background: "rgba(255,255,255,0.2)",
-                  color: "#1a237e",
-                  border: "none",
-                  padding: "15px 20px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  backdropFilter: "blur(10px)",
-                  transition: "all 0.3s ease"
-                }}
-                onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-                onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-              >
-                👤 Mi Perfil
-              </button>
+            <div>
+              <h1 className="m-0 text-lg font-bold text-slate-800 tracking-wide">
+                VEYCOFLASH
+              </h1>
             </div>
-          </nav>
+          </div>
         </div>
 
-        {/* Contenido Principal - Selección de tipo */}
-        <div style={{
-          flex: 1,
-          padding: "30px 40px",
-          background: "#f8f9fa",
-          overflowY: "auto",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center"
-        }}>
+        {/* Navigation Menu */}
+        <nav className="flex-1 p-6 flex flex-col gap-2">
+          <button 
+            onClick={() => nav("/catalogo")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            🏠 Catálogo
+          </button>
+
+          <button 
+            onClick={() => nav("/mis-compras")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            🛍️ Mis Compras
+          </button>
+
+          <button 
+            onClick={() => nav("/mis-ventas")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💰 Mis Ventas
+          </button>
+
+          <button 
+            onClick={() => nav("/publicar")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm"
+          >
+            ➕ Publicar
+          </button>
+
+          <button 
+            onClick={() => nav("/favoritos")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ❤️ Favoritos
+          </button>
+
+          <button 
+            onClick={() => nav("/historial")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            📊 Historial
+          </button>
+
+          <button 
+            onClick={() => nav("/mensajes")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💬 Mensajes
+          </button>
+
+          <button 
+            onClick={() => nav("/perfil")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            👤 Mi Perfil
+          </button>
+        </nav>
+
+        {/* Footer con versión y botones */}
+        <div className="p-6 border-t border-slate-200 bg-slate-100/50">
+          <button 
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 font-medium text-sm"
+          >
+            🚪 Cerrar Sesión
+          </button>
+        </div>
+      </div>        {/* Contenido Principal - Selección de tipo */}
+        <div className="flex-1 flex flex-col items-center justify-center p-10 bg-slate-50 overflow-y-auto">
           
-          <div style={{ maxWidth: "900px", width: "100%", textAlign: "center" }}>
+          <div className="max-w-4xl w-full text-center">
             
-            <h1 style={{
-              color: "#333",
-              fontSize: "32px",
-              fontWeight: "bold",
-              margin: "0 0 12px 0"
-            }}>
+            <h1 className="text-3xl font-bold text-slate-800 mb-3">
               ¿Qué deseas publicar?
             </h1>
             
-            <p style={{ 
-              color: "#666", 
-              margin: "0 0 50px 0", 
-              fontSize: "16px" 
-            }}>
+            <p className="text-slate-500 mb-12 text-lg">
               Selecciona el tipo de publicación que quieres crear
             </p>
 
             {/* Tarjetas de opciones */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "30px",
-              marginBottom: "30px"
-            }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
               
               {/* Opción: Producto */}
               <div 
                 onClick={() => setTipoPublicacion('producto')}
-                style={{
-                  background: "white",
-                  borderRadius: "16px",
-                  padding: "40px 30px",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  border: "3px solid #e9ecef",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#00ccff";
-                  e.currentTarget.style.transform = "translateY(-8px)";
-                  e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,204,255,0.2)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#e9ecef";
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.05)";
-                }}
+                className="group bg-white rounded-2xl p-10 cursor-pointer border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-blue-500 transition-all duration-300"
               >
-                <div style={{
-                  fontSize: "64px",
-                  marginBottom: "20px"
-                }}>
+                <div className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300">
                   📦
                 </div>
-                <h2 style={{
-                  color: "#333",
-                  fontSize: "24px",
-                  fontWeight: "bold",
-                  margin: "0 0 12px 0"
-                }}>
+                <h2 className="text-2xl font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">
                   Producto
                 </h2>
-                <p style={{
-                  color: "#666",
-                  fontSize: "15px",
-                  margin: 0,
-                  lineHeight: "1.6"
-                }}>
+                <p className="text-slate-500 leading-relaxed">
                   Publica artículos físicos como electrónica, ropa, muebles, vehículos y más
                 </p>
               </div>
@@ -258,46 +137,15 @@ export default function PublicarProducto() {
               {/* Opción: Servicio */}
               <div 
                 onClick={() => setTipoPublicacion('servicio')}
-                style={{
-                  background: "white",
-                  borderRadius: "16px",
-                  padding: "40px 30px",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  border: "3px solid #e9ecef",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#00ccff";
-                  e.currentTarget.style.transform = "translateY(-8px)";
-                  e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,204,255,0.2)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#e9ecef";
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.05)";
-                }}
+                className="group bg-white rounded-2xl p-10 cursor-pointer border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-blue-500 transition-all duration-300"
               >
-                <div style={{
-                  fontSize: "64px",
-                  marginBottom: "20px"
-                }}>
+                <div className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300">
                   🛠️
                 </div>
-                <h2 style={{
-                  color: "#333",
-                  fontSize: "24px",
-                  fontWeight: "bold",
-                  margin: "0 0 12px 0"
-                }}>
+                <h2 className="text-2xl font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">
                   Servicio
                 </h2>
-                <p style={{
-                  color: "#666",
-                  fontSize: "15px",
-                  margin: 0,
-                  lineHeight: "1.6"
-                }}>
+                <p className="text-slate-500 leading-relaxed">
                   Ofrece servicios como limpieza, clases, reparaciones, diseño y más
                 </p>
               </div>
@@ -306,19 +154,7 @@ export default function PublicarProducto() {
 
             <button 
               onClick={() => nav("/catalogo")}
-              style={{
-                background: "#6c757d",
-                color: "white",
-                border: "none",
-                padding: "12px 24px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                transition: "background 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "#5a6268"}
-              onMouseLeave={(e) => e.target.style.background = "#6c757d"}
+              className="px-6 py-3 bg-slate-200 text-slate-600 rounded-xl hover:bg-slate-300 transition-all font-bold text-sm"
             >
               ← Volver al Catálogo
             </button>

@@ -199,6 +199,13 @@ export default function Perfil() {
   }
 
   async function eliminarProducto(productoId, nombreProducto) {
+    const producto = misProductos.find(p => p.id === productoId);
+    
+    if (fueOcultadoPorAdmin(producto)) {
+      alert("⛔ No puedes eliminar este producto porque ha sido detectado como peligroso o prohibido.\n\nEl producto ha desaparecido de la visualización pública, pero permanece en tu perfil para revisión. Si crees que es un error, utiliza la opción de 'Apelar'.");
+      return;
+    }
+
     if (window.confirm(`¿Estás seguro que deseas eliminar "${nombreProducto}"?\n\nEsta acción no se puede deshacer.`)) {
       try {
         await api.delete(`/productos/${productoId}`);
@@ -213,6 +220,13 @@ export default function Perfil() {
   }
 
   async function eliminarServicio(servicioId, tituloServicio) {
+    const servicio = misServicios.find(s => s.id === servicioId);
+    
+    if (fueOcultadoPorAdmin(servicio)) {
+      alert("⛔ No puedes eliminar este servicio porque ha sido detectado como peligroso o prohibido.\n\nEl servicio ha desaparecido de la visualización pública, pero permanece en tu perfil para revisión. Si crees que es un error, utiliza la opción de 'Apelar'.");
+      return;
+    }
+
     if (window.confirm(`¿Estás seguro que deseas eliminar "${tituloServicio}"?\n\nEsta acción no se puede deshacer.`)) {
       try {
         await api.delete(`/servicios/${servicioId}`);
@@ -270,426 +284,221 @@ export default function Perfil() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontSize: "18px", color: "#666" }}>Cargando perfil...</p>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg text-slate-600 font-medium">Cargando perfil...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ 
-      minHeight: "100vh", 
-      background: "white", 
-      display: "flex",
-      fontFamily: "Arial, sans-serif"
-    }}>
+    <div className="min-h-screen bg-slate-50 flex font-sans">
       
-      {/* Sidebar Azul */}
-      <div style={{
-        width: "280px",
-        background: "#00ccff",
-        color: "white",
-        padding: "30px 20px",
-        display: "flex",
-        flexDirection: "column"
-      }}>
+      {/* Sidebar Celeste */}
+      <div className="w-[280px] bg-sky-50 text-slate-800 flex flex-col relative z-10 shadow-2xl">
         
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          marginBottom: "50px",
-          paddingBottom: "20px",
-          borderBottom: "2px solid rgba(255,255,255,0.3)"
-        }}>
-          <div style={{
-            width: "40px",
-            height: "40px",
-            background: "rgba(255,255,255,0.2)",
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-            backdropFilter: "blur(10px)"
-          }}>
-            🛒
+        {/* Logo Header */}
+        <div className="p-6 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-xl text-white shadow-lg shadow-blue-500/30">
+              🛒
+            </div>
+            <div>
+              <h1 className="m-0 text-lg font-bold text-slate-800 tracking-wide">
+                VEYCOFLASH
+              </h1>
+            </div>
           </div>
-          <h1 style={{
-            margin: 0,
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: "#1a237e"
-          }}>
-            VEYCOFLASH
-          </h1>
         </div>
 
-        <nav style={{ flex: 1 }}>
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "15px"
-          }}>
-            <button 
-              onClick={() => nav("/catalogo")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              🏠 Catálogo
-            </button>
+        {/* Navigation Menu */}
+        <nav className="flex-1 p-6 flex flex-col gap-2">
+          <button 
+            onClick={() => nav("/catalogo")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            🏠 Catálogo
+          </button>
 
-            <button 
-              onClick={() => nav("/publicar")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              ➕ Publicar
-            </button>
+          <button 
+            onClick={() => nav("/mis-compras")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            🛍️ Mis Compras
+          </button>
 
-            <button 
-              onClick={() => nav("/favoritos")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              ❤️ Favoritos
-            </button>
+          <button 
+            onClick={() => nav("/mis-ventas")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💰 Mis Ventas
+          </button>
 
-            <button 
-              onClick={() => nav("/historial")}
-              style={{
-                background: "rgba(255,255,255,0.2)",
-                color: "#1a237e",
-                border: "none",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-              onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-            >
-              📊 Historial
-            </button>
+          <button 
+            onClick={() => nav("/publicar")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ➕ Publicar
+          </button>
 
-            <button 
-              onClick={() => nav("/perfil")}
-              style={{
-                background: "rgba(255,255,255,0.4)",
-                color: "#1a237e",
-                border: "2px solid rgba(255,255,255,0.5)",
-                padding: "15px 20px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                textAlign: "left",
-                backdropFilter: "blur(10px)"
-              }}
-            >
-              👤 Mi Perfil
-            </button>
-          </div>
+          <button 
+            onClick={() => nav("/favoritos")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            ❤️ Favoritos
+          </button>
+
+          <button 
+            onClick={() => nav("/historial")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            📊 Historial
+          </button>
+
+          <button 
+            onClick={() => nav("/mensajes")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-transparent text-slate-600 font-medium hover:bg-white hover:border-slate-200 hover:text-slate-800 hover:shadow-sm"
+          >
+            💬 Mensajes
+          </button>
+
+          <button 
+            onClick={() => nav("/perfil")}
+            className="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 border border-slate-200 bg-white text-slate-800 font-semibold shadow-sm"
+          >
+            👤 Mi Perfil
+          </button>
         </nav>
+
+        {/* Footer con versión y botones */}
+        <div className="p-6 border-t border-slate-200 bg-slate-100/50">
+          <button 
+            onClick={() => {
+              localStorage.removeItem("user");
+              nav("/");
+            }}
+            className="w-full text-left px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 font-medium text-sm"
+          >
+            🚪 Cerrar Sesión
+          </button>
+        </div>
       </div>
 
       {/* Contenido Principal */}
-      <div style={{
-        flex: 1,
-        padding: "30px 40px",
-        background: "#f8f9fa"
-      }}>
+      <div className="flex-1 p-10 bg-slate-50 overflow-y-auto h-screen">
         
         {/* Header */}
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "30px"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{
-              width: "64px",
-              height: "64px",
-              background: "#00ccff",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "32px",
-              color: "white"
-            }}>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-3xl text-white shadow-lg shadow-blue-600/20">
               👤
             </div>
             <div>
-              <h1 style={{
-                color: "#333",
-                fontSize: "28px",
-                fontWeight: "bold",
-                margin: "0 0 4px 0"
-              }}>
+              <h1 className="text-2xl font-bold text-slate-800 mb-1">
                 {usuario?.nombre} {usuario?.apellido}
               </h1>
-              <p style={{ color: "#666", margin: 0, fontSize: "14px" }}>
+              <p className="text-slate-500 text-sm">
                 {usuario?.email}
               </p>
             </div>
           </div>
           
-          <div style={{ display: "flex", gap: "12px" }}>
+          <div className="flex gap-3">
             <button 
               onClick={() => {/* Funcionalidad pendiente */}}
-              style={{
-                background: "#00ccff",
-                color: "white",
-                border: "none",
-                padding: "12px 24px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                transition: "background 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "#00b3e6"}
-              onMouseLeave={(e) => e.target.style.background = "#00ccff"}
+              className="bg-blue-600 text-white border-none px-6 py-3 rounded-xl cursor-pointer text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
             >
               💬 Mensajes
-            </button>
-            
-            <button 
-              onClick={() => {
-                localStorage.removeItem("user");
-                nav("/");
-              }}
-              style={{
-                background: "#ff4444",
-                color: "white",
-                border: "none",
-                padding: "12px 24px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "bold",
-                transition: "background 0.3s ease"
-              }}
-              onMouseEnter={(e) => e.target.style.background = "#cc0000"}
-              onMouseLeave={(e) => e.target.style.background = "#ff4444"}
-            >
-              🚪 Cerrar Sesión
             </button>
           </div>
         </div>
 
         {/* Estadísticas */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
-          gap: "16px",
-          marginBottom: "30px"
-        }}>
-          <div style={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            padding: "20px",
-            borderRadius: "12px",
-            color: "white",
-            boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)"
-          }}>
-            <div style={{ fontSize: "32px", marginBottom: "8px" }}>📦</div>
-            <div style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "4px" }}>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all">
+            <div className="text-3xl mb-2">📦</div>
+            <div className="text-2xl font-bold text-slate-800 mb-1">
               {estadisticas.productosActivos}
             </div>
-            <div style={{ fontSize: "12px", opacity: 0.9 }}>PRODUCTOS ACTIVOS</div>
+            <div className="text-[10px] text-slate-500 font-bold tracking-wider">PRODUCTOS ACTIVOS</div>
           </div>
 
-          <div style={{
-            background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-            padding: "20px",
-            borderRadius: "12px",
-            color: "white",
-            boxShadow: "0 4px 12px rgba(240, 147, 251, 0.3)"
-          }}>
-            <div style={{ fontSize: "32px", marginBottom: "8px" }}>🛠️</div>
-            <div style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "4px" }}>
+          <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all">
+            <div className="text-3xl mb-2">🛠️</div>
+            <div className="text-2xl font-bold text-slate-800 mb-1">
               {estadisticas.serviciosActivos}
             </div>
-            <div style={{ fontSize: "12px", opacity: 0.9 }}>SERVICIOS ACTIVOS</div>
+            <div className="text-[10px] text-slate-500 font-bold tracking-wider">SERVICIOS ACTIVOS</div>
           </div>
 
-          <div style={{
-            background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-            padding: "20px",
-            borderRadius: "12px",
-            color: "white",
-            boxShadow: "0 4px 12px rgba(79, 172, 254, 0.3)"
-          }}>
-            <div style={{ fontSize: "32px", marginBottom: "8px" }}>📊</div>
-            <div style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "4px" }}>
+          <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all">
+            <div className="text-3xl mb-2">📊</div>
+            <div className="text-2xl font-bold text-slate-800 mb-1">
               {estadisticas.totalProductos}
             </div>
-            <div style={{ fontSize: "12px", opacity: 0.9 }}>TOTAL PRODUCTOS</div>
+            <div className="text-[10px] text-slate-500 font-bold tracking-wider">TOTAL PRODUCTOS</div>
           </div>
 
-          <div style={{
-            background: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
-            padding: "20px",
-            borderRadius: "12px",
-            color: "#333",
-            boxShadow: "0 4px 12px rgba(168, 237, 234, 0.3)"
-          }}>
-            <div style={{ fontSize: "32px", marginBottom: "8px" }}>📈</div>
-            <div style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "4px" }}>
+          <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all">
+            <div className="text-3xl mb-2">📈</div>
+            <div className="text-2xl font-bold text-slate-800 mb-1">
               {estadisticas.totalServicios}
             </div>
-            <div style={{ fontSize: "12px", opacity: 0.9 }}>TOTAL SERVICIOS</div>
+            <div className="text-[10px] text-slate-500 font-bold tracking-wider">TOTAL SERVICIOS</div>
           </div>
 
-          <div style={{
-            background: "linear-gradient(135deg, #fad961 0%, #f76b1c 100%)",
-            padding: "20px",
-            borderRadius: "12px",
-            color: "white",
-            boxShadow: "0 4px 12px rgba(250, 217, 97, 0.3)"
-          }}>
-            <div style={{ fontSize: "32px", marginBottom: "8px" }}>⚠️</div>
-            <div style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "4px" }}>
+          <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all">
+            <div className="text-3xl mb-2">⚠️</div>
+            <div className="text-2xl font-bold text-slate-800 mb-1">
               {estadisticas.productosOcultos + estadisticas.serviciosOcultos}
             </div>
-            <div style={{ fontSize: "12px", opacity: 0.9 }}>TOTAL OCULTOS</div>
+            <div className="text-[10px] text-slate-500 font-bold tracking-wider">TOTAL OCULTOS</div>
           </div>
 
-          <div style={{
-            background: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)",
-            padding: "20px",
-            borderRadius: "12px",
-            color: "white",
-            boxShadow: "0 4px 12px rgba(255, 154, 158, 0.3)"
-          }}>
-            <div style={{ fontSize: "32px", marginBottom: "8px" }}>💰</div>
-            <div style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "4px" }}>
+          <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all">
+            <div className="text-3xl mb-2">💰</div>
+            <div className="text-2xl font-bold text-slate-800 mb-1">
               ${estadisticas.ventasTotales}
             </div>
-            <div style={{ fontSize: "12px", opacity: 0.9 }}>VENTAS TOTALES</div>
+            <div className="text-[10px] text-slate-500 font-bold tracking-wider">VENTAS TOTALES</div>
           </div>
         </div>
 
         {/* Mis Publicaciones */}
-        <div style={{
-          background: "white",
-          borderRadius: "12px",
-          padding: "24px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
-        }}>
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           {/* Tabs */}
-          <div style={{
-            display: "flex",
-            gap: "8px",
-            marginBottom: "20px",
-            borderBottom: "2px solid #f0f0f0",
-            paddingBottom: "16px"
-          }}>
+          <div className="flex gap-2 mb-6 border-b border-slate-100 pb-4">
             <button
               onClick={() => setTabActiva("productos")}
-              style={{
-                background: tabActiva === "productos" ? "#00ccff" : "transparent",
-                color: tabActiva === "productos" ? "white" : "#666",
-                border: "none",
-                padding: "10px 20px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "bold",
-                transition: "all 0.3s ease"
-              }}
+              className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                tabActiva === "productos" 
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" 
+                  : "bg-transparent text-slate-500 hover:bg-slate-50"
+              }`}
             >
               📦 Productos ({misProductos.length})
             </button>
             <button
               onClick={() => setTabActiva("servicios")}
-              style={{
-                background: tabActiva === "servicios" ? "#00ccff" : "transparent",
-                color: tabActiva === "servicios" ? "white" : "#666",
-                border: "none",
-                padding: "10px 20px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "bold",
-                transition: "all 0.3s ease"
-              }}
+              className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                tabActiva === "servicios" 
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" 
+                  : "bg-transparent text-slate-500 hover:bg-slate-50"
+              }`}
             >
               🛠️ Servicios ({misServicios.length})
             </button>
           </div>
 
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "20px"
-          }}>
-            <h2 style={{
-              fontSize: "20px",
-              fontWeight: "bold",
-              color: "#333",
-              margin: 0
-            }}>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg font-bold text-slate-800">
               {tabActiva === "productos" ? "📋 MIS PRODUCTOS" : "🛠️ MIS SERVICIOS"}
             </h2>
             <button
               onClick={() => nav("/publicar")}
-              style={{
-                background: "#00ccff",
-                color: "white",
-                border: "none",
-                padding: "10px 20px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "bold"
-              }}
+              className="bg-blue-600 text-white border-none px-4 py-2 rounded-lg cursor-pointer text-sm font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20"
             >
               + NUEVA PUBLICACIÓN
             </button>
@@ -697,36 +506,18 @@ export default function Perfil() {
 
           {tabActiva === "productos" ? (
             misProductos.length === 0 ? (
-              <div style={{
-                textAlign: "center",
-                padding: "40px",
-                color: "#999"
-              }}>
-                <div style={{ fontSize: "60px", marginBottom: "16px" }}>📦</div>
-                <p>No tienes productos publicados aún</p>
+              <div className="text-center py-12 text-slate-400">
+                <div className="text-6xl mb-4">📦</div>
+                <p className="mb-4">No tienes productos publicados aún</p>
                 <button
                   onClick={() => nav("/publicar")}
-                  style={{
-                    background: "#00ccff",
-                    color: "white",
-                    border: "none",
-                    padding: "12px 24px",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    marginTop: "12px"
-                  }}
+                  className="bg-blue-600 text-white border-none px-6 py-3 rounded-xl cursor-pointer text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
                 >
                   Publicar mi primer producto
                 </button>
               </div>
             ) : (
-              <div style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px"
-              }}>
+              <div className="flex flex-col gap-3">
                 {misProductos.map(producto => {
                   const estado = determinarEstado(producto);
                   const ocultadoPorAdmin = fueOcultadoPorAdmin(producto);
@@ -734,72 +525,33 @@ export default function Perfil() {
                   return (
                     <div 
                       key={producto.id}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "16px",
-                        background: "#f8f9fa",
-                        borderRadius: "8px",
-                        border: "1px solid #e9ecef",
-                        position: "relative"
-                      }}
+                      className="flex flex-col md:flex-row justify-between items-center p-4 bg-white rounded-xl border border-slate-100 relative shadow-sm hover:shadow-md transition-all gap-4"
                     >
                       {/* Badge de Apelación si fue ocultado por admin */}
                       {ocultadoPorAdmin && (
-                        <div style={{
-                          position: "absolute",
-                          top: "-8px",
-                          left: "-8px",
-                          background: "#ff6b6b",
-                          color: "white",
-                          padding: "4px 8px",
-                          borderRadius: "12px",
-                          fontSize: "10px",
-                          fontWeight: "bold",
-                          zIndex: 1
-                        }}>
+                        <div className="absolute -top-2 -left-2 bg-red-500 text-white px-2 py-1 rounded-lg text-[10px] font-bold z-10 shadow-sm">
                           ⚠️ OCULTO POR ADMIN
                         </div>
                       )}
 
-                      <div style={{ display: "flex", gap: "16px", alignItems: "center", flex: 1 }}>
-                        <div style={{
-                          width: "60px",
-                          height: "60px",
-                          background: "#e9ecef",
-                          borderRadius: "8px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          overflow: "hidden",
-                          flexShrink: 0
-                        }}>
+                      <div className="flex gap-4 items-center flex-1 w-full">
+                        <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                           {producto.imagenUrl1 ? (
                             <img 
                               src={`http://localhost:8080${producto.imagenUrl1}`} 
                               alt={producto.nombre}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover"
-                              }}
+                              className="w-full h-full object-cover"
                             />
                           ) : (
-                            <span style={{ fontSize: "24px" }}>📦</span>
+                            <span className="text-2xl">📦</span>
                           )}
                         </div>
-                        <div style={{ flex: 1 }}>
-                          <h3 style={{
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                            color: "#333",
-                            margin: "0 0 4px 0"
-                          }}>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base font-bold text-slate-800 mb-1 truncate">
                             {producto.nombre}
                           </h3>
-                          <div style={{ display: "flex", gap: "12px", fontSize: "13px", color: "#666" }}>
-                            <span>${producto.precio}</span>
+                          <div className="flex flex-wrap gap-3 text-xs text-slate-500">
+                            <span className="font-semibold text-blue-600">${producto.precio}</span>
                             <span>•</span>
                             <span>{producto.ubicacion || producto.ciudad}</span>
                             {producto.estado && (
@@ -810,67 +562,30 @@ export default function Perfil() {
                             )}
                           </div>
                           {ocultadoPorAdmin && producto.razonOcultamiento && (
-                            <div style={{
-                              marginTop: "8px",
-                              padding: "8px",
-                              background: "#fff3cd",
-                              border: "1px solid #ffeaa7",
-                              borderRadius: "4px",
-                              fontSize: "12px",
-                              color: "#856404"
-                            }}>
+                            <div className="mt-2 p-2 bg-red-50 border border-red-100 rounded text-xs text-red-700">
                               <strong>Razón:</strong> {producto.razonOcultamiento}
                             </div>
                           )}
                         </div>
                       </div>
 
-                      <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                        <span style={{
-                          padding: "4px 12px",
-                          borderRadius: "20px",
-                          fontSize: "12px",
-                          fontWeight: "600",
-                          background: estado === "ACTIVO" ? "#d4edda" : "#f8d7da",
-                          color: estado === "ACTIVO" ? "#155724" : "#721c24"
-                        }}>
+                      <div className="flex flex-wrap gap-2 items-center justify-end w-full md:w-auto">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          estado === "ACTIVO" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                        }`}>
                           {estado === "ACTIVO" ? "Activo" : "Oculto"}
                         </span>
                         
                         <button
                           onClick={() => nav(`/producto/${producto.id}`)}
-                          style={{
-                            background: "#00ccff",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 16px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                            transition: "background 0.3s ease"
-                          }}
-                          onMouseEnter={(e) => e.target.style.background = "#00b3e6"}
-                          onMouseLeave={(e) => e.target.style.background = "#00ccff"}
+                          className="bg-blue-600 text-white border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold hover:bg-blue-700 transition-all"
                         >
                           Ver
                         </button>
 
                         <button
                           onClick={() => editarProducto(producto.id)}
-                          style={{
-                            background: "#17a2b8",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 16px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                            transition: "background 0.3s ease"
-                          }}
-                          onMouseEnter={(e) => e.target.style.background = "#138496"}
-                          onMouseLeave={(e) => e.target.style.background = "#17a2b8"}
+                          className="bg-sky-500 text-white border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold hover:bg-sky-600 transition-all"
                         >
                           ✏️ Editar
                         </button>
@@ -878,19 +593,9 @@ export default function Perfil() {
                         {!ocultadoPorAdmin && (
                           <button
                             onClick={() => cambiarEstadoProducto(producto.id, estado === "ACTIVO" ? "OCULTO" : "ACTIVO")}
-                            style={{
-                              background: estado === "ACTIVO" ? "#ffc107" : "#28a745",
-                              color: "white",
-                              border: "none",
-                              padding: "8px 16px",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                              fontSize: "13px",
-                              fontWeight: "600",
-                              transition: "background 0.3s ease"
-                            }}
-                            onMouseEnter={(e) => e.target.style.background = estado === "ACTIVO" ? "#e0a800" : "#218838"}
-                            onMouseLeave={(e) => e.target.style.background = estado === "ACTIVO" ? "#ffc107" : "#28a745"}
+                            className={`text-white border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold transition-all ${
+                              estado === "ACTIVO" ? "bg-yellow-500 hover:bg-yellow-600" : "bg-green-500 hover:bg-green-600"
+                            }`}
                           >
                             {estado === "ACTIVO" ? "Ocultar" : "Activar"}
                           </button>
@@ -899,19 +604,7 @@ export default function Perfil() {
                         {ocultadoPorAdmin && (
                           <button
                             onClick={() => iniciarApelacion(producto)}
-                            style={{
-                              background: "#ff6b6b",
-                              color: "white",
-                              border: "none",
-                              padding: "8px 16px",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                              fontSize: "13px",
-                              fontWeight: "600",
-                              transition: "background 0.3s ease"
-                            }}
-                            onMouseEnter={(e) => e.target.style.background = "#ff5252"}
-                            onMouseLeave={(e) => e.target.style.background = "#ff6b6b"}
+                            className="bg-red-500 text-white border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold hover:bg-red-600 transition-all"
                           >
                             🏛️ Apelar
                           </button>
@@ -919,19 +612,7 @@ export default function Perfil() {
 
                         <button
                           onClick={() => eliminarProducto(producto.id, producto.nombre)}
-                          style={{
-                            background: "#dc3545",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 16px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                            transition: "background 0.3s ease"
-                          }}
-                          onMouseEnter={(e) => e.target.style.background = "#c82333"}
-                          onMouseLeave={(e) => e.target.style.background = "#dc3545"}
+                          className="bg-red-500 text-white border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold hover:bg-red-600 transition-all"
                         >
                           🗑️ Eliminar
                         </button>
@@ -944,36 +625,18 @@ export default function Perfil() {
           ) : (
             // ... (el código de servicios se mantiene igual)
             misServicios.length === 0 ? (
-              <div style={{
-                textAlign: "center",
-                padding: "40px",
-                color: "#999"
-              }}>
-                <div style={{ fontSize: "60px", marginBottom: "16px" }}>🛠️</div>
-                <p>No tienes servicios publicados aún</p>
+              <div className="text-center py-12 text-slate-400">
+                <div className="text-6xl mb-4">🛠️</div>
+                <p className="mb-4">No tienes servicios publicados aún</p>
                 <button
                   onClick={() => nav("/publicar")}
-                  style={{
-                    background: "#00ccff",
-                    color: "white",
-                    border: "none",
-                    padding: "12px 24px",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    marginTop: "12px"
-                  }}
+                  className="bg-blue-600 text-white border-none px-6 py-3 rounded-xl cursor-pointer text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
                 >
                   Publicar mi primer servicio
                 </button>
               </div>
             ) : (
-              <div style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px"
-              }}>
+              <div className="flex flex-col gap-3">
                 {misServicios.map(servicio => {
                   const estado = determinarEstado(servicio);
                   const primeraImagen = obtenerPrimeraImagen(servicio, true);
@@ -981,53 +644,26 @@ export default function Perfil() {
                   return (
                     <div 
                       key={servicio.id}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "16px",
-                        background: "#f8f9fa",
-                        borderRadius: "8px",
-                        border: "1px solid #e9ecef"
-                      }}
+                      className="flex flex-col md:flex-row justify-between items-center p-4 bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all gap-4"
                     >
-                      <div style={{ display: "flex", gap: "16px", alignItems: "center", flex: 1 }}>
-                        <div style={{
-                          width: "60px",
-                          height: "60px",
-                          background: "#e9ecef",
-                          borderRadius: "8px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          overflow: "hidden",
-                          flexShrink: 0
-                        }}>
+                      <div className="flex gap-4 items-center flex-1 w-full">
+                        <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                           {primeraImagen ? (
                             <img 
                               src={`http://localhost:8080${primeraImagen}`} 
                               alt={servicio.titulo}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover"
-                              }}
+                              className="w-full h-full object-cover"
                             />
                           ) : (
-                            <span style={{ fontSize: "24px" }}>🛠️</span>
+                            <span className="text-2xl">🛠️</span>
                           )}
                         </div>
-                        <div style={{ flex: 1 }}>
-                          <h3 style={{
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                            color: "#333",
-                            margin: "0 0 4px 0"
-                          }}>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base font-bold text-slate-800 mb-1 truncate">
                             {servicio.titulo}
                           </h3>
-                          <div style={{ display: "flex", gap: "12px", fontSize: "13px", color: "#666" }}>
-                            <span>
+                          <div className="flex flex-wrap gap-3 text-xs text-slate-500">
+                            <span className="font-semibold text-blue-600">
                               {servicio.tipoPrecio === "negociable" 
                                 ? "A negociar" 
                                 : servicio.tipoPrecio === "desde"
@@ -1043,90 +679,39 @@ export default function Perfil() {
                         </div>
                       </div>
 
-                      <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                        <span style={{
-                          padding: "4px 12px",
-                          borderRadius: "20px",
-                          fontSize: "12px",
-                          fontWeight: "600",
-                          background: estado === "ACTIVO" ? "#d4edda" : "#f8d7da",
-                          color: estado === "ACTIVO" ? "#155724" : "#721c24"
-                        }}>
+                      <div className="flex flex-wrap gap-2 items-center justify-end w-full md:w-auto">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          estado === "ACTIVO" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                        }`}>
                           {estado === "ACTIVO" ? "Activo" : "Oculto"}
                         </span>
                         
                         <button
                           onClick={() => nav(`/servicio/${servicio.id}`)}
-                          style={{
-                            background: "#00ccff",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 16px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                            transition: "background 0.3s ease"
-                          }}
-                          onMouseEnter={(e) => e.target.style.background = "#00b3e6"}
-                          onMouseLeave={(e) => e.target.style.background = "#00ccff"}
+                          className="bg-blue-600 text-white border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold hover:bg-blue-700 transition-all"
                         >
                           Ver
                         </button>
 
                         <button
                           onClick={() => editarServicio(servicio.id)}
-                          style={{
-                            background: "#17a2b8",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 16px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                            transition: "background 0.3s ease"
-                          }}
-                          onMouseEnter={(e) => e.target.style.background = "#138496"}
-                          onMouseLeave={(e) => e.target.style.background = "#17a2b8"}
+                          className="bg-sky-500 text-white border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold hover:bg-sky-600 transition-all"
                         >
                           ✏️ Editar
                         </button>
 
                         <button
                           onClick={() => cambiarEstadoServicio(servicio.id, estado === "ACTIVO" ? "OCULTO" : "ACTIVO")}
-                          style={{
-                            background: estado === "ACTIVO" ? "#ffc107" : "#28a745",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 16px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                            transition: "background 0.3s ease"
-                          }}
-                          onMouseEnter={(e) => e.target.style.background = estado === "ACTIVO" ? "#e0a800" : "#218838"}
-                          onMouseLeave={(e) => e.target.style.background = estado === "ACTIVO" ? "#ffc107" : "#28a745"}
+                          className={`text-white border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold transition-all ${
+                            estado === "ACTIVO" ? "bg-yellow-500 hover:bg-yellow-600" : "bg-green-500 hover:bg-green-600"
+                          }`}
                         >
                           {estado === "ACTIVO" ? "Ocultar" : "Activar"}
                         </button>
 
                         <button
                           onClick={() => eliminarServicio(servicio.id, servicio.titulo)}
-                          style={{
-                            background: "#dc3545",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 16px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                            transition: "background 0.3s ease"
-                          }}
-                          onMouseEnter={(e) => e.target.style.background = "#c82333"}
-                          onMouseLeave={(e) => e.target.style.background = "#dc3545"}
+                          className="bg-red-500 text-white border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold hover:bg-red-600 transition-all"
                         >
                           🗑️ Eliminar
                         </button>
@@ -1142,61 +727,30 @@ export default function Perfil() {
 
       {/* Modal de Apelación */}
       {mostrarModalApelacion && productoApelar && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "rgba(0,0,0,0.5)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: "white",
-            borderRadius: "12px",
-            padding: "30px",
-            maxWidth: "500px",
-            width: "90%",
-            maxHeight: "90vh",
-            overflowY: "auto"
-          }}>
-            <h2 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px", color: "#333" }}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 max-w-[500px] w-[90%] max-h-[90vh] overflow-y-auto shadow-2xl">
+            <h2 className="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
               🏛️ Apelar Producto Ocultado
             </h2>
             
-            <div style={{
-              background: "#fff3cd",
-              border: "1px solid #ffeaa7",
-              borderRadius: "8px",
-              padding: "16px",
-              marginBottom: "20px"
-            }}>
-              <h3 style={{ fontSize: "16px", fontWeight: "bold", margin: "0 0 8px 0", color: "#856404" }}>
+            <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-4 mb-6">
+              <h3 className="text-sm font-bold mb-2 text-yellow-800">
                 Producto: {productoApelar.nombre}
               </h3>
-              <p style={{ fontSize: "14px", margin: 0, color: "#856404" }}>
+              <p className="text-xs text-yellow-700 leading-relaxed">
                 Este producto fue ocultado por un administrador. Puedes apelar esta decisión explicando por qué consideras que debería ser visible nuevamente.
               </p>
             </div>
             
-            <form onSubmit={enviarApelacion} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <form onSubmit={enviarApelacion} className="flex flex-col gap-4">
               <div>
-                <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#333", marginBottom: "8px" }}>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Motivo de la apelación *
                 </label>
                 <select
                   value={motivoApelacion}
                   onChange={(e) => setMotivoApelacion(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "1px solid #ddd",
-                    borderRadius: "6px",
-                    fontSize: "14px"
-                  }}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   required
                 >
                   <option value="">Selecciona un motivo</option>
@@ -1209,7 +763,7 @@ export default function Perfil() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#333", marginBottom: "8px" }}>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Explicación detallada *
                 </label>
                 <textarea
@@ -1217,37 +771,20 @@ export default function Perfil() {
                   onChange={(e) => setDescripcionApelacion(e.target.value)}
                   placeholder="Explica por qué consideras que este producto debería ser visible nuevamente..."
                   rows="6"
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "1px solid #ddd",
-                    borderRadius: "6px",
-                    fontSize: "14px",
-                    resize: "vertical",
-                    boxSizing: "border-box"
-                  }}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
                   required
                 />
               </div>
 
-              <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
+              <div className="flex gap-3 mt-4">
                 <button
                   type="submit"
                   disabled={enviandoApelacion}
-                  style={{
-                    flex: 1,
-                    background: enviandoApelacion ? "#999" : "#ff6b6b",
-                    color: "white",
-                    padding: "12px",
-                    borderRadius: "8px",
-                    border: "none",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    cursor: enviandoApelacion ? "not-allowed" : "pointer",
-                    transition: "background 0.3s ease"
-                  }}
-                  onMouseEnter={(e) => !enviandoApelacion && (e.target.style.background = "#ff5252")}
-                  onMouseLeave={(e) => !enviandoApelacion && (e.target.style.background = "#ff6b6b")}
+                  className={`flex-1 py-3 rounded-xl text-sm font-bold text-white transition-all ${
+                    enviandoApelacion 
+                      ? "bg-slate-400 cursor-not-allowed" 
+                      : "bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20"
+                  }`}
                 >
                   {enviandoApelacion ? "Enviando..." : "📤 Enviar Apelación"}
                 </button>
@@ -1259,20 +796,7 @@ export default function Perfil() {
                     setMotivoApelacion("");
                     setDescripcionApelacion("");
                   }}
-                  style={{
-                    flex: 1,
-                    background: "#6c757d",
-                    color: "white",
-                    padding: "12px",
-                    borderRadius: "8px",
-                    border: "none",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                    transition: "background 0.3s ease"
-                  }}
-                  onMouseEnter={(e) => e.target.style.background = "#5a6268"}
-                  onMouseLeave={(e) => e.target.style.background = "#6c757d"}
+                  className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
                 >
                   Cancelar
                 </button>
