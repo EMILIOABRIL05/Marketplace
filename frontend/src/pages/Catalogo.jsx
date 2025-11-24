@@ -80,18 +80,19 @@ export default function Catalogo() {
       console.log("Productos cargados:", resProductos.data);
       console.log("Servicios cargados:", resServicios.data);
 
-      // Normalizar productos (agregar campo tipo)
+      // Normalizar productos (agregar campo tipoItem)
       const productosNormalizados = resProductos.data.map(p => ({
         ...p,
-        tipo: "producto",
+        tipoItem: "producto",
+        categoria: p.tipo, // tipo del backend es la categoría
         titulo: p.nombre, // Para uniformidad
         ubicacion: p.ubicacion || p.ciudad || "Ubicación no especificada" // Para uniformidad
       }));
 
-      // Normalizar servicios (agregar campo tipo)
+      // Normalizar servicios (agregar campo tipoItem)
       const serviciosNormalizados = resServicios.data.map(s => ({
         ...s,
-        tipo: "servicio",
+        tipoItem: "servicio",
         nombre: s.titulo, // Para uniformidad con productos
         ubicacion: s.ciudad || "Ubicación no especificada" // Para uniformidad
       }));
@@ -136,9 +137,9 @@ export default function Catalogo() {
     const nombreBusqueda = (item.nombre || item.titulo || "").toLowerCase();
     const coincideNombre = nombreBusqueda.includes(busqueda.toLowerCase());
     const coincideCategoria = categoriaFiltro === "" || categoriaFiltro === "Todas" || item.categoria === categoriaFiltro;
-    const coincideTipo = tipoFiltro === "" || item.tipo === tipoFiltro;
+    const coincideTipo = tipoFiltro === "" || item.tipoItem === tipoFiltro;
     const coincideUbicacion = ubicacionFiltro === "" || item.ubicacion === ubicacionFiltro;
-    const coincideEstado = estadoFiltro === "" || estadoFiltro === "Todos los estados" || item.estado === estadoFiltro;
+    const coincideEstado = estadoFiltro === "" || estadoFiltro === "Todos los estados" || item.estadoProducto === estadoFiltro;
     
     return coincideNombre && coincideCategoria && coincideTipo && coincideUbicacion && coincideEstado;
   });
@@ -369,11 +370,11 @@ export default function Catalogo() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {itemsOrdenados.map(item => {
               const primeraImagen = obtenerPrimeraImagen(item);
-              const esServicio = item.tipo === "servicio";
+              const esServicio = item.tipoItem === "servicio";
               
               return (
                 <div
-                  key={`${item.tipo}-${item.id}`}
+                  key={`${item.tipoItem}-${item.id}`}
                   onClick={() => nav(esServicio ? `/servicio/${item.id}` : `/producto/${item.id}`)}
                   className="group bg-white rounded-2xl overflow-hidden cursor-pointer border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                 >
