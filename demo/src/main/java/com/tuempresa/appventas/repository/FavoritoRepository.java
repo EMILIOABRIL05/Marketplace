@@ -1,11 +1,14 @@
 package com.tuempresa.appventas.repository;
 
-import jakarta.transaction.Transactional;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import com.tuempresa.appventas.model.Favorito;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.tuempresa.appventas.model.Favorito;
+
+import jakarta.transaction.Transactional;
 
 @Repository
 public interface FavoritoRepository extends JpaRepository<Favorito, Long> {

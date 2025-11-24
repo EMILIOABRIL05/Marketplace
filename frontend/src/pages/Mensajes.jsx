@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 const Mensajes = () => {
   const navigate = useNavigate();
@@ -20,6 +21,23 @@ const Mensajes = () => {
   const [enviandoValoracion, setEnviandoValoracion] = useState(false);
   
   const usuario = JSON.parse(localStorage.getItem('user'));
+
+  // Callback para mensajes WebSocket
+  const handleWebSocketMessage = (mensaje) => {
+    if (conversacionActual && 
+        (mensaje.conversacion?.id === conversacionActual.conversacionId ||
+         mensaje.remitente?.id === conversacionActual.destinatarioId ||
+         mensaje.destinatario?.id === conversacionActual.destinatarioId)) {
+      // Agregar mensaje a la conversación actual
+      setMensajes(prev => [...prev, mensaje]);
+      marcarComoLeido(conversacionActual.conversacionId);
+    }
+    // Recargar conversaciones para actualizar el último mensaje
+    cargarConversaciones();
+  };
+
+  // Conectar WebSocket
+  const { isConnected } = useWebSocket(usuario?.id, handleWebSocketMessage);
 
   // Parámetros para iniciar chat desde producto/servicio
   const vendedorId = searchParams.get('vendedorId');
@@ -45,16 +63,16 @@ const Mensajes = () => {
       cargarContextoServicio(servicioId);
     }
 
-    // Actualizar cada 10 segundos
+    // Actualizar cada 10 segundos solo si WebSocket no está conectado
     const interval = setInterval(() => {
-      if (conversacionActual) {
+      if (!isConnected && conversacionActual) {
         cargarMensajesConversacion(conversacionActual.conversacionId);
       }
       cargarMensajesNoLeidos();
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isConnected, conversacionActual]);
 
   const cargarContextoProducto = async (id) => {
     try {

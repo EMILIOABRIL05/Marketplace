@@ -78,6 +78,12 @@
             <artifactId>jackson-annotations</artifactId>
         </dependency>
 
+        <!-- WebSocket para chat en tiempo real -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
         <!-- JWT para autenticación -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

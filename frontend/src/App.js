@@ -43,7 +43,6 @@ function App() {
         <Route path="/registrar-moderador" element={<RegistrarModerador />} />
         <Route path="/mensajes" element={<Mensajes />} />
         
-        <Route path="*" element={<Navigate to="/" />} />
         <Route path="/producto/:id" element={<DetalleProducto />} />
         <Route path="/favoritos" element={<Favoritos />} />
         <Route path="/historial" element={<Historial />} />
@@ -53,6 +52,8 @@ function App() {
         <Route path="/recuperar-password" element={<RecuperarPassword />} />
         <Route path="/servicio/:id" element={<DetalleServicio />} />
         <Route path="/editar-servicio/:id" element={<EditarServicio />} />
+        
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );

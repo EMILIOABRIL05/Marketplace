@@ -10,6 +10,7 @@ import com.tuempresa.appventas.service.ServicioService;
 import com.tuempresa.appventas.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,9 @@ public class MensajeController {
 
     @Autowired
     private ServicioService servicioService;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     // Enviar mensaje simple
     @PostMapping("/enviar")
@@ -60,6 +64,12 @@ public class MensajeController {
             } else {
                 mensaje = mensajeService.enviarMensaje(remitente, destinatario, contenido);
             }
+
+            // Enviar notificación WebSocket al destinatario
+            messagingTemplate.convertAndSend(
+                "/topic/mensajes/" + destinatarioId,
+                mensaje
+            );
 
             return ResponseEntity.ok(mensaje);
 
