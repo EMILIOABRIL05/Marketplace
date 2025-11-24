@@ -26,7 +26,7 @@ public class DetallePedido {
     @JoinColumn(name = "producto_id")
     private Producto producto;
 
-    private Integer cantidadosea;
+    private Integer cantidad;
     private Double precioUnitario;
 
     public DetallePedido() {}
