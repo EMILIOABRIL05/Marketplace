@@ -9,7 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tuempresa.appventas.model.Producto;
 import com.tuempresa.appventas.model.Usuario;
+import com.tuempresa.appventas.repository.DetallePedidoRepository;
+import com.tuempresa.appventas.repository.FavoritoRepository;
 import com.tuempresa.appventas.repository.HistorialRepository;
+import com.tuempresa.appventas.repository.ItemCarritoRepository;
 import com.tuempresa.appventas.repository.ProductoRepository;
 import com.tuempresa.appventas.repository.ReporteRepository;
 
@@ -24,6 +27,15 @@ public class ProductoService {
 
     @Autowired
     private ReporteRepository reporteRepository;
+
+    @Autowired
+    private FavoritoRepository favoritoRepository;
+
+    @Autowired
+    private ItemCarritoRepository itemCarritoRepository;
+
+    @Autowired
+    private DetallePedidoRepository detallePedidoRepository;
 
     @Autowired
     private IncidenciaService incidenciaService;
@@ -115,21 +127,50 @@ public class ProductoService {
     public void eliminarProductoDefinitivo(Long id) {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-        // Borrar reportes relacionados (si existen)
+        
+        // 1. Borrar detalles de pedidos relacionados
+        try {
+            detallePedidoRepository.deleteByProductoId(id);
+            System.out.println("✅ Detalles de pedidos eliminados para producto: " + id);
+        } catch (Exception e) {
+            System.err.println("⚠️ Error borrando detalles de pedidos: " + e.getMessage());
+        }
+        
+        // 2. Borrar items del carrito relacionados
+        try {
+            itemCarritoRepository.deleteByProductoId(id);
+            System.out.println("✅ Items del carrito eliminados para producto: " + id);
+        } catch (Exception e) {
+            System.err.println("⚠️ Error borrando items del carrito: " + e.getMessage());
+        }
+        
+        // 3. Borrar favoritos relacionados
+        try {
+            favoritoRepository.deleteByProductoId(id);
+            System.out.println("✅ Favoritos eliminados para producto: " + id);
+        } catch (Exception e) {
+            System.err.println("⚠️ Error borrando favoritos: " + e.getMessage());
+        }
+        
+        // 4. Borrar reportes relacionados
         try {
             reporteRepository.deleteByProductoId(id);
+            System.out.println("✅ Reportes eliminados para producto: " + id);
         } catch (Exception e) {
-            // Log pero continuar: si no existe o falla, lo manejamos en la transacción
-            System.err.println("Aviso: error borrando reportes: " + e.getMessage());
+            System.err.println("⚠️ Error borrando reportes: " + e.getMessage());
         }
-        // Borrar historial relacionado
+        
+        // 5. Borrar historial relacionado
         try {
             historialRepository.deleteByProductoId(id);
+            System.out.println("✅ Historial eliminado para producto: " + id);
         } catch (Exception e) {
-            System.err.println("Aviso: error borrando historial: " + e.getMessage());
+            System.err.println("⚠️ Error borrando historial: " + e.getMessage());
         }
-        // Finalmente borrar el producto
+        
+        // 6. Finalmente borrar el producto
         productoRepository.delete(producto);
+        System.out.println("✅ Producto eliminado exitosamente: " + id);
     }
 
     // FILTRAR PRODUCTOS POR PRECIO
