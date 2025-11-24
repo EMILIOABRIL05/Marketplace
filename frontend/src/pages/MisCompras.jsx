@@ -133,7 +133,7 @@ export default function MisCompras() {
                     <div key={detalle.id} className="flex justify-between items-center">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden">
-                           <img src={`http://localhost:8080${detalle.producto.imagenUrl1}`} className="w-full h-full object-cover" alt="" />
+                           <img src={`${detalle.producto.imagenUrl1}`} className="w-full h-full object-cover" alt="" />
                         </div>
                         <div>
                           <p className="font-semibold text-slate-800">{detalle.producto.nombre}</p>

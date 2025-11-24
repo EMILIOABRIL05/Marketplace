@@ -538,7 +538,7 @@ export default function Perfil() {
                         <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                           {producto.imagenUrl1 ? (
                             <img 
-                              src={`http://localhost:8080${producto.imagenUrl1}`} 
+                              src={`${producto.imagenUrl1}`} 
                               alt={producto.nombre}
                               className="w-full h-full object-cover"
                             />
@@ -650,7 +650,7 @@ export default function Perfil() {
                         <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                           {primeraImagen ? (
                             <img 
-                              src={`http://localhost:8080${primeraImagen}`} 
+                              src={`${primeraImagen}`} 
                               alt={servicio.titulo}
                               className="w-full h-full object-cover"
                             />

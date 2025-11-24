@@ -218,7 +218,7 @@ export default function Carrito() {
           </div>
         )}
 
-        {!carrito || carrito.items.length === 0 ? (
+        {!carrito || !carrito.items || carrito.items.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
             <div className="text-6xl mb-4">🛒</div>
             <h2 className="text-xl font-bold text-slate-800 mb-2">Tu carrito está vacío</h2>
@@ -239,7 +239,7 @@ export default function Carrito() {
                   {/* Imagen */}
                   <div className="w-24 h-24 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100">
                     <img 
-                      src={`http://localhost:8080${item.producto.imagenUrl1}`} 
+                      src={`${item.producto.imagenUrl1}`} 
                       alt={item.producto.nombre}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -300,8 +300,8 @@ export default function Carrito() {
                 <h2 className="text-xl font-bold text-slate-900 mb-6">Resumen de Compra</h2>
                 
                 <div className="flex justify-between mb-3 text-slate-600">
-                  <span>Subtotal ({carrito.items.length} productos)</span>
-                  <span>${carrito.total.toFixed(2)}</span>
+                  <span>Subtotal ({carrito.items ? carrito.items.length : 0} productos)</span>
+                  <span>${(carrito.total || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between mb-6 text-slate-600">
                   <span>Envío</span>
@@ -310,7 +310,7 @@ export default function Carrito() {
                 
                 <div className="border-t border-slate-100 pt-4 mb-6 flex justify-between items-center">
                   <span className="text-lg font-bold text-slate-900">Total</span>
-                  <span className="text-2xl font-extrabold text-blue-600">${carrito.total.toFixed(2)}</span>
+                  <span className="text-2xl font-extrabold text-blue-600">${(carrito.total || 0).toFixed(2)}</span>
                 </div>
 
                 <button 
@@ -484,7 +484,7 @@ export default function Carrito() {
                   </>
                 ) : (
                   <>
-                    {metodoPago === "TARJETA" ? `Pagar $${carrito?.total.toFixed(2)}` : "Confirmar Pedido"}
+                    {metodoPago === "TARJETA" ? `Pagar $${(carrito?.total || 0).toFixed(2)}` : "Confirmar Pedido"}
                   </>
                 )}
               </button>

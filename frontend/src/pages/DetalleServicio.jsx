@@ -286,7 +286,7 @@ export default function DetalleServicio() {
               {imagenes.length > 0 ? (
                 <>
                   <img 
-                    src={`http://localhost:8080${imagenes[imagenActual]}`}
+                    src={`${imagenes[imagenActual]}`}
                     alt={servicio.titulo}
                     className="max-w-full max-h-[450px] object-contain rounded-xl"
                     onError={(e) => {
@@ -334,7 +334,7 @@ export default function DetalleServicio() {
                     }`}
                   >
                     <img 
-                      src={`http://localhost:8080${img}`}
+                      src={`${img}`}
                       alt={`${servicio.titulo} ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
@@ -515,7 +515,7 @@ export default function DetalleServicio() {
                   {servicio.deunaQrUrl && (
                     <div className="bg-white p-3 rounded-xl border border-emerald-100 shadow-sm">
                       <img 
-                        src={`http://localhost:8080${servicio.deunaQrUrl}`} 
+                        src={`${servicio.deunaQrUrl}`} 
                         alt="QR Deuna" 
                         className="w-32 h-32 object-contain"
                       />

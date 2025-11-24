@@ -109,7 +109,7 @@ export default function EditarServicio() {
             : servicio.imagenes;
           
           imagenesServicio = imagenesArray.map(img => ({
-            preview: `http://localhost:8080${img}`,
+            preview: `${img}`,
             nombre: img.split('/').pop(),
             url: img
           }));
@@ -301,7 +301,7 @@ export default function EditarServicio() {
       });
 
       // 🟢 USAR PUT EN LUGAR DE PATCH
-      const response = await fetch(`http://localhost:8080/api/servicios/${id}`, {
+      const response = await fetch(`/api/servicios/${id}`, {
         method: 'PUT', // ← CAMBIADO DE PATCH A PUT
         body: formDataToSend,
         headers: {
@@ -681,7 +681,7 @@ export default function EditarServicio() {
                   ) : (
                     <div className="relative w-32 h-32 mx-auto bg-white rounded-xl overflow-hidden border border-emerald-200 shadow-sm group">
                       <img 
-                        src={deunaQrPreview || `http://localhost:8080${deunaQrExistente}`} 
+                        src={deunaQrPreview || `${deunaQrExistente}`} 
                         alt="QR Preview" 
                         className="w-full h-full object-contain"
                       />

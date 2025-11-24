@@ -51,7 +51,7 @@ const Mensajes = () => {
         cargarMensajesConversacion(conversacionActual.conversacionId);
       }
       cargarMensajesNoLeidos();
-    }, 10000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, []);
@@ -428,7 +428,7 @@ const Mensajes = () => {
               </div>
 
               {/* Input de Mensaje */}
-              <form onSubmit={enviarMensaje} className="p-4 bg-white border-t border-slate-200">
+              <form onSubmit={enviarMensaje} className="p-4 bg-white border-t border-slate-200 flex-shrink-0">
                 <div className="flex gap-3">
                   <input
                     type="text"
@@ -440,9 +440,12 @@ const Mensajes = () => {
                   <button
                     type="submit"
                     disabled={loading || !nuevoMensaje.trim()}
-                    className="px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all disabled:bg-slate-300 disabled:cursor-not-allowed font-medium text-sm shadow-lg shadow-slate-900/20"
+                    className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-bold text-sm shadow-lg shadow-blue-600/20 flex items-center gap-2"
                   >
-                    Enviar
+                    <span>Enviar</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                      <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                    </svg>
                   </button>
                 </div>
               </form>

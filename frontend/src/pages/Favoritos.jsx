@@ -401,7 +401,7 @@ export default function Favoritos() {
                   >
                     {primeraImagen ? (
                       <img 
-                        src={`http://localhost:8080${primeraImagen}`}
+                        src={`${primeraImagen}`}
                         alt={item.nombre || item.titulo}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {

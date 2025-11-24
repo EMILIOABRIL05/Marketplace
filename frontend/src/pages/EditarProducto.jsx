@@ -586,7 +586,7 @@ export default function EditarProducto() {
                   ) : (
                     <div className="relative w-32 h-32 mx-auto bg-white rounded-xl overflow-hidden border border-emerald-200 shadow-sm group">
                       <img 
-                        src={deunaQrPreview || `http://localhost:8080${deunaQrExistente}`} 
+                        src={deunaQrPreview || `${deunaQrExistente}`} 
                         alt="QR Preview" 
                         className="w-full h-full object-contain"
                       />
@@ -643,7 +643,7 @@ export default function EditarProducto() {
                       index === 0 ? "border-blue-500" : "border-slate-200"
                     } bg-slate-50 group`}>
                       <img 
-                        src={img.tipo === 'existente' ? `http://localhost:8080${img.url}` : img.preview}
+                        src={img.tipo === 'existente' ? `${img.url}` : img.preview}
                         alt={`Preview ${index + 1}`}
                         className="w-full h-full object-cover"
                       />

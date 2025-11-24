@@ -142,6 +142,33 @@ export default function DetalleProducto() {
     }
   }
 
+  async function comprarAhora() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      alert("Debes iniciar sesión para comprar");
+      nav("/login");
+      return;
+    }
+
+    try {
+      await api.post(`/carrito/${user.id}/agregar`, null, {
+        params: {
+          productoId: id,
+          cantidad: 1
+        }
+      });
+      nav("/carrito");
+    } catch (err) {
+      console.error("Error al procesar compra:", err);
+      // Si el error es porque ya está en el carrito, vamos al carrito igual
+      if (err.response && err.response.status === 400) {
+         nav("/carrito");
+      } else {
+         alert("No se pudo procesar la solicitud. " + (err.response?.data || "Intenta nuevamente."));
+      }
+    }
+  }
+
   async function enviarReporte(e) {
     e.preventDefault();
     
@@ -318,7 +345,7 @@ export default function DetalleProducto() {
               {imagenes.length > 0 ? (
                 <>
                   <img 
-                    src={`http://localhost:8080${imagenes[imagenActual]}`}
+                    src={`${imagenes[imagenActual]}`}
                     alt={producto.nombre}
                     className="max-w-full max-h-[450px] object-contain rounded-xl"
                     onError={(e) => {
@@ -366,7 +393,7 @@ export default function DetalleProducto() {
                     }`}
                   >
                     <img 
-                      src={`http://localhost:8080${img}`}
+                      src={`${img}`}
                       alt={`${producto.nombre} ${index + 1}`}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -422,6 +449,7 @@ export default function DetalleProducto() {
             {/* Botones de Compra */}
             <div className="flex flex-col gap-4">
               <button 
+                onClick={comprarAhora}
                 disabled={producto.cantidad <= 0}
                 className={`w-full p-4 rounded-xl border-none text-base font-semibold transition-all duration-200 ${
                   producto.cantidad > 0 
@@ -528,7 +556,7 @@ export default function DetalleProducto() {
                   {producto.deunaQrUrl && (
                     <div className="bg-white p-3 rounded-xl border border-emerald-100 shadow-sm">
                       <img 
-                        src={`http://localhost:8080${producto.deunaQrUrl}`} 
+                        src={`${producto.deunaQrUrl}`} 
                         alt="QR Deuna" 
                         className="w-32 h-32 object-contain"
                       />
