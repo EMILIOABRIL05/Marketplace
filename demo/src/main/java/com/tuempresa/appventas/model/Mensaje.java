@@ -1,7 +1,17 @@
 package com.tuempresa.appventas.model;
 
-import jakarta.persistence.*;
 import java.util.Date;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "mensajes")
@@ -29,6 +39,9 @@ public class Mensaje {
 
     @Column(length = 2000, nullable = false)
     private String contenido;
+
+    @Column(length = 500)
+    private String imageUrl; // URL de la imagen adjunta (opcional)
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaEnvio;
@@ -152,5 +165,13 @@ public class Mensaje {
 
     public void setConversacionId(String conversacionId) {
         this.conversacionId = conversacionId;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

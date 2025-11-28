@@ -150,6 +150,12 @@ export default function DetalleProducto() {
       return;
     }
 
+    // Verificar que no sea tu propio producto
+    if (user.id === producto.vendedor.id) {
+      alert("No puedes comprar tu propio producto.");
+      return;
+    }
+
     try {
       await api.post(`/carrito/${user.id}/agregar`, null, {
         params: {
@@ -160,13 +166,16 @@ export default function DetalleProducto() {
       nav("/carrito");
     } catch (err) {
       console.error("Error al procesar compra:", err);
-      // Si el error es porque ya está en el carrito, vamos al carrito igual
       if (err.response && err.response.status === 400) {
-         nav("/carrito");
+        nav("/carrito");
       } else {
-         alert("No se pudo procesar la solicitud. " + (err.response?.data || "Intenta nuevamente."));
+        alert("No se pudo procesar la solicitud. " + (err.response?.data || "Intenta nuevamente."));
       }
     }
+  }
+
+  function verPerfilVendedor() {
+    nav(`/perfil/${producto.vendedor.id}`);
   }
 
   async function enviarReporte(e) {
@@ -207,6 +216,12 @@ export default function DetalleProducto() {
     if (!user) {
       alert("Debes iniciar sesión para contactar al vendedor");
       nav("/login");
+      return;
+    }
+    
+    // Verificar que el usuario no sea el mismo vendedor
+    if (user.id === producto.vendedor.id) {
+      alert("No puedes chatear contigo mismo. Este es tu propio producto.");
       return;
     }
     
@@ -345,7 +360,7 @@ export default function DetalleProducto() {
               {imagenes.length > 0 ? (
                 <>
                   <img 
-                    src={`${imagenes[imagenActual]}`}
+                    src={imagenes[imagenActual].startsWith('http') ? imagenes[imagenActual] : `http://86.48.2.202:8080${imagenes[imagenActual]}`}
                     alt={producto.nombre}
                     className="max-w-full max-h-[450px] object-contain rounded-xl"
                     onError={(e) => {
@@ -393,7 +408,7 @@ export default function DetalleProducto() {
                     }`}
                   >
                     <img 
-                      src={`${img}`}
+                      src={img.startsWith('http') ? img : `http://86.48.2.202:8080${img}`}
                       alt={`${producto.nombre} ${index + 1}`}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -480,24 +495,35 @@ export default function DetalleProducto() {
                   <span>👤</span> Información del Vendedor
                 </h3>
                 <div className="flex flex-col gap-4">
-                  <div className="flex gap-3 items-center">
+                  <div 
+                    className="flex gap-3 items-center cursor-pointer hover:bg-slate-50 p-2 rounded-lg -m-2 transition-colors"
+                    onClick={verPerfilVendedor}
+                  >
                     <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-xl">
                       {producto.vendedor.nombre.charAt(0)}
                     </div>
                     <div>
-                      <div className="text-slate-900 font-semibold text-base">
+                      <div className="text-slate-900 font-semibold text-base hover:text-blue-600">
                         {producto.vendedor.nombre} {producto.vendedor.apellido}
                       </div>
                       <div className="text-slate-500 text-xs">Vendedor verificado</div>
                     </div>
                   </div>
                   
-                  <button
-                    onClick={enviarMensaje}
-                    className="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-slate-300"
-                  >
-                    💬 Contactar Vendedor
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={verPerfilVendedor}
+                      className="flex-1 p-3 rounded-xl border border-blue-200 bg-blue-50 text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 hover:bg-blue-100"
+                    >
+                      👤 Ver Perfil
+                    </button>
+                    <button
+                      onClick={enviarMensaje}
+                      className="flex-1 p-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-slate-300"
+                    >
+                      💬 Contactar
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

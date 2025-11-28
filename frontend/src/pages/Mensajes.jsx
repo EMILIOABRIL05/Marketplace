@@ -14,11 +14,20 @@ const Mensajes = () => {
   const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0);
   const [contextoItem, setContextoItem] = useState(null);
   
+  // Estados para imagen
+  const [imagenSeleccionada, setImagenSeleccionada] = useState(null);
+  const [previsualizacionImagen, setPrevisualizacionImagen] = useState(null);
+  
   // Estados para valoración
   const [mostrarModalValoracion, setMostrarModalValoracion] = useState(false);
   const [rating, setRating] = useState(0);
   const [comentarioValoracion, setComentarioValoracion] = useState("");
   const [enviandoValoracion, setEnviandoValoracion] = useState(false);
+  const [valoraciones, setValoraciones] = useState([]);
+  const [resumenValoraciones, setResumenValoraciones] = useState({ promedio: 0, total: 0 });
+  const [cargandoValoraciones, setCargandoValoraciones] = useState(false);
+  const [yaValorado, setYaValorado] = useState(false);
+  const [mostrarModalReferencias, setMostrarModalReferencias] = useState(false);
   
   const usuario = JSON.parse(localStorage.getItem('user'));
 
@@ -101,6 +110,7 @@ const Mensajes = () => {
     return () => clearInterval(interval);
   }, [isConnected, conversacionActual]);
 
+
   const cargarContextoProducto = async (id) => {
     try {
       const res = await api.get(`/productos/public/${id}`);
@@ -166,6 +176,38 @@ const Mensajes = () => {
     }
   };
 
+  const cargarValoracionesVendedor = useCallback(async (vendedorId) => {
+    try {
+      setCargandoValoraciones(true);
+      const [lista, resumen] = await Promise.all([
+        api.get(`/valoraciones?vendedorId=${vendedorId}`),
+        api.get(`/valoraciones/resumen?vendedorId=${vendedorId}`)
+      ]);
+      setValoraciones(lista.data);
+      setResumenValoraciones(resumen.data);
+    } catch (error) {
+      console.error('Error al cargar valoraciones:', error);
+    } finally {
+      setCargandoValoraciones(false);
+    }
+  }, []);
+
+  const verificarValoracion = useCallback(async (vendedorId) => {
+    try {
+      const response = await api.get(`/valoraciones/verificar?vendedorId=${vendedorId}&compradorId=${usuario.id}`);
+      setYaValorado(response.data.yaValorado);
+    } catch (error) {
+      console.error('Error verificando valoración:', error);
+    }
+  }, [usuario.id]);
+
+  useEffect(() => {
+    if (conversacionActual?.otroUsuario?.id) {
+      cargarValoracionesVendedor(conversacionActual.otroUsuario.id);
+      verificarValoracion(conversacionActual.otroUsuario.id);
+    }
+  }, [conversacionActual, cargarValoracionesVendedor, verificarValoracion]);
+
   const seleccionarConversacion = (conversacion) => {
     setConversacionActual(conversacion);
     cargarMensajesConversacion(conversacion.conversacionId);
@@ -174,15 +216,34 @@ const Mensajes = () => {
   const enviarMensaje = async (e) => {
     e.preventDefault();
 
-    if (!nuevoMensaje.trim() || !conversacionActual) return;
+    if ((!nuevoMensaje.trim() && !imagenSeleccionada) || !conversacionActual) return;
 
     setLoading(true);
     try {
+      let imageUrl = null;
+
+      // Primero subir la imagen si existe
+      if (imagenSeleccionada) {
+        const formData = new FormData();
+        formData.append('imagen', imagenSeleccionada);
+
+        const uploadResponse = await api.post('/mensajes/upload-imagen', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        imageUrl = uploadResponse.data.imageUrl;
+      }
+
       const mensajeData = {
         remitenteId: usuario.id,
         destinatarioId: conversacionActual.otroUsuario.id,
-        contenido: nuevoMensaje
+        contenido: nuevoMensaje.trim() || '📷 Imagen'
       };
+
+      if (imageUrl) {
+        mensajeData.imageUrl = imageUrl;
+      }
 
       if (productoId) {
         mensajeData.productoId = productoId;
@@ -193,6 +254,8 @@ const Mensajes = () => {
       await api.post('/mensajes/enviar', mensajeData);
 
       setNuevoMensaje('');
+      setImagenSeleccionada(null);
+      setPrevisualizacionImagen(null);
       cargarMensajesConversacion(conversacionActual.conversacionId);
       cargarConversaciones();
     } catch (error) {
@@ -201,6 +264,31 @@ const Mensajes = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSeleccionarImagen = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor selecciona una imagen válida');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert('La imagen no debe superar los 5MB');
+        return;
+      }
+      setImagenSeleccionada(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPrevisualizacionImagen(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const cancelarImagen = () => {
+    setImagenSeleccionada(null);
+    setPrevisualizacionImagen(null);
   };
 
   const enviarValoracion = async (e) => {
@@ -212,23 +300,22 @@ const Mensajes = () => {
 
     setEnviandoValoracion(true);
     try {
-      // Simulación de envío de valoración
-      // await api.post(`/usuarios/${conversacionActual.otroUsuario.id}/valorar`, {
-      //   calificacion: rating,
-      //   comentario: comentarioValoracion,
-      //   evaluadorId: usuario.id
-      // });
-      
-      // Simulamos delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await api.post('/valoraciones', {
+        vendedorId: conversacionActual.otroUsuario.id,
+        compradorId: usuario.id,
+        calificacion: rating,
+        comentario: comentarioValoracion
+      });
+
       alert("✅ ¡Valoración enviada con éxito! Gracias por tu opinión.");
       setMostrarModalValoracion(false);
       setRating(0);
       setComentarioValoracion("");
+      setYaValorado(true);
+      cargarValoracionesVendedor(conversacionActual.otroUsuario.id);
     } catch (error) {
       console.error("Error enviando valoración:", error);
-      alert("Error al enviar la valoración");
+      alert(error.response?.data?.error || "Error al enviar la valoración");
     } finally {
       setEnviandoValoracion(false);
     }
@@ -416,23 +503,55 @@ const Mensajes = () => {
               {/* Header del Chat */}
               <div className="p-4 bg-white border-b border-slate-200 shadow-sm flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold">
+                  <div 
+                    onClick={() => navigate(`/perfil/${conversacionActual.otroUsuario.id}`)}
+                    className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold cursor-pointer hover:scale-105 transition-transform"
+                    title="Ver perfil del vendedor"
+                  >
                     {conversacionActual.otroUsuario.nombre.charAt(0)}
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-800 m-0">
+                    <h3 
+                      onClick={() => navigate(`/perfil/${conversacionActual.otroUsuario.id}`)}
+                      className="text-base font-bold text-slate-800 m-0 cursor-pointer hover:text-blue-600 transition-colors"
+                    >
                       {conversacionActual.otroUsuario.nombre} {conversacionActual.otroUsuario.apellido}
                     </h3>
                     <p className="text-xs text-slate-500 m-0">{conversacionActual.otroUsuario.email}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <div className="text-[11px] text-yellow-600 font-semibold bg-yellow-50 px-2 py-1 rounded-lg">
+                        ⭐ {resumenValoraciones.promedio?.toFixed(1) || '0.0'} / 5 · {resumenValoraciones.total} opiniones
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setMostrarModalReferencias(true)}
+                        className="text-[11px] font-semibold text-blue-600 hover:text-blue-700"
+                      >
+                        Ver referencias
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/perfil/${conversacionActual.otroUsuario.id}`)}
+                        className="text-[11px] font-semibold text-green-600 hover:text-green-700"
+                      >
+                        Ver perfil y publicaciones
+                      </button>
+                    </div>
                   </div>
                 </div>
                 
                 <div className="flex gap-2">
                   <button
                     onClick={() => setMostrarModalValoracion(true)}
-                    className="px-4 py-2 bg-yellow-400/10 text-yellow-600 hover:bg-yellow-400/20 rounded-lg text-xs font-bold transition-all flex items-center gap-2 border border-yellow-400/20"
+                    disabled={yaValorado}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 border ${
+                      yaValorado
+                        ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                        : 'bg-yellow-400/10 text-yellow-600 hover:bg-yellow-400/20 border-yellow-400/20'
+                    }`}
+                    title={yaValorado ? 'Ya dejaste una valoración' : 'Valorar al vendedor'}
                   >
-                    ⭐ Valorar
+                    ⭐ {yaValorado ? 'Valorado' : 'Valorar'}
                   </button>
                   
                   <button
@@ -478,6 +597,14 @@ const Mensajes = () => {
                           : 'bg-white text-slate-700 border border-slate-100 rounded-bl-none'
                       }`}
                     >
+                      {msg.imageUrl && (
+                        <img 
+                          src={`http://86.48.2.202:8080${msg.imageUrl}`}
+                          alt="Imagen enviada" 
+                          className="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-all"
+                          onClick={() => window.open(`http://86.48.2.202:8080${msg.imageUrl}`, '_blank')}
+                        />
+                      )}
                       <p className="m-0 leading-relaxed">{msg.contenido}</p>
                       <p className={`text-[10px] mt-1 text-right ${
                         msg.remitente.id === usuario.id ? 'text-blue-200' : 'text-slate-400'
@@ -491,20 +618,53 @@ const Mensajes = () => {
 
               {/* Input de Mensaje */}
               <form onSubmit={enviarMensaje} className="p-4 bg-white border-t border-slate-200 flex-shrink-0">
-                <div className="flex gap-3">
+                {/* Previsualización de imagen */}
+                {previsualizacionImagen && (
+                  <div className="mb-3 relative inline-block">
+                    <img 
+                      src={previsualizacionImagen} 
+                      alt="Preview" 
+                      className="max-w-[200px] max-h-[200px] rounded-xl border-2 border-slate-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={cancelarImagen}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-all shadow-lg"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+                
+                <div className="flex gap-2 items-center">
                   <input
                     type="text"
                     value={nuevoMensaje}
                     onChange={(e) => setNuevoMensaje(e.target.value)}
                     placeholder="Escribe un mensaje..."
-                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
                   />
+                  
+                  {/* Botón adjuntar - compacto */}
+                  <label
+                    className="cursor-pointer px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all flex items-center gap-1 shadow-md font-bold text-sm whitespace-nowrap"
+                    title="Adjuntar captura o imagen"
+                  >
+                    📷 Adjuntar
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleSeleccionarImagen}
+                      className="hidden"
+                    />
+                  </label>
+                  
                   <button
                     type="submit"
-                    disabled={loading || !nuevoMensaje.trim()}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-bold text-sm shadow-lg shadow-blue-600/20 flex items-center gap-2"
+                    disabled={loading || (!nuevoMensaje.trim() && !imagenSeleccionada)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-bold text-sm shadow-md flex items-center gap-1"
                   >
-                    <span>Enviar</span>
+                    Enviar
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                       <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
                     </svg>
@@ -521,6 +681,60 @@ const Mensajes = () => {
           )}
         </div>
       </div>
+
+      {/* Modal de Referencias */}
+      {mostrarModalReferencias && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 max-w-[500px] w-[90%] shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-xs font-semibold text-blue-500 uppercase tracking-widest m-0">Referencias del vendedor</p>
+                <h2 className="text-xl font-bold text-slate-800 m-0">
+                  {conversacionActual?.otroUsuario?.nombre} {conversacionActual?.otroUsuario?.apellido}
+                </h2>
+                <p className="text-sm text-slate-500 m-0">
+                  ⭐ {resumenValoraciones.promedio?.toFixed(1) || '0.0'} promedio · {resumenValoraciones.total} opiniones
+                </p>
+              </div>
+              <button
+                onClick={() => setMostrarModalReferencias(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="h-64 overflow-y-auto pr-2">
+              {cargandoValoraciones ? (
+                <p className="text-sm text-slate-500">Cargando referencias...</p>
+              ) : valoraciones.length === 0 ? (
+                <p className="text-sm text-slate-500">Este vendedor aún no tiene referencias.</p>
+              ) : (
+                valoraciones.map((valoracion) => (
+                  <div key={valoracion.id} className="mb-4 p-4 border border-slate-100 rounded-xl bg-slate-50">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-yellow-500 font-bold">
+                          {'⭐'.repeat(valoracion.calificacion)}
+                        </span>
+                        <span className="text-xs text-slate-500">
+                          {new Date(valoracion.fechaCreacion).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-500">
+                        {valoracion.compradorNombre} {valoracion.compradorApellido}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-700 m-0">
+                      {valoracion.comentario || 'Sin comentario'}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de Valoración */}
       {mostrarModalValoracion && conversacionActual && (

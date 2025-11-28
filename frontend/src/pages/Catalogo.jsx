@@ -382,7 +382,7 @@ export default function Catalogo() {
                   <div className="h-48 bg-slate-100 relative overflow-hidden">
                     {primeraImagen ? (
                       <img 
-                        src={`${primeraImagen}`}
+                        src={primeraImagen.startsWith('http') ? primeraImagen : `http://86.48.2.202:8080${primeraImagen}`}
                         alt={item.nombre || item.titulo}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {

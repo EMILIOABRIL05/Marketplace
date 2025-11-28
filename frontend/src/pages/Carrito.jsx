@@ -239,7 +239,7 @@ export default function Carrito() {
                   {/* Imagen */}
                   <div className="w-24 h-24 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100">
                     <img 
-                      src={`${item.producto.imagenUrl1}`} 
+                      src={item.producto.imagenUrl1 ? `http://86.48.2.202:8080${item.producto.imagenUrl1}` : ''} 
                       alt={item.producto.nombre}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -444,14 +444,115 @@ export default function Carrito() {
                 </div>
               ) : (
                 <div className="animate-fadeIn">
-                  <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center">
-                    <div className="text-4xl mb-4">📱</div>
-                    <h3 className="font-bold text-slate-800 mb-2">Instrucciones de Pago</h3>
-                    <p className="text-slate-600 mb-4 text-sm">
-                      Al confirmar, se generará tu pedido. Deberás realizar el pago a las cuentas indicadas por cada vendedor y subir el comprobante en la sección <strong>"Mis Compras"</strong>.
-                    </p>
-                    <div className="text-xs text-slate-500 bg-white p-3 rounded-lg border border-slate-200 inline-block">
-                      El pedido quedará en estado <strong>PENDIENTE</strong> hasta que subas el comprobante.
+                  <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <div className="text-center mb-6">
+                      <div className="text-4xl mb-2">📱</div>
+                      <h3 className="font-bold text-slate-800 mb-2">Datos de Pago por Vendedor</h3>
+                      <p className="text-slate-600 text-sm">
+                        Deberás realizar el pago a cada vendedor según los datos mostrados abajo.
+                      </p>
+                    </div>
+                    
+                    {/* Mostrar datos de pago de cada vendedor */}
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto">
+                      {carrito?.items && (() => {
+                        // Agrupar items por vendedor
+                        const vendedoresMap = {};
+                        carrito.items.forEach(item => {
+                          const vendedor = item.producto.vendedor;
+                          if (!vendedoresMap[vendedor.id]) {
+                            vendedoresMap[vendedor.id] = {
+                              vendedor: vendedor,
+                              items: [],
+                              subtotal: 0
+                            };
+                          }
+                          vendedoresMap[vendedor.id].items.push(item);
+                          vendedoresMap[vendedor.id].subtotal += item.precioUnitario * item.cantidad;
+                        });
+                        
+                        return Object.values(vendedoresMap).map((grupo, index) => (
+                          <div key={grupo.vendedor.id} className="bg-white p-4 rounded-xl border border-slate-200">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
+                                  {grupo.vendedor.nombre?.charAt(0) || 'V'}
+                                </div>
+                                <div>
+                                  <p className="font-bold text-slate-800 text-sm">{grupo.vendedor.nombre} {grupo.vendedor.apellido}</p>
+                                  <p className="text-xs text-slate-500">{grupo.items.length} producto(s)</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-bold text-blue-600">${grupo.subtotal.toFixed(2)}</p>
+                              </div>
+                            </div>
+                            
+                            {/* QR de Deuna */}
+                            {grupo.vendedor.deunaQrUrl && (
+                              <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl mb-3">
+                                <p className="text-xs font-semibold text-purple-600 mb-2">📱 Escanea el QR con Deuna</p>
+                                <img 
+                                  src={`http://86.48.2.202:8080${grupo.vendedor.deunaQrUrl}`}
+                                  alt="QR Deuna"
+                                  className="max-w-[150px] mx-auto rounded-lg shadow-md"
+                                />
+                              </div>
+                            )}
+                            
+                            {/* Número Deuna */}
+                            {grupo.vendedor.deunaNumero && (
+                              <div className="p-3 bg-blue-50 rounded-lg mb-3">
+                                <p className="text-xs font-semibold text-blue-600 mb-1">💳 Número Deuna</p>
+                                <p className="text-lg font-mono font-bold text-slate-800 select-all">
+                                  {grupo.vendedor.deunaNumero}
+                                </p>
+                                <button 
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(grupo.vendedor.deunaNumero);
+                                    alert("Número copiado");
+                                  }}
+                                  className="mt-1 text-xs text-blue-600 hover:text-blue-700"
+                                >
+                                  📋 Copiar número
+                                </button>
+                              </div>
+                            )}
+                            
+                            {/* Datos bancarios */}
+                            {grupo.vendedor.bancoNombre && (
+                              <div className="p-3 bg-green-50 rounded-lg">
+                                <p className="text-xs font-semibold text-green-600 mb-1">🏦 Transferencia Bancaria</p>
+                                <div className="space-y-0.5 text-xs text-slate-700">
+                                  <p><span className="font-medium">Banco:</span> {grupo.vendedor.bancoNombre}</p>
+                                  <p><span className="font-medium">Cuenta:</span> {grupo.vendedor.bancoNumeroCuenta}</p>
+                                  <p><span className="font-medium">Tipo:</span> {grupo.vendedor.bancoTipoCuenta}</p>
+                                  <p><span className="font-medium">Titular:</span> {grupo.vendedor.nombre} {grupo.vendedor.apellido}</p>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Si no tiene datos de pago */}
+                            {!grupo.vendedor.deunaQrUrl && !grupo.vendedor.deunaNumero && !grupo.vendedor.bancoNombre && (
+                              <div className="p-3 bg-yellow-50 rounded-lg text-center">
+                                <p className="text-xs text-yellow-700">⚠️ Este vendedor no ha configurado datos de pago</p>
+                                <button
+                                  onClick={() => nav(`/mensajes?vendedorId=${grupo.vendedor.id}`)}
+                                  className="mt-2 text-xs px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+                                >
+                                  💬 Contactar
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                    
+                    <div className="mt-4 text-center">
+                      <div className="text-xs text-slate-500 bg-white p-3 rounded-lg border border-slate-200 inline-block">
+                        El pedido quedará en estado <strong>PENDIENTE</strong> hasta que subas el comprobante.
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -401,7 +401,7 @@ export default function Historial() {
                   <div className="w-32 h-32 flex-shrink-0 bg-slate-100 rounded-xl flex items-center justify-center overflow-hidden relative">
                     {primeraImagen ? (
                       <img 
-                        src={`${primeraImagen}`}
+                        src={primeraImagen.startsWith('http') ? primeraImagen : `http://86.48.2.202:8080${primeraImagen}`}
                         alt={elemento.nombre || elemento.titulo}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {

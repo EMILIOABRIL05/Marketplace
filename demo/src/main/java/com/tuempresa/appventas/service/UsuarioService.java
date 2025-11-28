@@ -243,6 +243,10 @@ public class UsuarioService {
         return usuarioRepository.findById(id);
     }
 
+    public Usuario guardar(Usuario usuario) {
+        return usuarioRepository.save(usuario);
+    }
+
     public Usuario actualizarUsuario(Long id, Usuario usuarioActualizado) {
         return usuarioRepository.findById(id)
                 .map(usuario -> {

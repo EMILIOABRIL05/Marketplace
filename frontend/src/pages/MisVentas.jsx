@@ -122,7 +122,7 @@ export default function MisVentas() {
 
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden">
-                     <img src={`${venta.producto.imagenUrl1}`} className="w-full h-full object-cover" alt="" />
+                     <img src={venta.producto.imagenUrl1 ? `http://86.48.2.202:8080${venta.producto.imagenUrl1}` : ''} className="w-full h-full object-cover" alt="" onError={(e) => { e.target.style.display = 'none'; }} />
                   </div>
                   <div>
                     <p className="font-bold text-slate-800">{venta.producto.nombre}</p>
@@ -133,7 +133,7 @@ export default function MisVentas() {
                 {venta.pedido.comprobanteUrl && (
                   <div className="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <p className="text-sm font-bold text-slate-700 mb-2">Comprobante de Pago:</p>
-                    <a href={`${venta.pedido.comprobanteUrl}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-sm">
+                    <a href={`http://86.48.2.202:8080${venta.pedido.comprobanteUrl}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-sm">
                       Ver Comprobante
                     </a>
                   </div>

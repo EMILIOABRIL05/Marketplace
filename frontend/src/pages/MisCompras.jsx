@@ -32,7 +32,7 @@ export default function MisCompras() {
     if (!archivo) return;
 
     const formData = new FormData();
-    formData.append("archivo", archivo);
+    formData.append("comprobante", archivo);
 
     try {
       await api.post(`/pedidos/${pedidoId}/comprobante`, formData, {
@@ -133,7 +133,7 @@ export default function MisCompras() {
                     <div key={detalle.id} className="flex justify-between items-center">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden">
-                           <img src={`${detalle.producto.imagenUrl1}`} className="w-full h-full object-cover" alt="" />
+                           <img src={detalle.producto.imagenUrl1 ? `http://86.48.2.202:8080${detalle.producto.imagenUrl1}` : ''} className="w-full h-full object-cover" alt="" onError={(e) => { e.target.style.display = 'none'; }} />
                         </div>
                         <div>
                           <p className="font-semibold text-slate-800">{detalle.producto.nombre}</p>

@@ -1,7 +1,15 @@
 package com.tuempresa.appventas.model;
 
-import jakarta.persistence.*;
 import java.util.Date;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "usuarios")
@@ -22,6 +30,14 @@ public class Usuario {
     private String tipoUsuario; // USUARIO, VENDEDOR, MODERADOR, ADMINISTRADOR
     private String estado; // ACTIVO, INACTIVO, SUSPENDIDO, PENDIENTE_VERIFICACION
     private boolean cuentaVerificada = false;
+
+    // Campos de pago del vendedor
+    @Column(length = 500)
+    private String deunaQrUrl;      // URL de la imagen QR de Deuna
+    private String deunaNumero;      // Número de cuenta Deuna
+    private String bancoNombre;      // Nombre del banco
+    private String bancoNumeroCuenta; // Número de cuenta bancaria
+    private String bancoTipoCuenta;  // AHORROS, CORRIENTE
 
     // Token de verificación de email
     private String verificationToken;
@@ -94,4 +110,20 @@ public class Usuario {
 
     public Date getFechaRegistro() { return fechaRegistro; }
     public void setFechaRegistro(Date fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+
+    // Getters y Setters de campos de pago
+    public String getDeunaQrUrl() { return deunaQrUrl; }
+    public void setDeunaQrUrl(String deunaQrUrl) { this.deunaQrUrl = deunaQrUrl; }
+
+    public String getDeunaNumero() { return deunaNumero; }
+    public void setDeunaNumero(String deunaNumero) { this.deunaNumero = deunaNumero; }
+
+    public String getBancoNombre() { return bancoNombre; }
+    public void setBancoNombre(String bancoNombre) { this.bancoNombre = bancoNombre; }
+
+    public String getBancoNumeroCuenta() { return bancoNumeroCuenta; }
+    public void setBancoNumeroCuenta(String bancoNumeroCuenta) { this.bancoNumeroCuenta = bancoNumeroCuenta; }
+
+    public String getBancoTipoCuenta() { return bancoTipoCuenta; }
+    public void setBancoTipoCuenta(String bancoTipoCuenta) { this.bancoTipoCuenta = bancoTipoCuenta; }
 }

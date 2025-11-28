@@ -34,7 +34,7 @@ public class PedidoController {
     }
 
     @PostMapping("/{pedidoId}/comprobante")
-    public ResponseEntity<Pedido> subirComprobante(@PathVariable Long pedidoId, @RequestParam("archivo") MultipartFile archivo) {
+    public ResponseEntity<Pedido> subirComprobante(@PathVariable Long pedidoId, @RequestParam("comprobante") MultipartFile archivo) {
         try {
             return ResponseEntity.ok(pedidoService.subirComprobante(pedidoId, archivo));
         } catch (Exception e) {

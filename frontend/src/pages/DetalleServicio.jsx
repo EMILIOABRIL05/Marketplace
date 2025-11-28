@@ -132,6 +132,12 @@ export default function DetalleServicio() {
       return;
     }
     
+    // Verificar que el usuario no sea el mismo vendedor
+    if (user.id === servicio.vendedor.id) {
+      alert("No puedes chatear contigo mismo. Este es tu propio servicio.");
+      return;
+    }
+    
     nav(`/mensajes?vendedorId=${servicio.vendedor.id}&servicioId=${servicio.id}`);
   }
 
@@ -286,7 +292,7 @@ export default function DetalleServicio() {
               {imagenes.length > 0 ? (
                 <>
                   <img 
-                    src={`${imagenes[imagenActual]}`}
+                    src={imagenes[imagenActual].startsWith('http') ? imagenes[imagenActual] : `http://86.48.2.202:8080${imagenes[imagenActual]}`}
                     alt={servicio.titulo}
                     className="max-w-full max-h-[450px] object-contain rounded-xl"
                     onError={(e) => {
@@ -334,7 +340,7 @@ export default function DetalleServicio() {
                     }`}
                   >
                     <img 
-                      src={`${img}`}
+                      src={img.startsWith('http') ? img : `http://86.48.2.202:8080${img}`}
                       alt={`${servicio.titulo} ${index + 1}`}
                       className="w-full h-full object-cover"
                     />

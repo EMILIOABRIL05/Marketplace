@@ -1,7 +1,25 @@
 import axios from "axios";
 
+// Detectar si estamos en producción o desarrollo
+const getBaseURL = () => {
+  // En producción, usar la URL del servidor
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return `http://${window.location.hostname}:8080/api`;
+  }
+  // En desarrollo, usar localhost
+  return "http://localhost:8080/api";
+};
+
+// URL base del servidor para imágenes y archivos estáticos
+export const getServerURL = () => {
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return `http://${window.location.hostname}:8080`;
+  }
+  return "http://localhost:8080";
+};
+
 const api = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: getBaseURL(),
   timeout: 10000,
 });
 

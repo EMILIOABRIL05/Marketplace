@@ -1,11 +1,15 @@
 package com.tuempresa.appventas.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.tuempresa.appventas.model.Mensaje;
 import com.tuempresa.appventas.model.Producto;
@@ -142,5 +146,42 @@ public class MensajeService {
     public void eliminarConversacion(String conversacionId) {
         List<Mensaje> mensajes = mensajeRepository.findByConversacionIdOrderByFechaEnvioAsc(conversacionId);
         mensajeRepository.deleteAll(mensajes);
+    }
+
+    @Transactional
+    public Mensaje actualizarImagen(Long mensajeId, String imageUrl) {
+        Mensaje mensaje = mensajeRepository.findById(mensajeId)
+                .orElseThrow(() -> new RuntimeException("Mensaje no encontrado"));
+        mensaje.setImageUrl(imageUrl);
+        return mensajeRepository.save(mensaje);
+    }
+
+    // Guardar imagen de mensaje
+    public String guardarImagenMensaje(MultipartFile imagen) throws IOException {
+        String uploadDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator + "mensajes" + File.separator;
+        File directory = new File(uploadDir);
+
+        if (!directory.exists()) {
+            boolean created = directory.mkdirs();
+            if (!created) {
+                throw new IOException("No se pudo crear el directorio: " + uploadDir);
+            }
+        }
+
+        String extension = "";
+        String originalFilename = imagen.getOriginalFilename();
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+
+        String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID().toString() + extension;
+        String filePath = uploadDir + fileName;
+
+        File file = new File(filePath);
+        imagen.transferTo(file);
+
+        System.out.println("✅ Imagen de mensaje guardada en: " + filePath);
+
+        return "/uploads/mensajes/" + fileName;
     }
 }

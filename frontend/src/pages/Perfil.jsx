@@ -522,7 +522,7 @@ export default function Perfil() {
                         <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                           {producto.imagenUrl1 ? (
                             <img 
-                              src={`${producto.imagenUrl1}`} 
+                              src={producto.imagenUrl1.startsWith('http') ? producto.imagenUrl1 : `http://86.48.2.202:8080${producto.imagenUrl1}`} 
                               alt={producto.nombre}
                               className="w-full h-full object-cover"
                             />

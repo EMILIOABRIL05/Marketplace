@@ -242,7 +242,7 @@ const GestionProductos = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           {p.imagenUrl1 ? (
-                            <img className="h-10 w-10 rounded-lg mr-3 object-cover border border-slate-200" src={`${p.imagenUrl1}`} alt="" />
+                            <img className="h-10 w-10 rounded-lg mr-3 object-cover border border-slate-200" src={p.imagenUrl1.startsWith('http') ? p.imagenUrl1 : `http://86.48.2.202:8080${p.imagenUrl1}`} alt="" />
                           ) : (
                             <div className="h-10 w-10 rounded-lg mr-3 bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200">
                               📷

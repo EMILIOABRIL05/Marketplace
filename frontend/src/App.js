@@ -7,6 +7,7 @@ import DetalleProducto from './pages/DetalleProducto';
 import Favoritos from './pages/Favoritos';
 import Historial from './pages/Historial';
 import Perfil from './pages/Perfil';
+import PerfilPublico from './pages/PerfilPublico';
 import EditarProducto from "./pages/EditarProducto";
 import VerificarEmail from "./pages/VerificarEmail";
 import RecuperarPassword from "./pages/RecuperarPassword";
@@ -22,6 +23,7 @@ import Mensajes from './pages/Mensajes';
 import Carrito from './pages/Carrito';
 import MisCompras from './pages/MisCompras';
 import MisVentas from './pages/MisVentas';
+import ProcesoPago from './pages/ProcesoPago';
 
 function App() {
   return (
@@ -34,6 +36,7 @@ function App() {
         <Route path="/mis-compras" element={<MisCompras />} />
         <Route path="/mis-ventas" element={<MisVentas />} />
         <Route path="/publicar" element={<PublicarProducto />} />
+        <Route path="/pagar/:productoId" element={<ProcesoPago />} />
         
         <Route path="/selector-modo" element={<SelectorModo />} />
         <Route path="/dashboard-admin" element={<DashboardAdmin />} />
@@ -47,6 +50,7 @@ function App() {
         <Route path="/favoritos" element={<Favoritos />} />
         <Route path="/historial" element={<Historial />} />
         <Route path="/perfil" element={<Perfil />} />
+        <Route path="/perfil/:id" element={<PerfilPublico />} />
         <Route path="/editar-producto/:id" element={<EditarProducto />} />
         <Route path="/verificar" element={<VerificarEmail />} />
         <Route path="/recuperar-password" element={<RecuperarPassword />} />
