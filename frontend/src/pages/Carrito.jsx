@@ -234,57 +234,73 @@ export default function Carrito() {
           <div className="grid grid-cols-[1fr_350px] gap-8">
             {/* Lista de Items */}
             <div className="flex flex-col gap-4">
-              {carrito.items.map((item) => (
-                <div key={item.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex gap-6 items-center">
-                  {/* Imagen */}
-                  <div className="w-24 h-24 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100">
-                    <img 
-                      src={item.producto.imagenUrl1 ? `http://86.48.2.202:8080${item.producto.imagenUrl1}` : ''} 
-                      alt={item.producto.nombre}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        e.target.parentElement.innerHTML = '<div class="flex items-center justify-center w-full h-full text-2xl">📦</div>';
-                      }}
-                    />
-                  </div>
+              {carrito.items.map((item) => {
+                // Normalizar y validar precios
+                const precioUnitarioRaw = item?.precioUnitario ?? item?.precio ?? 0;
+                const precioUnitarioNum = Number(precioUnitarioRaw);
+                const precioUnitario = Number.isFinite(precioUnitarioNum) ? precioUnitarioNum : 0;
 
-                  {/* Info */}
-                  <div className="flex-1">
-                    <h3 className="font-bold text-slate-900 text-lg mb-1">{item.producto.nombre}</h3>
-                    <p className="text-sm text-slate-500 mb-2">Vendido por: {item.producto.vendedor.nombre}</p>
-                    <div className="font-bold text-blue-600 text-xl">
-                      ${item.precioUnitario.toFixed(2)}
+                const cantidadNum = Number(item?.cantidad ?? 0);
+                const cantidad = Number.isFinite(cantidadNum) ? cantidadNum : 1;
+
+                const subtotalNum = precioUnitario * cantidad;
+                const subtotal = Number.isFinite(subtotalNum) ? subtotalNum : 0;
+
+                return (
+                  <div key={item.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex gap-6 items-center">
+                    {/* Imagen */}
+                    <div className="w-24 h-24 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100">
+                      <img 
+                        src={item?.producto?.imagenUrl1 ? item.producto.imagenUrl1 : ''} 
+                        alt={item?.producto?.nombre || 'Producto'}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          e.target.parentElement.innerHTML = '<div class="flex items-center justify-center w-full h-full text-2xl">📦</div>';
+                        }}
+                      />
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-900 text-lg mb-1">{item?.producto?.nombre || 'Producto'}</h3>
+                      <p className="text-sm text-slate-500 mb-2">Vendido por: {item?.producto?.vendedor?.nombre || '—'}</p>
+                      <div className="font-bold text-blue-600 text-xl">
+                        ${precioUnitario.toFixed(2)}
+                      </div>
+                      <p className="text-sm text-slate-500 mt-1">
+                        Subtotal: ${subtotal.toFixed(2)}
+                      </p>
+                    </div>
+
+                    {/* Controles de Cantidad */}
+                    <div className="flex flex-col items-end gap-3">
+                      <div className="flex items-center gap-3 bg-slate-50 rounded-lg p-1 border border-slate-200">
+                        <button 
+                          onClick={() => actualizarCantidad(item?.producto?.id, Math.max(cantidad - 1, 1))}
+                          className="w-8 h-8 flex items-center justify-center bg-white rounded-md shadow-sm text-slate-600 hover:bg-slate-100 font-bold"
+                          disabled={cantidad <= 1}
+                        >
+                          -
+                        </button>
+                        <span className="font-semibold text-slate-900 w-6 text-center">{cantidad}</span>
+                        <button 
+                          onClick={() => actualizarCantidad(item?.producto?.id, cantidad + 1)}
+                          className="w-8 h-8 flex items-center justify-center bg-white rounded-md shadow-sm text-slate-600 hover:bg-slate-100 font-bold"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <button 
+                        onClick={() => eliminarItem(item?.producto?.id)}
+                        className="text-red-500 text-sm font-medium hover:text-red-600 hover:underline"
+                      >
+                        Eliminar
+                      </button>
                     </div>
                   </div>
-
-                  {/* Controles de Cantidad */}
-                  <div className="flex flex-col items-end gap-3">
-                    <div className="flex items-center gap-3 bg-slate-50 rounded-lg p-1 border border-slate-200">
-                      <button 
-                        onClick={() => actualizarCantidad(item.producto.id, item.cantidad - 1)}
-                        className="w-8 h-8 flex items-center justify-center bg-white rounded-md shadow-sm text-slate-600 hover:bg-slate-100 font-bold"
-                        disabled={item.cantidad <= 1}
-                      >
-                        -
-                      </button>
-                      <span className="font-semibold text-slate-900 w-6 text-center">{item.cantidad}</span>
-                      <button 
-                        onClick={() => actualizarCantidad(item.producto.id, item.cantidad + 1)}
-                        className="w-8 h-8 flex items-center justify-center bg-white rounded-md shadow-sm text-slate-600 hover:bg-slate-100 font-bold"
-                      >
-                        +
-                      </button>
-                    </div>
-                    <button 
-                      onClick={() => eliminarItem(item.producto.id)}
-                      className="text-red-500 text-sm font-medium hover:text-red-600 hover:underline"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
 
               <button 
                 onClick={vaciarCarrito}
@@ -493,7 +509,7 @@ export default function Carrito() {
                               <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl mb-3">
                                 <p className="text-xs font-semibold text-purple-600 mb-2">📱 Escanea el QR con Deuna</p>
                                 <img 
-                                  src={`http://86.48.2.202:8080${grupo.vendedor.deunaQrUrl}`}
+                                  src={grupo.vendedor.deunaQrUrl}
                                   alt="QR Deuna"
                                   className="max-w-[150px] mx-auto rounded-lg shadow-md"
                                 />
