@@ -35,17 +35,6 @@ export default function Carrito() {
 
     try {
       const res = await api.get(`/carrito/${user.id}`);
-      console.log("Carrito recibido:", res.data);
-      if (res.data.items && res.data.items[0]?.producto) {
-        const prod = res.data.items[0].producto;
-        console.log("Primer producto:", prod);
-        console.log("Campos Deuna:", {
-          deunaNumero: prod.deunaNumero,
-          deuna_numero: prod.deuna_numero,
-          deunaQrUrl: prod.deunaQrUrl,
-          deuna_qr_url: prod.deuna_qr_url
-        });
-      }
       setCarrito(res.data);
       setLoading(false);
     } catch (err) {
@@ -480,25 +469,25 @@ export default function Carrito() {
                         });
                         
                         return Object.values(vendedoresMap).map((grupo, index) => {
-                          // Obtener datos de Deuna del primer producto (probando ambos nombres de campo)
-                          const primerProducto = grupo.items[0]?.producto;
-                          const deunaNum = primerProducto?.deunaNumero || primerProducto?.deuna_numero;
-                          const deunaQr = primerProducto?.deunaQrUrl || primerProducto?.deuna_qr_url;
+                          // Obtener datos de Deuna del VENDEDOR
+                          const vendedor = grupo.vendedor;
+                          const deunaNum = vendedor?.deunaNumero || vendedor?.deuna_numero;
+                          const deunaQr = vendedor?.deunaQrUrl || vendedor?.deuna_qr_url;
                           
                           return (
                           <div key={grupo.vendedor.id} className="bg-slate-50 p-3 rounded-lg border border-slate-300">
                             <div className="flex items-center gap-2 mb-3">
                               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">
-                                {grupo.vendedor.nombre?.charAt(0) || 'V'}
+                                {vendedor.nombre?.charAt(0) || 'V'}
                               </div>
                               <div className="flex-1">
-                                <p className="font-bold text-slate-900 text-xs">{grupo.vendedor.nombre} {grupo.vendedor.apellido}</p>
+                                <p className="font-bold text-slate-900 text-xs">{vendedor.nombre} {vendedor.apellido}</p>
                                 <p className="text-xs text-slate-500">{grupo.items.length} producto(s)</p>
                               </div>
                               <p className="font-bold text-slate-900">${grupo.subtotal.toFixed(2)}</p>
                             </div>
                             
-                            {/* QR de Deuna */}
+                            {/* QR de Deuna del vendedor */}
                             {deunaQr ? (
                               <div className="text-center p-2 bg-purple-50 rounded-lg mb-2">
                                 <p className="text-xs font-semibold text-purple-700 mb-2">📱 QR Deuna</p>
@@ -510,7 +499,7 @@ export default function Carrito() {
                               </div>
                             ) : null}
                             
-                            {/* Número Deuna */}
+                            {/* Número Deuna del vendedor */}
                             {deunaNum ? (
                               <div className="p-2 bg-blue-50 rounded-lg mb-2">
                                 <p className="text-xs font-semibold text-blue-700 mb-1">💳 Número Deuna</p>
@@ -520,19 +509,19 @@ export default function Carrito() {
                               </div>
                             ) : null}
                             
-                            {/* Datos bancarios */}
-                            {grupo.vendedor.bancoNombre ? (
+                            {/* Datos bancarios del vendedor */}
+                            {vendedor.bancoNombre ? (
                               <div className="p-2 bg-green-50 rounded-lg mb-2 border border-green-200">
                                 <p className="text-xs font-semibold text-green-700 mb-1">🏦 Transferencia Bancaria</p>
                                 <div className="text-xs text-slate-800 bg-white p-2 rounded border border-green-300">
-                                  <p><span className="font-bold">Banco:</span> {grupo.vendedor.bancoNombre}</p>
-                                  <p><span className="font-bold">Cuenta:</span> {grupo.vendedor.bancoNumeroCuenta}</p>
+                                  <p><span className="font-bold">Banco:</span> {vendedor.bancoNombre}</p>
+                                  <p><span className="font-bold">Cuenta:</span> {vendedor.bancoNumeroCuenta}</p>
                                 </div>
                               </div>
                             ) : null}
                             
                             {/* Si no tiene datos de pago configurados */}
-                            {!deunaQr && !deunaNum && !grupo.vendedor.bancoNombre && (
+                            {!deunaQr && !deunaNum && !vendedor.bancoNombre && (
                               <div className="p-2 bg-yellow-50 rounded-lg text-center border border-yellow-300">
                                 <p className="text-xs text-yellow-800 font-bold mb-1">⚠️ Sin datos de pago</p>
                                 <p className="text-xs text-yellow-700">Contáctalo para coordinar</p>
