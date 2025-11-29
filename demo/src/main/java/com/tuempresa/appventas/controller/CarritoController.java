@@ -1,5 +1,7 @@
 package com.tuempresa.appventas.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,12 +22,26 @@ import com.tuempresa.appventas.service.CarritoService;
 @CrossOrigin(origins = "*")
 public class CarritoController {
 
+    private static final Logger logger = LoggerFactory.getLogger(CarritoController.class);
+
     @Autowired
     private CarritoService carritoService;
 
     @GetMapping("/{usuarioId}")
     public ResponseEntity<Carrito> obtenerCarrito(@PathVariable Long usuarioId) {
-        return ResponseEntity.ok(carritoService.obtenerCarritoPorUsuario(usuarioId));
+        Carrito carrito = carritoService.obtenerCarritoPorUsuario(usuarioId);
+        // Log para depurar datos de Deuna
+        if (carrito.getItems() != null) {
+            carrito.getItems().forEach(item -> {
+                if (item.getProducto() != null) {
+                    logger.info("🛒 Producto en carrito: {} | deunaNumero: {} | deunaQrUrl: {}", 
+                        item.getProducto().getNombre(),
+                        item.getProducto().getDeunaNumero(),
+                        item.getProducto().getDeunaQrUrl());
+                }
+            });
+        }
+        return ResponseEntity.ok(carrito);
     }
 
     @PostMapping("/{usuarioId}/agregar")
