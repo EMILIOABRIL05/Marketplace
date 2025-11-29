@@ -2,6 +2,9 @@ package com.tuempresa.appventas.model;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,6 +18,7 @@ import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "productos")
+@JsonInclude(JsonInclude.Include.ALWAYS)
 public class Producto {
 
     @Id
@@ -142,9 +146,11 @@ public class Producto {
     public Date getFechaExpiracion() { return fechaExpiracion; }
     public void setFechaExpiracion(Date fechaExpiracion) { this.fechaExpiracion = fechaExpiracion; }
 
+    @JsonProperty("deunaNumero")
     public String getDeunaNumero() { return deunaNumero; }
     public void setDeunaNumero(String deunaNumero) { this.deunaNumero = deunaNumero; }
 
+    @JsonProperty("deunaQrUrl")
     public String getDeunaQrUrl() { return deunaQrUrl; }
     public void setDeunaQrUrl(String deunaQrUrl) { this.deunaQrUrl = deunaQrUrl; }
 

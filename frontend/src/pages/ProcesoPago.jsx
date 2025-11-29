@@ -115,6 +115,24 @@ export default function ProcesoPago() {
     );
   }
 
+  if (!producto || !vendedor) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg">
+          <div className="text-4xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Producto no disponible</h2>
+          <p className="text-slate-500 mb-6">No se pudo cargar la información del producto o vendedor.</p>
+          <button 
+            onClick={() => nav("/catalogo")}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Volver al Catálogo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const total = producto.precio * cantidad;
 
   return (
@@ -151,7 +169,7 @@ export default function ProcesoPago() {
           <div className="flex gap-4">
             {producto.imagenUrl1 && (
               <img 
-                src={`http://86.48.2.202:8080${producto.imagenUrl1}`}
+                src={producto.imagenUrl1}
                 alt={producto.nombre}
                 className="w-24 h-24 object-cover rounded-xl"
               />
@@ -180,7 +198,7 @@ export default function ProcesoPago() {
                 <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl">
                   <p className="text-sm font-semibold text-purple-600 mb-3">📱 Escanea el código QR con Deuna</p>
                   <img 
-                    src={`http://86.48.2.202:8080${producto.deunaQrUrl || vendedor.deunaQrUrl}`}
+                    src={producto.deunaQrUrl || vendedor.deunaQrUrl}
                     alt="Código QR Deuna"
                     className="max-w-[200px] mx-auto rounded-xl shadow-lg"
                   />

@@ -599,10 +599,10 @@ const Mensajes = () => {
                     >
                       {msg.imageUrl && (
                         <img 
-                          src={`http://86.48.2.202:8080${msg.imageUrl}`}
+                          src={msg.imageUrl}
                           alt="Imagen enviada" 
                           className="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-all"
-                          onClick={() => window.open(`http://86.48.2.202:8080${msg.imageUrl}`, '_blank')}
+                          onClick={() => window.open(msg.imageUrl, '_blank')}
                         />
                       )}
                       <p className="m-0 leading-relaxed">{msg.contenido}</p>
@@ -646,20 +646,19 @@ const Mensajes = () => {
                   />
                   
                   {/* Botón adjuntar - compacto */}
-                  <label
-                    className="cursor-pointer px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all flex items-center gap-1 shadow-md font-bold text-sm whitespace-nowrap"
+                  <label 
+                    className="cursor-pointer px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-all flex items-center gap-2 font-bold text-sm whitespace-nowrap"
                     title="Adjuntar captura o imagen"
                   >
-                    📷 Adjuntar
+                    <span className="text-lg">📷</span>
+                    <span className="hidden sm:inline">Adjuntar</span>
                     <input 
                       type="file" 
                       accept="image/*" 
                       onChange={handleSeleccionarImagen}
                       className="hidden"
                     />
-                  </label>
-                  
-                  <button
+                  </label>                  <button
                     type="submit"
                     disabled={loading || (!nuevoMensaje.trim() && !imagenSeleccionada)}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-bold text-sm shadow-md flex items-center gap-1"

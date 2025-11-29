@@ -32,6 +32,8 @@ echo "📂 Gestionando código fuente..."
 if [ -d "$APP_DIR/.git" ]; then
     echo "   Actualizando repositorio existente..."
     cd $APP_DIR
+    # Descartar cambios locales para evitar conflictos
+    git reset --hard
     git pull
 else
     echo "   Directorio no es un repo o no existe. Limpiando y clonando..."
@@ -52,7 +54,10 @@ mvn clean package -DskipTests
 
 # Crear directorio de uploads y asignar permisos
 echo "📂 Configurando directorio de uploads..."
-mkdir -p $APP_DIR/demo/uploads
+mkdir -p $APP_DIR/demo/uploads/productos
+mkdir -p $APP_DIR/demo/uploads/servicios
+mkdir -p $APP_DIR/demo/uploads/mensajes
+mkdir -p $APP_DIR/demo/uploads/perfiles
 chmod -R 777 $APP_DIR/demo/uploads
 
 # 5. Configurar Frontend (React)
@@ -91,30 +96,41 @@ systemctl restart appventas
 
 # 7. Configurar Nginx
 echo "🌐 Configurando Nginx..."
-cat > /etc/nginx/sites-available/appventas <<EOF
+cat > /etc/nginx/sites-available/appventas <<'EOF'
 server {
     listen 80;
-    server_name $SERVER_IP;
+    server_name 86.48.2.202;
 
-    root $APP_DIR/frontend/build;
+    root /opt/marketplace/frontend/build;
     index index.html;
 
     # Frontend
     location / {
-        try_files \$uri \$uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
 
     # Backend API Proxy
     location /api {
         proxy_pass http://localhost:8080/api;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # WebSocket Proxy
+    location /ws {
+        proxy_pass http://localhost:8080/ws;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     # Archivos subidos (Imágenes)
     location /uploads {
-        alias $APP_DIR/demo/uploads;
+        alias /opt/marketplace/demo/uploads;
     }
 }
 EOF

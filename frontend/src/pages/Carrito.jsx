@@ -35,6 +35,15 @@ export default function Carrito() {
 
     try {
       const res = await api.get(`/carrito/${user.id}`);
+      console.log("📦 Carrito recibido:", res.data);
+      console.log("📦 Items:", res.data.items);
+      if (res.data.items && res.data.items[0]) {
+        console.log("📦 Primer producto:", res.data.items[0].producto);
+        console.log("📦 Deuna del primer producto:", {
+          deunaNumero: res.data.items[0].producto.deunaNumero,
+          deunaQrUrl: res.data.items[0].producto.deunaQrUrl
+        });
+      }
       setCarrito(res.data);
       setLoading(false);
     } catch (err) {
@@ -234,73 +243,57 @@ export default function Carrito() {
           <div className="grid grid-cols-[1fr_350px] gap-8">
             {/* Lista de Items */}
             <div className="flex flex-col gap-4">
-              {carrito.items.map((item) => {
-                // Normalizar y validar precios
-                const precioUnitarioRaw = item?.precioUnitario ?? item?.precio ?? 0;
-                const precioUnitarioNum = Number(precioUnitarioRaw);
-                const precioUnitario = Number.isFinite(precioUnitarioNum) ? precioUnitarioNum : 0;
+              {carrito.items.map((item) => (
+                <div key={item.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex gap-6 items-center">
+                  {/* Imagen */}
+                  <div className="w-24 h-24 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100">
+                    <img 
+                      src={item.producto.imagenUrl1 ? item.producto.imagenUrl1 : ''} 
+                      alt={item.producto.nombre}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        e.target.parentElement.innerHTML = '<div class="flex items-center justify-center w-full h-full text-2xl">📦</div>';
+                      }}
+                    />
+                  </div>
 
-                const cantidadNum = Number(item?.cantidad ?? 0);
-                const cantidad = Number.isFinite(cantidadNum) ? cantidadNum : 1;
-
-                const subtotalNum = precioUnitario * cantidad;
-                const subtotal = Number.isFinite(subtotalNum) ? subtotalNum : 0;
-
-                return (
-                  <div key={item.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex gap-6 items-center">
-                    {/* Imagen */}
-                    <div className="w-24 h-24 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100">
-                      <img 
-                        src={item?.producto?.imagenUrl1 ? item.producto.imagenUrl1 : ''} 
-                        alt={item?.producto?.nombre || 'Producto'}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.style.display = "none";
-                          e.target.parentElement.innerHTML = '<div class="flex items-center justify-center w-full h-full text-2xl">📦</div>';
-                        }}
-                      />
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1">
-                      <h3 className="font-bold text-slate-900 text-lg mb-1">{item?.producto?.nombre || 'Producto'}</h3>
-                      <p className="text-sm text-slate-500 mb-2">Vendido por: {item?.producto?.vendedor?.nombre || '—'}</p>
-                      <div className="font-bold text-blue-600 text-xl">
-                        ${precioUnitario.toFixed(2)}
-                      </div>
-                      <p className="text-sm text-slate-500 mt-1">
-                        Subtotal: ${subtotal.toFixed(2)}
-                      </p>
-                    </div>
-
-                    {/* Controles de Cantidad */}
-                    <div className="flex flex-col items-end gap-3">
-                      <div className="flex items-center gap-3 bg-slate-50 rounded-lg p-1 border border-slate-200">
-                        <button 
-                          onClick={() => actualizarCantidad(item?.producto?.id, Math.max(cantidad - 1, 1))}
-                          className="w-8 h-8 flex items-center justify-center bg-white rounded-md shadow-sm text-slate-600 hover:bg-slate-100 font-bold"
-                          disabled={cantidad <= 1}
-                        >
-                          -
-                        </button>
-                        <span className="font-semibold text-slate-900 w-6 text-center">{cantidad}</span>
-                        <button 
-                          onClick={() => actualizarCantidad(item?.producto?.id, cantidad + 1)}
-                          className="w-8 h-8 flex items-center justify-center bg-white rounded-md shadow-sm text-slate-600 hover:bg-slate-100 font-bold"
-                        >
-                          +
-                        </button>
-                      </div>
-                      <button 
-                        onClick={() => eliminarItem(item?.producto?.id)}
-                        className="text-red-500 text-sm font-medium hover:text-red-600 hover:underline"
-                      >
-                        Eliminar
-                      </button>
+                  {/* Info */}
+                  <div className="flex-1">
+                    <h3 className="font-bold text-slate-900 text-lg mb-1">{item.producto.nombre}</h3>
+                    <p className="text-sm text-slate-500 mb-2">Vendido por: {item.producto.vendedor.nombre}</p>
+                    <div className="font-bold text-blue-600 text-xl">
+                      ${(item.precioUnitario || 0).toFixed(2)}
                     </div>
                   </div>
-                );
-              })}
+
+                  {/* Controles de Cantidad */}
+                  <div className="flex flex-col items-end gap-3">
+                    <div className="flex items-center gap-3 bg-slate-50 rounded-lg p-1 border border-slate-200">
+                      <button 
+                        onClick={() => actualizarCantidad(item.producto.id, item.cantidad - 1)}
+                        className="w-8 h-8 flex items-center justify-center bg-white rounded-md shadow-sm text-slate-600 hover:bg-slate-100 font-bold"
+                        disabled={item.cantidad <= 1}
+                      >
+                        -
+                      </button>
+                      <span className="font-semibold text-slate-900 w-6 text-center">{item.cantidad}</span>
+                      <button 
+                        onClick={() => actualizarCantidad(item.producto.id, item.cantidad + 1)}
+                        className="w-8 h-8 flex items-center justify-center bg-white rounded-md shadow-sm text-slate-600 hover:bg-slate-100 font-bold"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button 
+                      onClick={() => eliminarItem(item.producto.id)}
+                      className="text-red-500 text-sm font-medium hover:text-red-600 hover:underline"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              ))}
 
               <button 
                 onClick={vaciarCarrito}
@@ -348,58 +341,58 @@ export default function Carrito() {
       {/* MODAL DE PAGO */}
       {mostrarModalPago && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             
             {/* Header Modal */}
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-              <h2 className="text-xl font-bold text-slate-800">Finalizar Compra</h2>
+            <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
+              <h2 className="text-lg font-bold text-slate-800">Finalizar Compra</h2>
               <button 
                 onClick={() => setMostrarModalPago(false)}
-                className="text-slate-400 hover:text-slate-600 text-2xl leading-none"
+                className="text-slate-400 hover:text-slate-600 text-xl leading-none"
               >
                 &times;
               </button>
             </div>
 
-            {/* Body Modal */}
-            <div className="p-8 overflow-y-auto">
+            {/* Body Modal - SCROLLABLE */}
+            <div className="flex-1 overflow-y-auto p-6">
               
               {/* Selector de Método */}
-              <div className="flex gap-4 mb-8">
+              <div className="grid grid-cols-2 gap-3 mb-6">
                 <button
                   onClick={() => setMetodoPago("TARJETA")}
-                  className={`flex-1 p-4 rounded-xl border-2 text-left transition-all ${
+                  className={`p-3 rounded-lg border-2 text-left transition-all text-sm ${
                     metodoPago === "TARJETA"
                       ? "border-blue-500 bg-blue-50 text-blue-700"
                       : "border-slate-200 hover:border-slate-300 text-slate-600"
                   }`}
                 >
-                  <div className="text-2xl mb-2">💳</div>
-                  <div className="font-bold">Tarjeta de Crédito/Débito</div>
-                  <div className="text-xs opacity-80">Pago inmediato y seguro</div>
+                  <div className="text-xl mb-1">💳</div>
+                  <div className="font-bold text-sm">Tarjeta</div>
+                  <div className="text-xs opacity-80">Inmediato</div>
                 </button>
 
                 <button
                   onClick={() => setMetodoPago("TRANSFERENCIA")}
-                  className={`flex-1 p-4 rounded-xl border-2 text-left transition-all ${
+                  className={`p-3 rounded-lg border-2 text-left transition-all text-sm ${
                     metodoPago === "TRANSFERENCIA"
                       ? "border-blue-500 bg-blue-50 text-blue-700"
                       : "border-slate-200 hover:border-slate-300 text-slate-600"
                   }`}
                 >
-                  <div className="text-2xl mb-2">🏦</div>
-                  <div className="font-bold">Transferencia / Deuna</div>
-                  <div className="text-xs opacity-80">Sube tu comprobante después</div>
+                  <div className="text-xl mb-1">🏦</div>
+                  <div className="font-bold text-sm">Deuna</div>
+                  <div className="text-xs opacity-80">Comprobante</div>
                 </button>
               </div>
 
               {/* Contenido según método */}
               {metodoPago === "TARJETA" ? (
                 <div className="animate-fadeIn">
-                  <h3 className="font-bold text-slate-800 mb-4">Datos de la Tarjeta</h3>
-                  <div className="space-y-4">
+                  <h3 className="font-bold text-slate-800 mb-3 text-sm">Datos de la Tarjeta</h3>
+                  <div className="space-y-2">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Número de Tarjeta</label>
+                      <label className="block text-xs font-medium text-slate-700 mb-0.5">Número</label>
                       <input
                         type="text"
                         name="numero"
@@ -407,25 +400,25 @@ export default function Carrito() {
                         onChange={handleTarjetaChange}
                         placeholder="0000 0000 0000 0000"
                         maxLength="19"
-                        className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        className="w-full p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Nombre del Titular</label>
+                      <label className="block text-xs font-medium text-slate-700 mb-0.5">Titular</label>
                       <input
                         type="text"
                         name="nombre"
                         value={datosTarjeta.nombre}
                         onChange={handleTarjetaChange}
                         placeholder="Como aparece en la tarjeta"
-                        className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        className="w-full p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Expiración</label>
+                        <label className="block text-xs font-medium text-slate-700 mb-0.5">Vencimiento</label>
                         <input
                           type="text"
                           name="expiracion"
@@ -433,11 +426,11 @@ export default function Carrito() {
                           onChange={handleTarjetaChange}
                           placeholder="MM/AA"
                           maxLength="5"
-                          className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                          className="w-full p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">CVV</label>
+                        <label className="block text-xs font-medium text-slate-700 mb-0.5">CVV</label>
                         <input
                           type="password"
                           name="cvv"
@@ -445,33 +438,29 @@ export default function Carrito() {
                           onChange={handleTarjetaChange}
                           placeholder="123"
                           maxLength="4"
-                          className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                          className="w-full p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                         />
                       </div>
                     </div>
                   </div>
                   
-                  <div className="mt-6 bg-blue-50 p-4 rounded-xl flex items-start gap-3">
-                    <span className="text-blue-500 text-xl">ℹ️</span>
-                    <p className="text-sm text-blue-700">
-                      Esta es una simulación. No se realizará ningún cargo real a tu tarjeta.
+                  <div className="mt-3 bg-blue-50 p-2 rounded-lg flex items-start gap-2 text-xs">
+                    <span>ℹ️</span>
+                    <p className="text-blue-700">
+                      Simulación: sin cargo real
                     </p>
                   </div>
                 </div>
               ) : (
                 <div className="animate-fadeIn">
-                  <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                    <div className="text-center mb-6">
-                      <div className="text-4xl mb-2">📱</div>
-                      <h3 className="font-bold text-slate-800 mb-2">Datos de Pago por Vendedor</h3>
-                      <p className="text-slate-600 text-sm">
-                        Deberás realizar el pago a cada vendedor según los datos mostrados abajo.
-                      </p>
-                    </div>
-                    
-                    {/* Mostrar datos de pago de cada vendedor */}
-                    <div className="space-y-4 max-h-[300px] overflow-y-auto">
-                      {carrito?.items && (() => {
+                  <h3 className="font-bold text-slate-800 mb-3 text-sm">📱 Datos de Pago por Vendedor</h3>
+                  <p className="text-slate-600 text-xs mb-4">
+                    Realiza el pago según los datos de cada vendedor:
+                  </p>
+                  
+                  {/* Mostrar datos de pago de cada vendedor */}
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {carrito?.items && (() => {
                         // Agrupar items por vendedor
                         const vendedoresMap = {};
                         carrito.items.forEach(item => {
@@ -488,76 +477,57 @@ export default function Carrito() {
                         });
                         
                         return Object.values(vendedoresMap).map((grupo, index) => (
-                          <div key={grupo.vendedor.id} className="bg-white p-4 rounded-xl border border-slate-200">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
-                                  {grupo.vendedor.nombre?.charAt(0) || 'V'}
-                                </div>
-                                <div>
-                                  <p className="font-bold text-slate-800 text-sm">{grupo.vendedor.nombre} {grupo.vendedor.apellido}</p>
-                                  <p className="text-xs text-slate-500">{grupo.items.length} producto(s)</p>
-                                </div>
+                          <div key={grupo.vendedor.id} className="bg-slate-50 p-3 rounded-lg border border-slate-300">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">
+                                {grupo.vendedor.nombre?.charAt(0) || 'V'}
                               </div>
-                              <div className="text-right">
-                                <p className="font-bold text-blue-600">${grupo.subtotal.toFixed(2)}</p>
+                              <div className="flex-1">
+                                <p className="font-bold text-slate-900 text-xs">{grupo.vendedor.nombre}</p>
+                                <p className="text-xs text-slate-500">${grupo.subtotal.toFixed(2)}</p>
                               </div>
                             </div>
                             
-                            {/* QR de Deuna */}
-                            {grupo.vendedor.deunaQrUrl && (
-                              <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl mb-3">
-                                <p className="text-xs font-semibold text-purple-600 mb-2">📱 Escanea el QR con Deuna</p>
+                            {/* QR de Deuna - Se obtiene del primer producto del vendedor */}
+                            {grupo.items[0]?.producto?.deunaQrUrl ? (
+                              <div className="text-center p-2 bg-purple-50 rounded-lg mb-2">
+                                <p className="text-xs font-semibold text-purple-700 mb-2">📱 QR Deuna</p>
                                 <img 
-                                  src={grupo.vendedor.deunaQrUrl}
+                                  src={grupo.items[0].producto.deunaQrUrl}
                                   alt="QR Deuna"
-                                  className="max-w-[150px] mx-auto rounded-lg shadow-md"
+                                  className="max-w-[120px] mx-auto rounded"
                                 />
                               </div>
-                            )}
+                            ) : null}
                             
-                            {/* Número Deuna */}
-                            {grupo.vendedor.deunaNumero && (
-                              <div className="p-3 bg-blue-50 rounded-lg mb-3">
-                                <p className="text-xs font-semibold text-blue-600 mb-1">💳 Número Deuna</p>
-                                <p className="text-lg font-mono font-bold text-slate-800 select-all">
-                                  {grupo.vendedor.deunaNumero}
+                            {/* Número Deuna - Se obtiene del primer producto del vendedor */}
+                            {grupo.items[0]?.producto?.deunaNumero ? (
+                              <div className="p-2 bg-blue-50 rounded-lg mb-2">
+                                <p className="text-xs font-semibold text-blue-700 mb-1">💳 Número Deuna</p>
+                                <p className="text-sm font-mono font-bold text-slate-900 select-all bg-white p-1.5 rounded border border-blue-300">
+                                  {grupo.items[0].producto.deunaNumero}
                                 </p>
-                                <button 
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(grupo.vendedor.deunaNumero);
-                                    alert("Número copiado");
-                                  }}
-                                  className="mt-1 text-xs text-blue-600 hover:text-blue-700"
-                                >
-                                  📋 Copiar número
-                                </button>
                               </div>
-                            )}
+                            ) : null}
                             
                             {/* Datos bancarios */}
-                            {grupo.vendedor.bancoNombre && (
-                              <div className="p-3 bg-green-50 rounded-lg">
-                                <p className="text-xs font-semibold text-green-600 mb-1">🏦 Transferencia Bancaria</p>
-                                <div className="space-y-0.5 text-xs text-slate-700">
-                                  <p><span className="font-medium">Banco:</span> {grupo.vendedor.bancoNombre}</p>
-                                  <p><span className="font-medium">Cuenta:</span> {grupo.vendedor.bancoNumeroCuenta}</p>
-                                  <p><span className="font-medium">Tipo:</span> {grupo.vendedor.bancoTipoCuenta}</p>
-                                  <p><span className="font-medium">Titular:</span> {grupo.vendedor.nombre} {grupo.vendedor.apellido}</p>
+                            {grupo.vendedor.bancoNombre ? (
+                              <div className="p-4 bg-green-50 rounded-lg mb-4 border border-green-200">
+                                <p className="text-sm font-semibold text-green-700 mb-3">🏦 Transferencia Bancaria</p>
+                                <div className="space-y-2 text-sm text-slate-800 bg-white p-3 rounded border border-green-300">
+                                  <p><span className="font-bold">Banco:</span> {grupo.vendedor.bancoNombre}</p>
+                                  <p><span className="font-bold">Cuenta:</span> {grupo.vendedor.bancoNumeroCuenta}</p>
+                                  <p className="text-xs"><span className="font-bold">Banco:</span> {grupo.vendedor.bancoNombre}</p>
+                                  <p className="text-xs"><span className="font-bold">Cuenta:</span> {grupo.vendedor.bancoNumeroCuenta}</p>
                                 </div>
                               </div>
-                            )}
+                            ) : null}
                             
-                            {/* Si no tiene datos de pago */}
-                            {!grupo.vendedor.deunaQrUrl && !grupo.vendedor.deunaNumero && !grupo.vendedor.bancoNombre && (
-                              <div className="p-3 bg-yellow-50 rounded-lg text-center">
-                                <p className="text-xs text-yellow-700">⚠️ Este vendedor no ha configurado datos de pago</p>
-                                <button
-                                  onClick={() => nav(`/mensajes?vendedorId=${grupo.vendedor.id}`)}
-                                  className="mt-2 text-xs px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-                                >
-                                  💬 Contactar
-                                </button>
+                            {/* Si no tiene datos de pago configurados */}
+                            {!grupo.items[0]?.producto?.deunaQrUrl && !grupo.items[0]?.producto?.deunaNumero && !grupo.vendedor.bancoNombre && (
+                              <div className="p-2 bg-yellow-50 rounded-lg text-center border border-yellow-300">
+                                <p className="text-xs text-yellow-800 font-bold mb-1">⚠️ Sin datos de pago</p>
+                                <p className="text-xs text-yellow-700">Contáctalo para coordinar</p>
                               </div>
                             )}
                           </div>
@@ -565,22 +535,19 @@ export default function Carrito() {
                       })()}
                     </div>
                     
-                    <div className="mt-4 text-center">
-                      <div className="text-xs text-slate-500 bg-white p-3 rounded-lg border border-slate-200 inline-block">
-                        El pedido quedará en estado <strong>PENDIENTE</strong> hasta que subas el comprobante.
-                      </div>
+                    <div className="mt-3 text-xs text-slate-500 bg-blue-50 p-2 rounded border border-blue-200">
+                      Pedido: <strong>PENDIENTE</strong> hasta subir comprobante
                     </div>
-                  </div>
                 </div>
               )}
 
             </div>
 
-            {/* Footer Modal */}
-            <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+            {/* Footer Modal - FIXED */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2 flex-shrink-0">
               <button
                 onClick={() => setMostrarModalPago(false)}
-                className="px-6 py-3 rounded-xl font-bold text-slate-600 hover:bg-slate-200 transition-colors"
+                className="px-4 py-2 rounded-lg font-semibold text-slate-600 hover:bg-slate-200 transition-colors text-sm"
                 disabled={procesandoPago}
               >
                 Cancelar
@@ -588,20 +555,20 @@ export default function Carrito() {
               <button
                 onClick={confirmarPago}
                 disabled={procesandoPago}
-                className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all flex items-center gap-2 ${
+                className={`px-6 py-2 rounded-lg font-semibold text-white shadow-lg transition-all flex items-center gap-2 text-sm ${
                   procesandoPago 
                     ? "bg-slate-400 cursor-not-allowed" 
-                    : "bg-blue-600 hover:bg-blue-700 hover:scale-105 shadow-blue-500/30"
+                    : "bg-blue-600 hover:bg-blue-700 shadow-blue-500/30"
                 }`}
               >
                 {procesandoPago ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     Procesando...
                   </>
                 ) : (
                   <>
-                    {metodoPago === "TARJETA" ? `Pagar $${(carrito?.total || 0).toFixed(2)}` : "Confirmar Pedido"}
+                    {metodoPago === "TARJETA" ? `Pagar $${(carrito?.total || 0).toFixed(2)}` : "Confirmar"}
                   </>
                 )}
               </button>

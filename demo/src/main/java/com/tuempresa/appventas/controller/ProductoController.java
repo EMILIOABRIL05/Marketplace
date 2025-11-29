@@ -137,16 +137,21 @@ public class ProductoController {
             producto.setCantidad(cantidad);
             producto.setEstadoProducto(estadoProducto != null ? estadoProducto : "Nuevo");
             
-            // Guardar número Deuna
+            // Guardar número Deuna en el vendedor
             if (deunaNumero != null && !deunaNumero.isEmpty()) {
                 producto.setDeunaNumero(deunaNumero);
+                vendedor.setDeunaNumero(deunaNumero);
             }
 
-            // Guardar QR Deuna
+            // Guardar QR Deuna en el vendedor
             if (deunaQr != null && !deunaQr.isEmpty()) {
                 String qrUrl = guardarImagen(deunaQr);
                 producto.setDeunaQrUrl(qrUrl);
+                vendedor.setDeunaQrUrl(qrUrl);
             }
+
+            // Guardar cambios del vendedor
+            usuarioService.guardar(vendedor);
 
             // Guardar todas las imágenes
             List<String> imagenesUrls = new ArrayList<>();
@@ -193,6 +198,7 @@ public class ProductoController {
 
         try {
             Producto productoExistente = productoService.obtenerPorId(id);
+            Usuario vendedor = productoExistente.getVendedor();
 
             // Actualizar solo los campos que vienen en la request
             if (nombre != null) productoExistente.setNombre(nombre);
@@ -204,12 +210,21 @@ public class ProductoController {
             if (estado != null) productoExistente.setEstado(estado);
             if (cantidad != null && cantidad >= 0) productoExistente.setCantidad(cantidad);
             if (estadoProducto != null) productoExistente.setEstadoProducto(estadoProducto);
-            if (deunaNumero != null) productoExistente.setDeunaNumero(deunaNumero);
+            
+            // Actualizar datos de Deuna tanto en producto como en vendedor
+            if (deunaNumero != null) {
+                productoExistente.setDeunaNumero(deunaNumero);
+                vendedor.setDeunaNumero(deunaNumero);
+            }
             
             if (deunaQr != null && !deunaQr.isEmpty()) {
                 String qrUrl = guardarImagen(deunaQr);
                 productoExistente.setDeunaQrUrl(qrUrl);
+                vendedor.setDeunaQrUrl(qrUrl);
             }
+
+            // Guardar cambios del vendedor
+            usuarioService.guardar(vendedor);
 
             // Manejar imágenes si se envían
             if (imagenes != null && !imagenes.isEmpty()) {
