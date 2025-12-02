@@ -197,8 +197,7 @@ const GestionUsuarios = () => {
                 className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-700"
               >
                 <option value="todos">Todos</option>
-                <option value="USUARIO">Usuarios/Compradores</option>
-                <option value="VENDEDOR">Vendedores</option>
+                <option value="USUARIO">Usuarios</option>
                 <option value="MODERADOR">Moderadores</option>
                 <option value="ADMINISTRADOR">Administradores</option>
               </select>
@@ -324,7 +323,6 @@ const GestionUsuarios = () => {
                                 className="px-2 py-1 border border-slate-300 rounded-md text-xs bg-white text-slate-700"
                               >
                                 <option value="USUARIO">USUARIO</option>
-                                <option value="VENDEDOR">VENDEDOR</option>
                                 <option value="MODERADOR">MODERADOR</option>
                               </select>
                             </div>

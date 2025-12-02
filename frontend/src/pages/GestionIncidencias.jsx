@@ -97,6 +97,32 @@ const GestionIncidencias = () => {
     }
   };
 
+  const darDeBajaPublicacion = async (incidencia) => {
+    const nombreItem = obtenerNombreItem(incidencia) || 'publicación';
+    if (!window.confirm(`¿Dar de baja la ${nombreItem}? Se marcará como prohibida y la incidencia se cerrará.`)) {
+      return;
+    }
+
+    try {
+      if (incidencia.producto?.id) {
+        await api.put(`/productos/${incidencia.producto.id}/estado?nuevoEstado=PROHIBIDO`);
+      } else if (incidencia.servicio?.id) {
+        await api.put(`/servicios/${incidencia.servicio.id}/estado?nuevoEstado=PROHIBIDO`);
+      }
+
+      await api.put(`/incidencias/${incidencia.id}/resolver`, {
+        decision: 'PRODUCTO_PROHIBIDO',
+        comentario: 'Solicitud de moderación: publicación dada de baja directamente desde el panel.'
+      });
+
+      alert('Publicación dada de baja y incidencia resuelta.');
+      cargarIncidencias(false);
+    } catch (error) {
+      console.error('Error al dar de baja la publicación:', error);
+      alert('No se pudo dar de baja la publicación.');
+    }
+  };
+
   const asignarIncidencia = async (incidenciaId) => {
     try {
       await api.put(`/incidencias/${incidenciaId}/asignar`, {
@@ -420,6 +446,15 @@ const GestionIncidencias = () => {
                         className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition text-sm font-medium shadow-sm shadow-emerald-200"
                       >
                         Resolver
+                      </button>
+                    )}
+
+                    {(tipoUsuario === 'ADMINISTRADOR' || tipoUsuario === 'MODERADOR') && incidencia.estado !== 'RESUELTO' && (incidencia.producto || incidencia.servicio) && (
+                      <button
+                        onClick={() => darDeBajaPublicacion(incidencia)}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm shadow-red-200"
+                      >
+                        Dar de baja
                       </button>
                     )}
                   </div>
