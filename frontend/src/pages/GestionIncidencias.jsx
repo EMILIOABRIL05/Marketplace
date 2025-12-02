@@ -123,6 +123,32 @@ const GestionIncidencias = () => {
     }
   };
 
+  const descartarIncidencia = async (incidencia) => {
+    const nombreItem = obtenerNombreItem(incidencia) || 'publicación';
+    if (!window.confirm(`¿Descartar el reporte de ${nombreItem}? Se mantendrá activa y se cerrará la incidencia.`)) {
+      return;
+    }
+
+    try {
+      if (incidencia.producto?.id) {
+        await api.put(`/productos/${incidencia.producto.id}/estado?nuevoEstado=ACTIVO`);
+      } else if (incidencia.servicio?.id) {
+        await api.put(`/servicios/${incidencia.servicio.id}/estado?nuevoEstado=ACTIVO`);
+      }
+
+      await api.put(`/incidencias/${incidencia.id}/resolver`, {
+        decision: 'PRODUCTO_PERMITIDO',
+        comentario: 'Reporte descartado por el equipo de moderación.'
+      });
+
+      alert('Reporte descartado. La publicación permanece activa.');
+      cargarIncidencias(false);
+    } catch (error) {
+      console.error('Error al descartar la incidencia:', error);
+      alert('No se pudo descartar la incidencia.');
+    }
+  };
+
   const asignarIncidencia = async (incidenciaId) => {
     try {
       await api.put(`/incidencias/${incidenciaId}/asignar`, {
@@ -455,6 +481,15 @@ const GestionIncidencias = () => {
                         className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm shadow-red-200"
                       >
                         Dar de baja
+                      </button>
+                    )}
+
+                    {(tipoUsuario === 'ADMINISTRADOR' || tipoUsuario === 'MODERADOR') && incidencia.estado !== 'RESUELTO' && (
+                      <button
+                        onClick={() => descartarIncidencia(incidencia)}
+                        className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition text-sm font-medium shadow-sm"
+                      >
+                        Descartar reporte
                       </button>
                     )}
                   </div>
