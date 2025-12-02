@@ -168,4 +168,15 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    // CAMBIAR TIPO DE USUARIO (ADMIN)
+    @PutMapping("/{id}/tipo")
+    public ResponseEntity<?> cambiarTipoUsuario(@PathVariable Long id, @RequestParam String nuevoTipo) {
+        try {
+            Usuario usuario = usuarioService.cambiarTipoUsuario(id, nuevoTipo);
+            return ResponseEntity.ok(usuario);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

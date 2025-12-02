@@ -284,6 +284,20 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
+    // Cambiar tipo de usuario (solo para ADMIN)
+    public Usuario cambiarTipoUsuario(Long id, String nuevoTipo) {
+        if (!List.of("USUARIO", "VENDEDOR", "MODERADOR", "ADMINISTRADOR").contains(nuevoTipo)) {
+            throw new RuntimeException("Tipo inválido. Use USUARIO, VENDEDOR, MODERADOR o ADMINISTRADOR");
+        }
+
+        return usuarioRepository.findById(id)
+                .map(usuario -> {
+                    usuario.setTipoUsuario(nuevoTipo);
+                    return usuarioRepository.save(usuario);
+                })
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
     // Solicitar recuperación de contraseña
     public void solicitarRecuperacionPassword(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email);
