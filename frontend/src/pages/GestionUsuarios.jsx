@@ -34,6 +34,17 @@ const GestionUsuarios = () => {
     }
   };
 
+  const cambiarTipoUsuario = async (usuarioId, nuevoTipo) => {
+    try {
+      await api.put(`/usuarios/${usuarioId}/tipo?nuevoTipo=${nuevoTipo}`);
+      alert('Tipo de usuario actualizado correctamente');
+      cargarUsuarios();
+    } catch (error) {
+      console.error('Error al cambiar tipo de usuario:', error);
+      alert('Error al cambiar el tipo de usuario');
+    }
+  };
+
   const cambiarEstadoUsuario = async (usuarioId, nuevoEstado) => {
     try {
       await api.put(`/usuarios/${usuarioId}/estado?nuevoEstado=${nuevoEstado}`);
@@ -289,7 +300,7 @@ const GestionUsuarios = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         {u.tipoUsuario !== 'ADMINISTRADOR' && u.id !== usuario.id && (
-                          <div className="flex gap-3">
+                          <div className="flex items-center gap-4">
                             {u.estado !== 'ACTIVO' ? (
                               <button
                                 onClick={() => cambiarEstadoUsuario(u.id, 'ACTIVO')}
@@ -305,6 +316,18 @@ const GestionUsuarios = () => {
                                 Suspender
                               </button>
                             )}
+
+                            <div className="flex items-center gap-2">
+                              <select
+                                defaultValue={u.tipoUsuario}
+                                onChange={(e) => cambiarTipoUsuario(u.id, e.target.value)}
+                                className="px-2 py-1 border border-slate-300 rounded-md text-xs bg-white text-slate-700"
+                              >
+                                <option value="USUARIO">USUARIO</option>
+                                <option value="VENDEDOR">VENDEDOR</option>
+                                <option value="MODERADOR">MODERADOR</option>
+                              </select>
+                            </div>
                           </div>
                         )}
                       </td>

@@ -15,15 +15,28 @@ public class ReporteService {
     @Autowired
     private ReporteRepository reporteRepository;
 
+    @Autowired
+    private IncidenciaService incidenciaService;
+
     // Método para reportar productos
     public Reporte crearReporteProducto(Usuario usuario, Producto producto, String motivo, String descripcion) {
         Reporte reporte = new Reporte(usuario, producto, motivo, descripcion);
+        
+        // Crear también una incidencia para que aparezca en el panel de moderación
+        String descripcionCompleta = "Motivo: " + motivo + ". Detalles: " + descripcion;
+        incidenciaService.crearIncidenciaReporte(producto, usuario, descripcionCompleta);
+        
         return reporteRepository.save(reporte);
     }
 
     // 🆕 NUEVO: Método para reportar servicios
     public Reporte crearReporteServicio(Usuario usuario, Servicio servicio, String motivo, String descripcion) {
         Reporte reporte = new Reporte(usuario, servicio, motivo, descripcion);
+        
+        // Crear también una incidencia para que aparezca en el panel de moderación
+        String descripcionCompleta = "Motivo: " + motivo + ". Detalles: " + descripcion;
+        incidenciaService.crearIncidenciaReporte(servicio, usuario, descripcionCompleta);
+        
         return reporteRepository.save(reporte);
     }
 
